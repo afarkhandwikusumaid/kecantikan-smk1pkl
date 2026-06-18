@@ -1,0 +1,6 @@
+{
+  "name": "Jurusan Kecantikan dan Spa SMK 1 Pekalongan",
+  "description": "Website resmi dan edukatif Jurusan Kecantikan dan Spa (Beauty Academy & Spa) SMK Negeri 1 Pekalongan. Pusat keahlian kecantikan kulit, rambut, makeup artis, dan spa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
