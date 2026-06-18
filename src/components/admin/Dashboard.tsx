@@ -1,99 +1,234 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { Users, FileText, BookOpen, AlertCircle } from 'lucide-react';
+import {
+  FileText, Building2, BookOpen, Handshake, Users,
+  Image, TrendingUp, ArrowRight, Sparkles, Star
+} from 'lucide-react';
 
-export default function Dashboard() {
+interface StatCard {
+  label: string;
+  value: number;
+  icon: React.ElementType;
+  gradient: string;
+  iconBg: string;
+  iconColor: string;
+}
+
+interface RecentNews {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+}
+
+interface DashboardProps {
+  userEmail?: string;
+  setActiveTab?: (tab: string) => void;
+}
+
+export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
   const [stats, setStats] = useState({
-    curriculumCount: 0,
-    newsCount: 0,
-    galleryCount: 0
+    news: 0, gallery: 0, curriculum: 0, partnerships: 0, facilities: 0,
   });
+  const [recentNews, setRecentNews] = useState<RecentNews[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchAll = async () => {
+      setLoading(true);
       try {
-        // Fetch counts from different collections
-        // Note: For large collections, consider using aggregation queries instead
-        const curriculumSnapshot = await getDocs(collection(db, 'curriculum'));
-        const newsSnapshot = await getDocs(collection(db, 'news'));
-        const gallerySnapshot = await getDocs(collection(db, 'gallery'));
+        const [newsSnap, gallerySnap, currSnap, partnerSnap, facSnap] = await Promise.all([
+          getDocs(collection(db, 'news')),
+          getDocs(collection(db, 'gallery')),
+          getDocs(collection(db, 'curriculum')),
+          getDocs(collection(db, 'partnerships')),
+          getDocs(collection(db, 'facilities')),
+        ]);
 
         setStats({
-          curriculumCount: curriculumSnapshot.size,
-          newsCount: newsSnapshot.size,
-          galleryCount: gallerySnapshot.size
+          news: newsSnap.size,
+          gallery: gallerySnap.size,
+          curriculum: currSnap.size,
+          partnerships: partnerSnap.size,
+          facilities: facSnap.size,
         });
-      } catch (error) {
-        console.error("Error fetching stats:", error);
+
+        // Recent news
+        const newsData: RecentNews[] = newsSnap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as RecentNews))
+          .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+          .slice(0, 5);
+        setRecentNews(newsData);
+      } catch (e) {
+        console.error('Dashboard fetch error:', e);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchStats();
+    fetchAll();
   }, []);
 
-  if (loading) {
-    return <div className="text-gray-500">Memuat dashboard...</div>;
-  }
-
-  const statCards = [
-    { name: 'Mata Pelajaran', value: stats.curriculumCount, icon: BookOpen, color: 'text-blue-600', bgColor: 'bg-blue-100' },
-    { name: 'Berita & Pengumuman', value: stats.newsCount, icon: FileText, color: 'text-green-600', bgColor: 'bg-green-100' },
-    { name: 'Galeri Karya', value: stats.galleryCount, icon: Users, color: 'text-purple-600', bgColor: 'bg-purple-100' },
+  const statCards: StatCard[] = [
+    { label: 'Berita & Kegiatan', value: stats.news, icon: FileText, gradient: 'from-rose-500 to-pink-600', iconBg: 'bg-rose-100', iconColor: 'text-rose-600' },
+    { label: 'Galeri Foto', value: stats.gallery, icon: Image, gradient: 'from-violet-500 to-purple-600', iconBg: 'bg-violet-100', iconColor: 'text-violet-600' },
+    { label: 'Mata Pelajaran', value: stats.curriculum, icon: BookOpen, gradient: 'from-blue-500 to-indigo-600', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
+    { label: 'Mitra Industri', value: stats.partnerships, icon: Handshake, gradient: 'from-amber-500 to-orange-600', iconBg: 'bg-amber-100', iconColor: 'text-amber-600' },
+    { label: 'Fasilitas Praktik', value: stats.facilities, icon: Building2, gradient: 'from-emerald-500 to-teal-600', iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
   ];
+
+  const categoryColor: Record<string, string> = {
+    Akademik: 'bg-blue-100 text-blue-700',
+    Prestasi: 'bg-yellow-100 text-yellow-700',
+    Kegiatan: 'bg-green-100 text-green-700',
+    Pengumuman: 'bg-orange-100 text-orange-700',
+    Informasi: 'bg-purple-100 text-purple-700',
+  };
+
+  const firstName = userEmail?.split('@')[0] || 'Admin';
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 font-serif">Dashboard Overview</h1>
+      {/* Welcome Banner */}
+      <div className="relative rounded-2xl overflow-hidden p-6 md:p-8"
+        style={{ background: 'linear-gradient(135deg, #1a0e2e 0%, #2d1154 50%, #3d1a6e 100%)' }}>
+        <div className="absolute top-0 right-0 w-64 h-64 opacity-10"
+          style={{ background: 'radial-gradient(circle, #ec4899 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 left-32 w-40 h-40 opacity-10"
+          style={{ background: 'radial-gradient(circle, #a855f7 0%, transparent 70%)' }} />
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-5 h-5 text-pink-400" />
+              <span className="text-pink-300 text-sm font-medium">Selamat datang kembali</span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white capitalize">{firstName} 👋</h1>
+            <p className="text-slate-400 text-sm mt-1">Kelola konten website jurusan Kecantikan & SPA dari sini.</p>
+          </div>
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
+            <Star className="w-5 h-5 text-amber-400" />
+            <div>
+              <p className="text-white text-sm font-bold">Admin Portal</p>
+              <p className="text-slate-400 text-xs">SMK 1 Pekalongan</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Peringatan Konfigurasi Firestore */}
-      {(stats.curriculumCount === 0 && stats.newsCount === 0 && stats.galleryCount === 0) && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl flex items-start space-x-3">
-          <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
-          <div>
-            <h3 className="text-sm font-bold text-yellow-800">Data Kosong atau Firestore Belum Terkonfigurasi</h3>
-            <p className="text-sm text-yellow-700 mt-1">
-              Sepertinya koleksi data Anda masih kosong atau Firebase Firestore belum dikonfigurasi dengan benar. Pastikan Anda telah membuat database di Firebase Console dan menerapkan aturan keamanan (Security Rules) yang mengizinkan akses tulis/baca untuk admin.
-            </p>
-          </div>
+      {/* Stat Cards */}
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl p-5 animate-pulse border border-slate-100">
+              <div className="w-10 h-10 rounded-xl bg-slate-200 mb-3" />
+              <div className="h-6 w-12 bg-slate-200 rounded mb-1" />
+              <div className="h-3 w-20 bg-slate-100 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {statCards.map((card) => (
+            <div key={card.label} className="bg-white rounded-2xl p-5 border border-slate-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group cursor-default">
+              <div className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                <card.icon className={`w-5 h-5 ${card.iconColor}`} />
+              </div>
+              <p className="text-2xl font-bold text-slate-800">{card.value}</p>
+              <p className="text-xs text-slate-500 mt-0.5 leading-tight">{card.label}</p>
+            </div>
+          ))}
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {statCards.map((card) => (
-          <div key={card.name} className="bg-white overflow-hidden shadow rounded-xl border border-gray-100">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className={`p-3 rounded-lg ${card.bgColor}`}>
-                    <card.icon className={`h-6 w-6 ${card.color}`} aria-hidden="true" />
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">{card.name}</dt>
-                    <dd className="flex items-baseline">
-                      <div className="text-2xl font-semibold text-gray-900">{card.value}</div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent News */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-pink-500" />
+              <h2 className="font-bold text-slate-800 text-sm">Berita Terbaru</h2>
             </div>
+            {setActiveTab && (
+              <button onClick={() => setActiveTab('berita')} className="text-xs text-pink-500 hover:text-pink-700 font-medium flex items-center gap-1 transition-colors">
+                Lihat semua <ArrowRight className="w-3 h-3" />
+              </button>
+            )}
           </div>
-        ))}
+          <div className="divide-y divide-slate-50">
+            {recentNews.length === 0 ? (
+              <div className="p-8 text-center text-slate-400">
+                <FileText className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Belum ada berita yang dipublikasikan.</p>
+                {setActiveTab && (
+                  <button onClick={() => setActiveTab('berita')}
+                    className="mt-3 text-xs font-semibold text-pink-500 hover:underline">
+                    + Tambah Berita Pertama
+                  </button>
+                )}
+              </div>
+            ) : (
+              recentNews.map((item) => (
+                <div key={item.id} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50/60 transition-colors">
+                  <div className="w-2 h-2 rounded-full bg-pink-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-700 truncate">{item.title}</p>
+                    <p className="text-xs text-slate-400">{item.date}</p>
+                  </div>
+                  {item.category && (
+                    <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold ${categoryColor[item.category] || 'bg-slate-100 text-slate-500'}`}>
+                      {item.category}
+                    </span>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-pink-500" />
+            <h2 className="font-bold text-slate-800 text-sm">Akses Cepat</h2>
+          </div>
+          <div className="p-4 grid grid-cols-2 gap-3">
+            {[
+              { label: 'Tambah Berita', tab: 'berita', icon: FileText, color: 'from-rose-400 to-pink-500' },
+              { label: 'Upload Galeri', tab: 'galeri', icon: Image, color: 'from-violet-400 to-purple-500' },
+              { label: 'Data Fasilitas', tab: 'fasilitas', icon: Building2, color: 'from-emerald-400 to-teal-500' },
+              { label: 'Kelola Mitra', tab: 'partnership', icon: Handshake, color: 'from-amber-400 to-orange-500' },
+              { label: 'Data Kurikulum', tab: 'curriculum', icon: BookOpen, color: 'from-blue-400 to-indigo-500' },
+              { label: 'Prestasi Siswa', tab: 'prestasi', icon: Users, color: 'from-pink-400 to-rose-500' },
+            ].map((action) => (
+              <button
+                key={action.tab}
+                onClick={() => setActiveTab && setActiveTab(action.tab)}
+                className={`flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-br ${action.color} text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left group`}
+              >
+                <action.icon className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-semibold leading-tight">{action.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-      
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mt-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Panduan Penggunaan</h2>
-        <ul className="list-disc list-inside space-y-2 text-gray-600 text-sm">
-          <li>Gunakan tab <strong>Kurikulum</strong> untuk menambah dan mengedit daftar mata pelajaran dan silabus.</li>
-          <li>Gunakan tab <strong>Konten</strong> untuk mengelola berita pengumuman dan mengunggah foto-foto galeri karya siswi.</li>
-          <li>Pastikan Anda selalu <strong>Logout</strong> jika mengakses panel admin ini dari perangkat publik.</li>
+
+      {/* Panduan */}
+      <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-5 border border-pink-100">
+        <h3 className="font-bold text-slate-700 mb-3 text-sm">📌 Panduan Singkat</h3>
+        <ul className="space-y-1.5 text-sm text-slate-600">
+          <li className="flex items-start gap-2">
+            <span className="text-pink-400 font-bold flex-shrink-0">→</span>
+            Gunakan menu <strong>Konten & Info</strong> untuk posting berita dan mengelola galeri foto kegiatan.
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-pink-400 font-bold flex-shrink-0">→</span>
+            Kelola data DUDI (mitra PKL) dan lowongan kerja di menu <strong>Kemitraan & BKK</strong>.
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-pink-400 font-bold flex-shrink-0">→</span>
+            Pastikan selalu <strong>Logout</strong> jika menggunakan perangkat umum/bersama.
+          </li>
         </ul>
       </div>
     </div>

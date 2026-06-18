@@ -1,129 +1,273 @@
 import React, { useState } from 'react';
-import { LogOut, LayoutDashboard, BookOpen, Image as ImageIcon, Menu, X, Handshake } from 'lucide-react';
+import {
+  LogOut, LayoutDashboard, Menu, X, Handshake, ChevronDown, ChevronRight,
+  Building2, Newspaper, GraduationCap, Settings, Sparkles
+} from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
+
+interface NavSubItem {
+  id: string;
+  label: string;
+}
+
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  children?: NavSubItem[];
+}
 
 interface AdminLayoutProps {
   children: React.ReactNode;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  userEmail?: string;
 }
 
-export default function AdminLayout({ children, activeTab, setActiveTab, onLogout }: AdminLayoutProps) {
+const navItems: NavItem[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  {
+    id: 'profil', label: 'Profil Jurusan', icon: Building2,
+    children: [
+      { id: 'visi-misi', label: 'Visi & Misi' },
+      { id: 'fasilitas', label: 'Fasilitas Praktik' },
+      { id: 'guru', label: 'Direktori Guru' },
+    ],
+  },
+  {
+    id: 'konten', label: 'Konten & Info', icon: Newspaper,
+    children: [
+      { id: 'berita', label: 'Berita & Kegiatan' },
+      { id: 'pengumuman', label: 'Pengumuman' },
+      { id: 'galeri', label: 'Galeri' },
+    ],
+  },
+  {
+    id: 'akademik', label: 'Akademik & Siswa', icon: GraduationCap,
+    children: [
+      { id: 'curriculum', label: 'Kurikulum' },
+      { id: 'prestasi', label: 'Prestasi Siswa' },
+      { id: 'alumni', label: 'Testimoni Alumni' },
+    ],
+  },
+  {
+    id: 'kemitraan', label: 'Kemitraan & BKK', icon: Handshake,
+    children: [
+      { id: 'partnership', label: 'Mitra Industri' },
+      { id: 'lowongan', label: 'Lowongan Kerja' },
+    ],
+  },
+  {
+    id: 'settings', label: 'Pengaturan', icon: Settings,
+    children: [{ id: 'pengaturan', label: 'Kontak & Sosmed' }],
+  },
+];
+
+const getActiveLabel = (tab: string): string => {
+  for (const item of navItems) {
+    if (item.id === tab) return item.label;
+    if (item.children) {
+      const child = item.children.find((c) => c.id === tab);
+      if (child) return child.label;
+    }
+  }
+  return 'Dashboard';
+};
+
+const getActiveParent = (tab: string): string => {
+  for (const item of navItems) {
+    if (item.id === tab) return item.id;
+    if (item.children?.some((c) => c.id === tab)) return item.id;
+  }
+  return '';
+};
+
+export default function AdminLayout({ children, activeTab, setActiveTab, onLogout, userEmail }: AdminLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const activeParent = getActiveParent(activeTab);
+
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    navItems.forEach((item) => {
+      if (item.children) {
+        init[item.id] = item.children.some((c) => c.id === activeTab) || item.id === activeParent;
+      }
+    });
+    return init;
+  });
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      onLogout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    try { await signOut(auth); onLogout(); }
+    catch (error) { console.error('Logout error:', error); }
   };
 
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'curriculum', label: 'Kurikulum', icon: BookOpen },
-    { id: 'content', label: 'Konten', icon: ImageIcon },
-    { id: 'partnership', label: 'Kemitraan', icon: Handshake },
-  ];
+  const toggleMenu = (id: string) => {
+    setOpenMenus((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleTabClick = (id: string) => {
+    setActiveTab(id);
+    setIsMobileMenuOpen(false);
+  };
+
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      <div className="px-5 py-5 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-900/50 flex-shrink-0">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-white font-bold text-sm leading-tight">Admin Portal</p>
+            <p className="text-pink-300/70 text-[10px] leading-tight font-medium tracking-wide uppercase">Kecantikan & SPA</p>
+          </div>
+        </div>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        {navItems.map((item) => {
+          const isParentActive = item.id === activeParent || item.id === activeTab;
+          const isOpen = openMenus[item.id] ?? false;
+
+          if (!item.children) {
+            return (
+              <button key={item.id} onClick={() => handleTabClick(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                  activeTab === item.id
+                    ? 'bg-gradient-to-r from-pink-500/20 to-rose-500/10 text-pink-300 border border-pink-500/30'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}>
+                <item.icon className={`w-4 h-4 flex-shrink-0 ${activeTab === item.id ? 'text-pink-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                <span className="flex-1 text-left">{item.label}</span>
+                {activeTab === item.id && <span className="w-1.5 h-1.5 rounded-full bg-pink-400 flex-shrink-0" />}
+              </button>
+            );
+          }
+
+          return (
+            <div key={item.id}>
+              <button onClick={() => toggleMenu(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                  isParentActive ? 'text-pink-300 bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}>
+                <item.icon className={`w-4 h-4 flex-shrink-0 ${isParentActive ? 'text-pink-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                <span className="flex-1 text-left">{item.label}</span>
+                {isOpen
+                  ? <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                  : <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                }
+              </button>
+              {isOpen && (
+                <div className="mt-1 ml-3 pl-4 border-l border-white/10 space-y-0.5">
+                  {item.children!.map((child) => (
+                    <button key={child.id} onClick={() => handleTabClick(child.id)}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                        activeTab === child.id
+                          ? 'text-pink-300 bg-pink-500/15 border border-pink-500/20'
+                          : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
+                      }`}>
+                      {activeTab === child.id
+                        ? <span className="w-1.5 h-1.5 rounded-full bg-pink-400 flex-shrink-0" />
+                        : <span className="w-1.5 h-1.5 rounded-full border border-slate-600 flex-shrink-0" />
+                      }
+                      {child.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </nav>
+
+      <div className="p-4 border-t border-white/10 space-y-3">
+        <div className="flex items-center gap-3 px-2">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            {userEmail ? userEmail.charAt(0).toUpperCase() : 'A'}
+          </div>
+          <div className="min-w-0">
+            <p className="text-white text-xs font-semibold truncate">Administrator</p>
+            <p className="text-slate-500 text-[10px] truncate">{userEmail || 'admin@smk1pkl.sch.id'}</p>
+          </div>
+        </div>
+        <button onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 group">
+          <LogOut className="w-4 h-4 flex-shrink-0 group-hover:text-red-400" />
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar untuk Desktop */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200">
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <span className="text-lg font-serif font-bold text-pink-600">Admin Portal</span>
-        </div>
-        <div className="flex-1 overflow-y-auto py-4">
-          <nav className="space-y-1 px-3">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  activeTab === item.id
-                    ? 'bg-pink-50 text-pink-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                <item.icon
-                  className={`flex-shrink-0 -ml-1 mr-3 h-5 w-5 ${
-                    activeTab === item.id ? 'text-pink-600' : 'text-gray-400'
-                  }`}
-                />
-                <span className="truncate">{item.label}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
-        <div className="p-4 border-t border-gray-200">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600 transition-colors"
-          >
-            <LogOut className="flex-shrink-0 -ml-1 mr-3 h-5 w-5 text-gray-400" />
-            Logout
+    <div className="min-h-screen flex" style={{ background: '#f8f7fc' }}>
+      {/* Sidebar Desktop */}
+      <aside className="hidden md:flex flex-col w-64 flex-shrink-0"
+        style={{ background: 'linear-gradient(180deg, #1a0e2e 0%, #16091f 60%, #120818 100%)', boxShadow: '4px 0 24px rgba(0,0,0,0.3)' }}>
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setIsMobileMenuOpen(false)} />
+      )}
+
+      {/* Mobile Drawer */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col md:hidden transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ background: 'linear-gradient(180deg, #1a0e2e 0%, #16091f 60%, #120818 100%)', boxShadow: '4px 0 24px rgba(0,0,0,0.4)' }}>
+        <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-600 flex items-center justify-center shadow-lg">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-sm">Admin Portal</p>
+              <p className="text-pink-300/70 text-[10px] font-medium tracking-wide uppercase">Kecantikan & SPA</p>
+            </div>
+          </div>
+          <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10">
+            <X className="w-5 h-5" />
           </button>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <SidebarContent />
         </div>
       </aside>
 
-      {/* Konten Utama */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header Mobile */}
-        <header className="md:hidden bg-white border-b border-gray-200 flex items-center justify-between px-4 h-16">
-          <span className="text-lg font-serif font-bold text-pink-600">Admin Portal</span>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-pink-500"
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6" aria-hidden="true" />
-            ) : (
-              <Menu className="h-6 w-6" aria-hidden="true" />
-            )}
-          </button>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="h-14 flex items-center justify-between px-4 md:px-6 flex-shrink-0 border-b"
+          style={{ background: 'white', borderColor: '#ede8f5' }}>
+          <div className="flex items-center gap-3">
+            <button className="md:hidden p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              onClick={() => setIsMobileMenuOpen(true)}>
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-slate-400 hidden sm:block">Admin</span>
+              <span className="text-slate-300 hidden sm:block">/</span>
+              <span className="font-semibold text-slate-700">{getActiveLabel(activeTab)}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium"
+              style={{ background: '#fdf2f8', color: '#be185d', border: '1px solid #fce7f3' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Online
+            </div>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white text-xs font-bold">
+              {userEmail ? userEmail.charAt(0).toUpperCase() : 'A'}
+            </div>
+          </div>
         </header>
 
-        {/* Menu Mobile */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-b border-gray-200">
-            <nav className="px-2 pt-2 pb-3 space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center px-3 py-2 rounded-md text-base font-medium ${
-                    activeTab === item.id
-                      ? 'bg-pink-50 text-pink-600'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <item.icon className={`flex-shrink-0 -ml-1 mr-3 h-5 w-5 ${activeTab === item.id ? 'text-pink-600' : 'text-gray-400'}`} />
-                  {item.label}
-                </button>
-              ))}
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 mt-2"
-              >
-                <LogOut className="flex-shrink-0 -ml-1 mr-3 h-5 w-5 text-gray-400" />
-                Logout
-              </button>
-            </nav>
-          </div>
-        )}
-
-        {/* Area Konten Utama */}
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
-            </div>
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-4 md:p-6 lg:p-8">
+            {children}
           </div>
         </main>
       </div>
