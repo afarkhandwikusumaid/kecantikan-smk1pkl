@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  collection, getDocs, addDoc, deleteDoc, doc, updateDoc
+} from 'firebase/firestore';
+import { db } from '../../firebase';
 import { Plus, Trash2, Edit2, X, Users, Search } from 'lucide-react';
 
 interface Teacher {
@@ -9,38 +13,76 @@ interface Teacher {
   position: string;
 }
 
-let nextId = 1;
-const initialData: Teacher[] = [
-  { id: String(nextId++), name: 'Dra. Sri Wahyuningsih, M.Pd', nip: '196804231993032005', subject: 'Tata Kecantikan Kulit', position: 'Ketua Jurusan' },
-  { id: String(nextId++), name: 'Retno Kusumawati, S.Pd', nip: '197203151999032002', subject: 'Tata Kecantikan Rambut', position: 'Guru Kejuruan' },
-  { id: String(nextId++), name: 'Ika Permatasari, S.Pd', nip: '198505182009032007', subject: 'SPA & Perawatan Tubuh', position: 'Guru Kejuruan' },
-];
-
 const emptyForm = { name: '', nip: '', subject: '', position: '' };
 
 export default function TeacherManager() {
-  const [teachers, setTeachers] = useState<Teacher[]>(initialData);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [search, setSearch] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const openAdd = () => { setEditingId(null); setFormData(emptyForm); setShowModal(true); };
-  const openEdit = (t: Teacher) => { setEditingId(t.id); setFormData({ name: t.name, nip: t.nip, subject: t.subject, position: t.position }); setShowModal(true); };
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingId) {
-      setTeachers((prev) => prev.map((t) => t.id === editingId ? { ...t, ...formData } : t));
-    } else {
-      setTeachers((prev) => [...prev, { id: String(nextId++), ...formData }]);
+  const fetchTeachers = async () => {
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const snapshot = await getDocs(collection(db, 'teachers'));
+      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Teacher));
+      setTeachers(data);
+    } catch (e) {
+      console.error('Error fetching teachers:', e);
+      setErrorMsg('Gagal memuat data guru dari database.');
+    } finally {
+      setLoading(false);
     }
-    setShowModal(false);
   };
 
-  const handleDelete = (id: string) => {
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
+
+  const openAdd = () => {
+    setEditingId(null);
+    setFormData(emptyForm);
+    setErrorMsg('');
+    setShowModal(true);
+  };
+
+  const openEdit = (t: Teacher) => {
+    setEditingId(t.id);
+    setFormData({ name: t.name, nip: t.nip, subject: t.subject, position: t.position });
+    setErrorMsg('');
+    setShowModal(true);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'teachers', editingId), formData);
+      } else {
+        await addDoc(collection(db, 'teachers'), formData);
+      }
+      setShowModal(false);
+      fetchTeachers();
+    } catch (err) {
+      console.error('Error saving teacher:', err);
+      setErrorMsg('Gagal menyimpan data guru. Periksa rules Firestore.');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Hapus data guru ini?')) return;
-    setTeachers((prev) => prev.filter((t) => t.id !== id));
+    try {
+      await deleteDoc(doc(db, 'teachers', id));
+      fetchTeachers();
+    } catch (e) {
+      console.error('Error deleting teacher:', e);
+      alert('Gagal menghapus data guru.');
+    }
   };
 
   const filtered = teachers.filter((t) =>
@@ -71,50 +113,58 @@ export default function TeacherManager() {
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-slate-50" />
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-slate-50 text-left">
-                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Nama Guru</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">NIP</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Bidang Studi</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Jabatan</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filtered.length === 0 ? (
-                <tr><td colSpan={5} className="px-5 py-12 text-center text-slate-400">
-                  <Users className="w-10 h-10 mx-auto mb-2 opacity-30" /><p>Tidak ada data guru.</p>
-                </td></tr>
-              ) : (
-                filtered.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center text-pink-700 font-bold text-sm flex-shrink-0">
-                          {t.name.charAt(0)}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink-500 border-t-transparent" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            {errorMsg && <div className="p-4 bg-red-50 text-red-700 text-sm border-b border-red-100">{errorMsg}</div>}
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 text-left">
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Nama Guru</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">NIP</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Bidang Studi</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Jabatan</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filtered.length === 0 ? (
+                  <tr><td colSpan={5} className="px-5 py-12 text-center text-slate-400">
+                    <Users className="w-10 h-10 mx-auto mb-2 opacity-30" /><p>Tidak ada data guru.</p>
+                  </td></tr>
+                ) : (
+                  filtered.map((t) => (
+                    <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center text-pink-700 font-bold text-sm flex-shrink-0">
+                            {t.name.charAt(0)}
+                          </div>
+                          <span className="font-semibold text-slate-800">{t.name}</span>
                         </div>
-                        <span className="font-semibold text-slate-800">{t.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-slate-500 font-mono text-xs">{t.nip || '-'}</td>
-                    <td className="px-5 py-4">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">{t.subject}</span>
-                    </td>
-                    <td className="px-5 py-4 text-slate-600 text-sm">{t.position}</td>
-                    <td className="px-5 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => openEdit(t)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"><Edit2 className="w-4 h-4" /></button>
-                        <button onClick={() => handleDelete(t.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                      <td className="px-5 py-4 text-slate-500 font-mono text-xs">{t.nip || '-'}</td>
+                      <td className="px-5 py-4">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">{t.subject}</span>
+                      </td>
+                      <td className="px-5 py-4 text-slate-600 text-sm">{t.position}</td>
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => openEdit(t)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"><Edit2 className="w-4 h-4" /></button>
+                          <button onClick={() => handleDelete(t.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {showModal && (
@@ -125,6 +175,7 @@ export default function TeacherManager() {
               <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
+              {errorMsg && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Nama Lengkap</label>
                 <input type="text" required value={formData.name}

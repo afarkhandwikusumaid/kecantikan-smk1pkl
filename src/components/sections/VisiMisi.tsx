@@ -1,11 +1,74 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 interface VisiMisiProps {
   onNavigate: (sectionId: string) => void;
 }
 
+const defaultVisi = "Menjadi pelopor pendidikan vokasi kecantikan dan spa di tingkat nasional yang menghasilkan lulusan unggul, mandiri, berjiwa wirausaha, serta menguasai integrasi teknologi kosmetologi tropis modern yang berkarakter mulia pada tahun 2030.";
+const defaultMisi = [
+  {
+    title: "Penyelarasan Kurikulum Komprehensif (SKKNI)",
+    desc: "Menyelenggarakan proses pembelajaran berkualitas tinggi dengan standar kosmetik industri kecantikan nasional."
+  },
+  {
+    title: "Kemitraan Strategis Dunia Usaha (DUDI)",
+    desc: "Menjalin kerja sama penempatan praktik kerja industri (prakerin) di PT Mustika Ratu, Martha Tilaar Group, dan klinik estetika terpercaya."
+  },
+  {
+    title: "Penguatan Mental Kewirausahaan Tangguh",
+    desc: "Membekali siswa kemandirian berbisnis, analisis kosmetik dasar, serta profesionalisme pelayanan prima."
+  }
+];
+
 export default function VisiMisi({ onNavigate }: VisiMisiProps) {
+  const [visiText, setVisiText] = useState(defaultVisi);
+  const [misiList, setMisiList] = useState<{ title: string; desc: string }[]>(defaultMisi);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'visi-misi'));
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.visi) {
+            setVisiText(data.visi);
+          }
+          if (data.misi && Array.isArray(data.misi) && data.misi.length > 0) {
+            // If misi stored as array of strings, map them
+            const mapped = data.misi.map((m: string, i: number) => {
+              // Try to split on bold part if any, or just make it simple
+              const parts = m.split(':');
+              if (parts.length > 1) {
+                return { title: parts[0].trim(), desc: parts.slice(1).join(':').trim() };
+              }
+              // Try to split on double spaces or other cues, otherwise use default headings
+              const headings = [
+                "Program Unggulan",
+                "Karakter & Etika",
+                "Kemitraan Industri",
+                "Kewirausahaan Mandiri",
+                "Kesiapan Kerja Vokasi",
+                "Kompetensi Global",
+                "Inovasi Estetika"
+              ];
+              return {
+                title: headings[i] || `Misi Ke-${i + 1}`,
+                desc: m
+              };
+            });
+            setMisiList(mapped);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading Visi Misi on frontend:", err);
+      }
+    };
+    loadData();
+  }, []);
+
   return (
     <section className="py-24 bg-gradient-to-b from-white to-[#fffefe] border-t border-b border-pink-100/30 relative overflow-hidden">
       {/* Decorative background elements */}
@@ -50,7 +113,7 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
                 Pelopor Tata Kecantikan Vokasi Nasional
               </h3>
               <p className="text-pink-50 text-sm leading-relaxed italic font-light pt-2">
-                "Menjadi pelopor pendidikan vokasi kecantikan dan spa di tingkat nasional yang menghasilkan lulusan unggul, mandiri, berjiwa wirausaha, serta menguasai integrasi teknologi kosmetologi tropis modern yang berkarakter mulia pada tahun 2030."
+                "{visiText}"
               </p>
             </div>
             <div className="pt-8 flex items-center space-x-2.5 border-t border-white/20 mt-8 relative z-10">
@@ -77,35 +140,17 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
               </div>
 
               <div className="space-y-6 text-sm text-gray-700">
-                <div className="flex items-start space-x-4 group">
-                  <div className="w-8 h-8 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-sm shrink-0 border border-pink-100 transition-transform duration-300 group-hover:scale-110 group-hover:bg-pink-100">
-                    1
+                {misiList.map((m, idx) => (
+                  <div key={idx} className="flex items-start space-x-4 group">
+                    <div className="w-8 h-8 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-sm shrink-0 border border-pink-100 transition-transform duration-300 group-hover:scale-110 group-hover:bg-pink-100">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <strong className="text-gray-900 font-bold block text-base group-hover:text-pink-600 transition-colors">{m.title}</strong>
+                      <span className="text-gray-500 text-sm leading-relaxed block mt-1">{m.desc}</span>
+                    </div>
                   </div>
-                  <div>
-                    <strong className="text-gray-900 font-bold block text-base group-hover:text-pink-600 transition-colors">Penyelarasan Kurikulum Komprehensif (SKKNI)</strong>
-                    <span className="text-gray-500 text-sm leading-relaxed block mt-1">Menyelenggarakan proses pembelajaran berkualitas tinggi dengan standar kosmetik industri kecantikan nasional.</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4 group">
-                  <div className="w-8 h-8 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-sm shrink-0 border border-pink-100 transition-transform duration-300 group-hover:scale-110 group-hover:bg-pink-100">
-                    2
-                  </div>
-                  <div>
-                    <strong className="text-gray-900 font-bold block text-base group-hover:text-pink-600 transition-colors">Kemitraan Strategis Dunia Usaha (DUDI)</strong>
-                    <span className="text-gray-500 text-sm leading-relaxed block mt-1">Menjalin kerja sama penempatan praktik kerja industri (prakerin) di PT Mustika Ratu, Martha Tilaar Group, dan klinik estetika terpercaya.</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4 group">
-                  <div className="w-8 h-8 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-sm shrink-0 border border-pink-100 transition-transform duration-300 group-hover:scale-110 group-hover:bg-pink-100">
-                    3
-                  </div>
-                  <div>
-                    <strong className="text-gray-900 font-bold block text-base group-hover:text-pink-600 transition-colors">Penguatan Mental Kewirausahaan Tangguh</strong>
-                    <span className="text-gray-500 text-sm leading-relaxed block mt-1">Membekali siswa kemandirian berbisnis, analisis kosmetik dasar, serta profesionalisme pelayanan prima.</span>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 

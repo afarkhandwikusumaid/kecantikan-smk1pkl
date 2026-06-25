@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  collection, getDocs, addDoc, deleteDoc, doc, updateDoc
+} from 'firebase/firestore';
+import { db } from '../../firebase';
 import { Plus, Trash2, Edit2, X, GraduationCap, Quote, Search } from 'lucide-react';
 
 interface Alumni {
@@ -9,49 +13,78 @@ interface Alumni {
   testimonial: string;
 }
 
-let nextId = 1;
-const initialData: Alumni[] = [
-  {
-    id: String(nextId++), name: 'Siti Rahayu', graduationYear: '2022',
-    workplace: 'Martha Tilaar Salon, Semarang',
-    testimonial: 'Belajar di jurusan Kecantikan SMK 1 Pekalongan memberikan saya fondasi yang sangat kuat. Sekarang saya percaya diri bekerja di salon ternama!'
-  },
-  {
-    id: String(nextId++), name: 'Dewi Anggraeni', graduationYear: '2023',
-    workplace: 'Wirausaha Salon Kecantikan Mandiri',
-    testimonial: 'Ilmu yang didapat selama sekolah langsung bisa dipraktikkan. Saya bahkan bisa membuka usaha sendiri setelah lulus.'
-  },
-];
-
 const emptyForm = { name: '', graduationYear: '', workplace: '', testimonial: '' };
 
 export default function AlumniManager() {
-  const [items, setItems] = useState<Alumni[]>(initialData);
+  const [items, setItems] = useState<Alumni[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [search, setSearch] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const openAdd = () => { setEditingId(null); setFormData(emptyForm); setShowModal(true); };
-  const openEdit = (a: Alumni) => {
-    setEditingId(a.id);
-    setFormData({ name: a.name, graduationYear: a.graduationYear, workplace: a.workplace, testimonial: a.testimonial });
+  const fetchAlumni = async () => {
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const snapshot = await getDocs(collection(db, 'alumni'));
+      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Alumni));
+      // Sort by graduationYear descending
+      data.sort((a, b) => b.graduationYear.localeCompare(a.graduationYear));
+      setItems(data);
+    } catch (e) {
+      console.error('Error fetching alumni:', e);
+      setErrorMsg('Gagal memuat data alumni dari database.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAlumni();
+  }, []);
+
+  const openAdd = () => {
+    setEditingId(null);
+    setFormData(emptyForm);
+    setErrorMsg('');
     setShowModal(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingId) {
-      setItems((prev) => prev.map((i) => i.id === editingId ? { ...i, ...formData } : i));
-    } else {
-      setItems((prev) => [...prev, { id: String(nextId++), ...formData }]);
-    }
-    setShowModal(false);
+  const openEdit = (a: Alumni) => {
+    setEditingId(a.id);
+    setFormData({ name: a.name, graduationYear: a.graduationYear, workplace: a.workplace, testimonial: a.testimonial });
+    setErrorMsg('');
+    setShowModal(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'alumni', editingId), formData);
+      } else {
+        await addDoc(collection(db, 'alumni'), formData);
+      }
+      setShowModal(false);
+      fetchAlumni();
+    } catch (err) {
+      console.error('Error saving alumni:', err);
+      setErrorMsg('Gagal menyimpan data alumni. Periksa rules Firestore.');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Hapus data alumni ini?')) return;
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    try {
+      await deleteDoc(doc(db, 'alumni', id));
+      fetchAlumni();
+    } catch (e) {
+      console.error('Error deleting alumni:', e);
+      alert('Gagal menghapus data alumni.');
+    }
   };
 
   const filtered = items.filter((i) =>
@@ -83,46 +116,54 @@ export default function AlumniManager() {
           </div>
         </div>
 
-        <div className="p-5">
-          {filtered.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
-              <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-30" />
-              <p>Belum ada data alumni.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {filtered.map((item) => (
-                <div key={item.id} className="relative p-5 rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-50 to-pink-50/30 hover:shadow-md transition-shadow group">
-                  <Quote className="absolute top-4 right-4 w-8 h-8 text-pink-100" />
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-300 to-rose-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                      {item.name.charAt(0)}
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink-500 border-t-transparent" />
+          </div>
+        ) : (
+          <div className="p-5">
+            {errorMsg && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
+            {filtered.length === 0 ? (
+              <div className="text-center py-12 text-slate-400">
+                <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p>Belum ada data alumni.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {filtered.map((item) => (
+                  <div key={item.id} className="relative p-5 rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-50 to-pink-50/30 hover:shadow-md transition-shadow group">
+                    <Quote className="absolute top-4 right-4 w-8 h-8 text-pink-100" />
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-300 to-rose-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        {item.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800">{item.name}</p>
+                        <p className="text-xs text-slate-500">Lulusan {item.graduationYear} · {item.workplace}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-slate-800">{item.name}</p>
-                      <p className="text-xs text-slate-500">Lulusan {item.graduationYear} · {item.workplace}</p>
+                    <p className="text-sm text-slate-600 italic line-clamp-3">"{item.testimonial}"</p>
+                    <div className="flex justify-end gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openEdit(item)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"><Edit2 className="w-4 h-4" /></button>
+                      <button onClick={() => handleDelete(item.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600 italic line-clamp-3">"{item.testimonial}"</p>
-                  <div className="flex justify-end gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openEdit(item)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"><Edit2 className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(item.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <h3 className="font-bold text-slate-800">{editingId ? 'Edit Alumni' : 'Tambah Alumni Baru'}</h3>
               <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
+              {errorMsg && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Nama Alumni</label>

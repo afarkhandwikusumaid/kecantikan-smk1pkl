@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  collection, getDocs, addDoc, deleteDoc, doc, updateDoc
+} from 'firebase/firestore';
+import { db } from '../../firebase';
 import { Plus, Trash2, Edit2, X, Briefcase, Search, MapPin, Calendar } from 'lucide-react';
 
 interface JobVacancy {
@@ -11,46 +15,90 @@ interface JobVacancy {
   status: 'Buka' | 'Tutup';
 }
 
-let nextId = 1;
-const initialData: JobVacancy[] = [
-  {
-    id: String(nextId++), position: 'Beauty Therapist', company: 'Martha Tilaar Salon & Day Spa',
-    location: 'Semarang, Jawa Tengah', deadline: '2025-07-31', status: 'Buka',
-    description: 'Dicari beauty therapist berpengalaman untuk cabang Semarang. Diutamakan lulusan SMK Kecantikan.'
-  },
-];
-
 const emptyForm = {
-  position: '', company: '', location: '', deadline: '', description: '', status: 'Buka' as 'Buka' | 'Tutup'
+  position: '',
+  company: '',
+  location: '',
+  deadline: '',
+  description: '',
+  status: 'Buka' as 'Buka' | 'Tutup'
 };
 
 export default function JobVacancyManager() {
-  const [items, setItems] = useState<JobVacancy[]>(initialData);
+  const [items, setItems] = useState<JobVacancy[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [search, setSearch] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const openAdd = () => { setEditingId(null); setFormData(emptyForm); setShowModal(true); };
-  const openEdit = (j: JobVacancy) => {
-    setEditingId(j.id);
-    setFormData({ position: j.position, company: j.company, location: j.location, deadline: j.deadline, description: j.description, status: j.status });
+  const fetchJobs = async () => {
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const snapshot = await getDocs(collection(db, 'jobVacancies'));
+      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as JobVacancy));
+      // Sort: Open jobs first, then by deadline
+      data.sort((a, b) => {
+        if (a.status !== b.status) {
+          return a.status === 'Buka' ? -1 : 1;
+        }
+        return a.deadline.localeCompare(b.deadline);
+      });
+      setItems(data);
+    } catch (e) {
+      console.error('Error fetching jobs:', e);
+      setErrorMsg('Gagal memuat lowongan dari database.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const openAdd = () => {
+    setEditingId(null);
+    setFormData(emptyForm);
+    setErrorMsg('');
     setShowModal(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingId) {
-      setItems((prev) => prev.map((i) => i.id === editingId ? { ...i, ...formData } : i));
-    } else {
-      setItems((prev) => [...prev, { id: String(nextId++), ...formData }]);
-    }
-    setShowModal(false);
+  const openEdit = (j: JobVacancy) => {
+    setEditingId(j.id);
+    setFormData({ position: j.position, company: j.company, location: j.location, deadline: j.deadline, description: j.description, status: j.status });
+    setErrorMsg('');
+    setShowModal(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'jobVacancies', editingId), formData);
+      } else {
+        await addDoc(collection(db, 'jobVacancies'), formData);
+      }
+      setShowModal(false);
+      fetchJobs();
+    } catch (err) {
+      console.error('Error saving vacancy:', err);
+      setErrorMsg('Gagal menyimpan lowongan. Periksa rules Firestore.');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Hapus lowongan ini?')) return;
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    try {
+      await deleteDoc(doc(db, 'jobVacancies', id));
+      fetchJobs();
+    } catch (e) {
+      console.error('Error deleting vacancy:', e);
+      alert('Gagal menghapus lowongan.');
+    }
   };
 
   const filtered = items.filter((i) =>
@@ -82,52 +130,62 @@ export default function JobVacancyManager() {
           </div>
         </div>
 
-        <div className="p-5 space-y-3">
-          {filtered.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
-              <Briefcase className="w-10 h-10 mx-auto mb-2 opacity-30" />
-              <p>Belum ada lowongan kerja.</p>
-            </div>
-          ) : (
-            filtered.map((item) => (
-              <div key={item.id} className="flex items-start gap-4 p-4 rounded-2xl border border-slate-100 hover:border-pink-100 hover:bg-pink-50/20 transition-all group">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-purple-200 flex items-center justify-center flex-shrink-0">
-                  <Briefcase className="w-5 h-5 text-violet-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-bold text-slate-800">{item.position}</p>
-                      <p className="text-sm text-slate-600 font-medium">{item.company}</p>
-                    </div>
-                    <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold ${item.status === 'Buka' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {item.status}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-500">
-                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {item.location}</span>
-                    {item.deadline && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> Deadline: {item.deadline}</span>}
-                  </div>
-                  {item.description && <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{item.description}</p>}
-                </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                  <button onClick={() => openEdit(item)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"><Edit2 className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(item.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink-500 border-t-transparent" />
+          </div>
+        ) : (
+          <div className="p-5">
+            {errorMsg && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
+            {filtered.length === 0 ? (
+              <div className="text-center py-12 text-slate-400">
+                <Briefcase className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p>Belum ada lowongan kerja.</p>
               </div>
-            ))
-          )}
-        </div>
+            ) : (
+              <div className="space-y-3">
+                {filtered.map((item) => (
+                  <div key={item.id} className="flex items-start gap-4 p-4 rounded-2xl border border-slate-100 hover:border-pink-100 hover:bg-pink-50/20 transition-all group">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-purple-200 flex items-center justify-center flex-shrink-0">
+                      <Briefcase className="w-5 h-5 text-violet-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="font-bold text-slate-800">{item.position}</p>
+                          <p className="text-sm text-slate-600 font-medium">{item.company}</p>
+                        </div>
+                        <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold ${item.status === 'Buka' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {item.status}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-500">
+                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {item.location}</span>
+                        {item.deadline && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> Deadline: {item.deadline}</span>}
+                      </div>
+                      {item.description && <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{item.description}</p>}
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                      <button onClick={() => openEdit(item)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"><Edit2 className="w-4 h-4" /></button>
+                      <button onClick={() => handleDelete(item.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10">
               <h3 className="font-bold text-slate-800">{editingId ? 'Edit Lowongan' : 'Tambah Lowongan Baru'}</h3>
               <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
+              {errorMsg && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Posisi / Jabatan</label>
                 <input type="text" required value={formData.position}

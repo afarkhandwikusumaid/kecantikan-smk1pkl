@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { 
   Building, 
   Quote, 
@@ -15,88 +17,137 @@ import {
 } from 'lucide-react';
 import { Facility, Teacher } from '../../types';
 
+const defaultFacilities: Facility[] = [
+  {
+    id: "lab1",
+    name: "Laboratorium Skin Care Terpadu",
+    description: "Ruang praktik modern steril dengan AC penuh, dilengkapi 12 ranjang perawatan klinis (treatment beds), lampu Wood Analyzer untuk diagnosis kulit presisi, serta perangkat terapi ozon & sonoforesis ultrasound standar klinik kecantikan ternama.",
+    capacity: "Kapasitas 16 Siswi simultan",
+    image: "https://images.unsplash.com/photo-1521590832167-7bcbfeac2531?q=80&w=800",
+    equipment: ["Wood Lamp Diagnosis Kit", "Ultrasonic Face Scrubbers", "High-Frequency Glass Electrodes", "Skin Moisture Analyzers"]
+  },
+  {
+    id: "lab2",
+    name: "Studio Tata Rias & Paes Pengantin",
+    description: "Dilengkapi dengan meja rias kaca cermin keliling berlampu LED High Definition (HD Ring Lights), bar kosmetik lengkap dari brand mustika ratu & wardah, serta jajaran gaun pengantin adat lengkap untuk simulasi pagelaran MUA.",
+    capacity: "Kapasitas 20 Siswi simultan",
+    image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=800",
+    equipment: ["Dimmable Makeup Ring Lights", "Airbrush Compressor Kits", "Advanced Paes Paes Stencils", "Mannequin Face Planners"]
+  },
+  {
+    id: "lab3",
+    name: "Salon Hairdressing & Sanggul Lab",
+    description: "Didominasi stasiun keramas keramik mewah standar internasional, mesin pencuci rambut, hair steaming ozone otomatis, set gunting pivot point, serta jajaran wig dan manekin rambut untuk penguasaan guntingan & pewarnaan.",
+    capacity: "Kapasitas 24 Siswi simultan",
+    image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=800",
+    equipment: ["Ceramic Wash Stations", "Ozone Hair Steamer Machines", "Symmetric Shears & Blowers", "Keratin Coating Steam Irons"]
+  },
+  {
+    id: "lab4",
+    name: "Laboratorium Royal Javanese Spa",
+    description: "Menghadirkan suasana relaksasi tradisional berpencahayaan hangat temaram yang menyegarkan. Dilengkapi kasur spa aromatik kayu jati asli Pekalongan, kabin timbang sauna uap herbal, bath tub hidromassage, dan set hot stones.",
+    capacity: "Kapasitas 8 Siswi simultan",
+    image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800",
+    equipment: ["Teakwood Spa Massage Beds", "Herbal Steam Wood Cabins", "Thermal Stone Warmer Ovens", "Pedicure Hydro Foot Tubs"]
+  }
+];
+
+const defaultTeachers: Teacher[] = [
+  {
+    id: "t1",
+    name: "DRA. ENDANG SULASTRI, M.PD.",
+    role: "Ketua Komite Keahlian (K3)",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
+    certifications: ["Sertifikasi Asesor LSP Kecantikan", "Kualifikasi Martha Tilaar Advanced", "Uji Kompetensi Nasional Level IV"],
+    quote: "Estetika sejati lahir dari kedisiplinan tangan, presisi teknik, serta kelembutan hati melayani pelanggan."
+  },
+  {
+    id: "t2",
+    name: "SRI WAHYUNINGSIH, S.PD.",
+    role: "Sekretaris Komite Keahlian",
+    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400",
+    certifications: ["Sertifikat Pivot Point Internasional", "Trainer Hair-Design Mustika Ratu", "Lisensi Asesor LSP-P1"],
+    quote: "Rambut adalah mahkota. Di tangan siswi kami, mahkota tersebut dibentuk secara geometrik, presisi, dan sehat."
+  },
+  {
+    id: "t3",
+    name: "RIANA KARTIKA, S.ST.",
+    role: "Koordinator Unit TEFA (Eduspa)",
+    image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=400",
+    certifications: ["Juara 1 Paes Pengantin Jawa Tengah", "Sertifikasi Wardah Professional MUA", "Asesor Tata Rias Wajah"],
+    quote: "Setiap riasan adalah kanvas kepribadian. Kami melatih presisi sapuan kuas untuk merayakan kecantikan unik nusantara."
+  },
+  {
+    id: "t4",
+    name: "AYU LESTARI, S.PD.",
+    role: "Koordinator Hubungan Industri (Prakerin)",
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400",
+    certifications: ["Asesor LSP-P1 Kecantikan", "Sertifikasi Keratase Hairdresser", "Uji Kompetensi Nasional Level III"],
+    quote: "Keterampilan adalah paspor masa depan. Kemitraan industri global menjamin karier bersinar bagi lulusan unggul."
+  },
+  {
+    id: "t5",
+    name: "BUDI PRATAMA, M.SN.",
+    role: "Koordinator Sarana & Seni Rias Prada",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400",
+    certifications: ["Sertifikasi MUA Senior BNSP", "Seni Rupa Universitas Negeri Semarang", "Trainer Karakter Rias Panggung"],
+    quote: "Kreativitas panggung memperkaya khazanah tata rias modern melalui sentuhan kreasi lokal berdaya saing internasional."
+  }
+];
+
 export default function Fasilitas() {
   const [activeLabTab, setActiveLabTab] = useState<string>('lab1');
+  const [facilities, setFacilities] = useState<Facility[]>(defaultFacilities);
+  const [teachers, setTeachers] = useState<Teacher[]>(defaultTeachers);
 
-  const facilities: Facility[] = [
-    {
-      id: "lab1",
-      name: "Laboratorium Skin Care Terpadu",
-      description: "Ruang praktik modern steril dengan AC penuh, dilengkapi 12 ranjang perawatan klinis (treatment beds), lampu Wood Analyzer untuk diagnosis kulit presisi, serta perangkat terapi ozon & sonoforesis ultrasound standar klinik kecantikan ternama.",
-      capacity: "Kapasitas 16 Siswi simultan",
-      image: "https://images.unsplash.com/photo-1521590832167-7bcbfeac2531?q=80&w=800",
-      equipment: ["Wood Lamp Diagnosis Kit", "Ultrasonic Face Scrubbers", "High-Frequency Glass Electrodes", "Skin Moisture Analyzers"]
-    },
-    {
-      id: "lab2",
-      name: "Studio Tata Rias & Paes Pengantin",
-      description: "Dilengkapi dengan meja rias kaca cermin keliling berlampu LED High Definition (HD Ring Lights), bar kosmetik lengkap dari brand mustika ratu & wardah, serta jajaran gaun pengantin adat lengkap untuk simulasi pagelaran MUA.",
-      capacity: "Kapasitas 20 Siswi simultan",
-      image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=800",
-      equipment: ["Dimmable Makeup Ring Lights", "Airbrush Compressor Kits", "Advanced Paes Paes Stencils", "Mannequin Face Planners"]
-    },
-    {
-      id: "lab3",
-      name: "Salon Hairdressing & Sanggul Lab",
-      description: "Didominasi stasiun keramas keramik mewah standar internasional, mesin pencuci rambut, hair steaming ozone otomatis, set gunting pivot point, serta jajaran wig dan manekin rambut untuk penguasaan guntingan & pewarnaan.",
-      capacity: "Kapasitas 24 Siswi simultan",
-      image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=800",
-      equipment: ["Ceramic Wash Stations", "Ozone Hair Steamer Machines", "Symmetric Shears & Blowers", "Keratin Coating Steam Irons"]
-    },
-    {
-      id: "lab4",
-      name: "Laboratorium Royal Javanese Spa",
-      description: "Menghadirkan suasana relaksasi tradisional berpencahayaan hangat temaram yang menyegarkan. Dilengkapi kasur spa aromatik kayu jati asli Pekalongan, kabin timbang sauna uap herbal, bath tub hidromassage, dan set hot stones.",
-      capacity: "Kapasitas 8 Siswi simultan",
-      image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800",
-      equipment: ["Teakwood Spa Massage Beds", "Herbal Steam Wood Cabins", "Thermal Stone Warmer Ovens", "Pedicure Hydro Foot Tubs"]
-    }
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Load facilities
+        const facSnap = await getDocs(collection(db, 'facilities'));
+        if (!facSnap.empty) {
+          const loadedFacs = facSnap.docs.map((docItem) => {
+            const data = docItem.data();
+            return {
+              id: docItem.id,
+              name: data.name,
+              description: data.description,
+              capacity: data.capacity || 'Kapasitas 20 Siswi',
+              image: data.image || 'https://images.unsplash.com/photo-1521590832167-7bcbfeac2531?q=80&w=800',
+              equipment: data.equipment || ['Peralatan Praktik Standar']
+            } as Facility;
+          });
+          setFacilities(loadedFacs);
+          if (loadedFacs.length > 0) {
+            setActiveLabTab(loadedFacs[0].id);
+          }
+        }
 
-  const teachers: Teacher[] = [
-    {
-      id: "t1",
-      name: "DRA. ENDANG SULASTRI, M.PD.",
-      role: "Ketua Komite Keahlian (K3)",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
-      certifications: ["Sertifikasi Asesor LSP Kecantikan", "Kualifikasi Martha Tilaar Advanced", "Uji Kompetensi Nasional Level IV"],
-      quote: "Estetika sejati lahir dari kedisiplinan tangan, presisi teknik, serta kelembutan hati melayani pelanggan."
-    },
-    {
-      id: "t2",
-      name: "SRI WAHYUNINGSIH, S.PD.",
-      role: "Sekretaris Komite Keahlian",
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400",
-      certifications: ["Sertifikat Pivot Point Internasional", "Trainer Hair-Design Mustika Ratu", "Lisensi Asesor LSP-P1"],
-      quote: "Rambut adalah mahkota. Di tangan siswi kami, mahkota tersebut dibentuk secara geometrik, presisi, dan sehat."
-    },
-    {
-      id: "t3",
-      name: "RIANA KARTIKA, S.ST.",
-      role: "Koordinator Unit TEFA (Eduspa)",
-      image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=400",
-      certifications: ["Juara 1 Paes Pengantin Jawa Tengah", "Sertifikasi Wardah Professional MUA", "Asesor Tata Rias Wajah"],
-      quote: "Setiap riasan adalah kanvas kepribadian. Kami melatih presisi sapuan kuas untuk merayakan kecantikan unik nusantara."
-    },
-    {
-      id: "t4",
-      name: "AYU LESTARI, S.PD.",
-      role: "Koordinator Hubungan Industri (Prakerin)",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400",
-      certifications: ["Asesor LSP-P1 Kecantikan", "Sertifikasi Keratase Hairdresser", "Uji Kompetensi Nasional Level III"],
-      quote: "Keterampilan adalah paspor masa depan. Kemitraan industri global menjamin karier bersinar bagi lulusan unggul."
-    },
-    {
-      id: "t5",
-      name: "BUDI PRATAMA, M.SN.",
-      role: "Koordinator Sarana & Seni Rias Prada",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400",
-      certifications: ["Sertifikasi MUA Senior BNSP", "Seni Rupa Universitas Negeri Semarang", "Trainer Karakter Rias Panggung"],
-      quote: "Kreativitas panggung memperkaya khazanah tata rias modern melalui sentuhan kreasi lokal berdaya saing internasional."
-    }
-  ];
+        // Load teachers
+        const teachSnap = await getDocs(collection(db, 'teachers'));
+        if (!teachSnap.empty) {
+          const loadedTeachs = teachSnap.docs.map((docItem) => {
+            const data = docItem.data();
+            return {
+              id: docItem.id,
+              name: data.name,
+              role: data.position || data.role || 'Tenaga Pendidik',
+              image: data.image || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400',
+              certifications: data.certifications || [data.subject || 'Sertifikasi Kompetensi'],
+              quote: data.quote || 'Estetika sejati lahir dari kedisiplinan tangan, presisi teknik, serta kelembutan hati melayani.'
+            } as Teacher;
+          });
+          setTeachers(loadedTeachs);
+        }
+      } catch (err) {
+        console.error("Error loading facilities/teachers on frontend:", err);
+      }
+    };
+    loadData();
+  }, []);
 
   const activeLab = facilities.find(f => f.id === activeLabTab) || facilities[0];
+
 
   return (
     <section id="profil-dan-fasilitas" className="bg-[#fafafa] py-1">

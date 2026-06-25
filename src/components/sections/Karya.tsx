@@ -1,60 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { Sparkles, Eye, User, BookOpen, Heart, Award, ArrowRight, ExternalLink } from 'lucide-react';
 import { Project } from '../../types';
+
+const defaultProjects: Project[] = [
+  {
+    id: "proj1",
+    title: "Rias Pengantin Solo Putri Modifikasi",
+    studentName: "Fara Adelia Pramesti",
+    grade: "Kelas XII - Kecantikan 2",
+    category: "makeup",
+    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600",
+    description: "Mahakarya tata rias pengantin dengan Paes klasik gaya Surakarta Sala Putri, diberi sentuhan modern dewy look di bagian pipi. Dilengkapi hiasan melati ronce cunduk mentul yang presisi.",
+    productsUsed: ["Wardah Instaperfect Foundation", "Mustika Ratu Paes Kit", "Make Over Eyeshadow Palette"],
+    achievementBadge: "Juara 1 LKS Kota Pekalongan 2025"
+  },
+  {
+    id: "proj2",
+    title: "Sanggul Fantasi Siluet Lotus Mekar",
+    studentName: "Dian Wahyuni Ningtyas",
+    grade: "Kelas XII - Kecantikan 1",
+    category: "hair",
+    image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=600",
+    description: "Desain penataan rambut avant-garde bermotif bunga lotus mekar mandiri di atas sanggul Jawa klasik. Teknik sasak tinggi penahan beban tanpa jepit berlebihan.",
+    productsUsed: ["Rudy Hadisuwarno Styling Spray", "Makarizo Professional Hair Wax", "L'Oreal Elnett Satin"],
+    achievementBadge: "Juara Harapan 1 LKS Jawa Tengah 2025"
+  },
+  {
+    id: "proj3",
+    title: "Dermal Moisture-Lock bagi Kulit Dehidrasi",
+    studentName: "Amelia Saputri Hermawan",
+    grade: "Kelas XII - Kecantikan 2",
+    category: "skin",
+    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=600",
+    description: "Studi kasus klinis penanganan kulit wajah bersisik ekstrem akibat paparan AC berkepanjangan. Menggunakan elektroterapi Galvanic dan masker alginat peel-off teh hijau.",
+    productsUsed: ["Martha Tilaar Professional Serum", "Biokos Aloe Moisture Gel", "Skin Food Alginate Powder"],
+  },
+  {
+    id: "proj4",
+    title: "Ramuan Scrub Boreh Rempah Kuning Pekalongan",
+    studentName: "Ratih Sukma Ningrum",
+    grade: "Kelas XI - Kecantikan 1",
+    category: "spa",
+    image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=600",
+    description: "Formulasi scrub lulur basah organik menggabungkan rempah kencur Pekalongan, bubuk kopi Robusta, parutan kunyit, dan esens temulawak murni untuk detoksifikasi kulit sel mati.",
+    productsUsed: ["Bahan Alami Curcumae Radix", "Minyak Zaitun Mustika Ratu", "Aromaterapi Esensial Serai"],
+    achievementBadge: "Proyek Inovasi Ramuan Nusantara Terbaik"
+  }
+];
+
+const catMap: Record<string, 'makeup' | 'hair' | 'spa' | 'skin'> = {
+  'Praktik': 'skin',
+  'Prestasi': 'makeup',
+  'Kegiatan': 'spa',
+  'Fasilitas': 'hair',
+  'Wisuda': 'makeup'
+};
 
 export default function Karya() {
   const [filter, setFilter] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>(defaultProjects);
 
-  const projects: Project[] = [
-    {
-      id: "proj1",
-      title: "Rias Pengantin Solo Putri Modifikasi",
-      studentName: "Fara Adelia Pramesti",
-      grade: "Kelas XII - Kecantikan 2",
-      category: "makeup",
-      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600",
-      description: "Mahakarya tata rias pengantin dengan Paes klasik gaya Surakarta Sala Putri, diberi sentuhan modern dewy look di bagian pipi. Dilengkapi hiasan melati ronce cunduk mentul yang presisi.",
-      productsUsed: ["Wardah Instaperfect Foundation", "Mustika Ratu Paes Kit", "Make Over Eyeshadow Palette"],
-      achievementBadge: "Juara 1 LKS Kota Pekalongan 2025"
-    },
-    {
-      id: "proj2",
-      title: "Sanggul Fantasi Siluet Lotus Mekar",
-      studentName: "Dian Wahyuni Ningtyas",
-      grade: "Kelas XII - Kecantikan 1",
-      category: "hair",
-      image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=600",
-      description: "Desain penataan rambut avant-garde bermotif bunga lotus mekar mandiri di atas sanggul Jawa klasik. Teknik sasak tinggi penahan beban tanpa jepit berlebihan.",
-      productsUsed: ["Rudy Hadisuwarno Styling Spray", "Makarizo Professional Hair Wax", "L'Oreal Elnett Satin"],
-      achievementBadge: "Juara Harapan 1 LKS Jawa Tengah 2025"
-    },
-    {
-      id: "proj3",
-      title: "Dermal Moisture-Lock bagi Kulit Dehidrasi",
-      studentName: "Amelia Saputri Hermawan",
-      grade: "Kelas XII - Kecantikan 2",
-      category: "skin",
-      image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=600",
-      description: "Studi kasus klinis penanganan kulit wajah bersisik ekstrem akibat paparan AC berkepanjangan. Menggunakan elektroterapi Galvanic dan masker alginat peel-off teh hijau.",
-      productsUsed: ["Martha Tilaar Professional Serum", "Biokos Aloe Moisture Gel", "Skin Food Alginate Powder"],
-    },
-    {
-      id: "proj4",
-      title: "Ramuan Scrub Boreh Rempah Kuning Pekalongan",
-      studentName: "Ratih Sukma Ningrum",
-      grade: "Kelas XI - Kecantikan 1",
-      category: "spa",
-      image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=600",
-      description: "Formulasi scrub lulur basah organik menggabungkan rempah kencur Pekalongan, bubuk kopi Robusta, parutan kunyit, dan esens temulawak murni untuk detoksifikasi kulit sel mati.",
-      productsUsed: ["Bahan Alami Curcumae Radix", "Minyak Zaitun Mustika Ratu", "Aromaterapi Esensial Serai"],
-      achievementBadge: "Proyek Inovasi Ramuan Nusantara Terbaik"
-    }
-  ];
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'gallery'));
+        if (!snap.empty) {
+          const loadedProjects = snap.docs.map((docItem) => {
+            const data = docItem.data();
+            const category = catMap[data.category] || 'makeup';
+            return {
+              id: docItem.id,
+              title: data.title,
+              studentName: data.studentName || 'Karya Siswi',
+              grade: data.grade || 'Konsentrasi Keahlian',
+              category: category,
+              image: data.imageUrl || 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600',
+              description: data.description || `${data.title} - Dokumentasi unjuk karya di bidang keahlian Kecantikan dan SPA Pekalongan.`,
+              productsUsed: data.productsUsed || ["Kosmetik Standar Industri", "Alat Praktik TEFA"],
+              achievementBadge: data.achievementBadge || (data.category === 'Prestasi' ? 'Prestasi Unggulan' : undefined)
+            } as Project;
+          });
+          setProjects(loadedProjects);
+        }
+      } catch (err) {
+        console.error("Error loading gallery projects on frontend:", err);
+      }
+    };
+    loadProjects();
+  }, []);
 
   const filteredProjects = filter === 'all' 
     ? projects 
     : projects.filter(p => p.category === filter);
+
 
   return (
     <section id="karya" className="py-20 md:py-28 bg-white">
