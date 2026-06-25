@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase';
+import React, { useState } from 'react';
 import { 
   Building, 
   Quote, 
@@ -97,54 +95,8 @@ const defaultTeachers: Teacher[] = [
 
 export default function Fasilitas() {
   const [activeLabTab, setActiveLabTab] = useState<string>('lab1');
-  const [facilities, setFacilities] = useState<Facility[]>(defaultFacilities);
-  const [teachers, setTeachers] = useState<Teacher[]>(defaultTeachers);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load facilities
-        const facSnap = await getDocs(collection(db, 'facilities'));
-        if (!facSnap.empty) {
-          const loadedFacs = facSnap.docs.map((docItem) => {
-            const data = docItem.data();
-            return {
-              id: docItem.id,
-              name: data.name,
-              description: data.description,
-              capacity: data.capacity || 'Kapasitas 20 Siswi',
-              image: data.image || 'https://images.unsplash.com/photo-1521590832167-7bcbfeac2531?q=80&w=800',
-              equipment: data.equipment || ['Peralatan Praktik Standar']
-            } as Facility;
-          });
-          setFacilities(loadedFacs);
-          if (loadedFacs.length > 0) {
-            setActiveLabTab(loadedFacs[0].id);
-          }
-        }
-
-        // Load teachers
-        const teachSnap = await getDocs(collection(db, 'teachers'));
-        if (!teachSnap.empty) {
-          const loadedTeachs = teachSnap.docs.map((docItem) => {
-            const data = docItem.data();
-            return {
-              id: docItem.id,
-              name: data.name,
-              role: data.position || data.role || 'Tenaga Pendidik',
-              image: data.image || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400',
-              certifications: data.certifications || [data.subject || 'Sertifikasi Kompetensi'],
-              quote: data.quote || 'Estetika sejati lahir dari kedisiplinan tangan, presisi teknik, serta kelembutan hati melayani.'
-            } as Teacher;
-          });
-          setTeachers(loadedTeachs);
-        }
-      } catch (err) {
-        console.error("Error loading facilities/teachers on frontend:", err);
-      }
-    };
-    loadData();
-  }, []);
+  const facilities = defaultFacilities;
+  const teachers = defaultTeachers;
 
   const activeLab = facilities.find(f => f.id === activeLabTab) || facilities[0];
 

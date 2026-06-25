@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
 
 interface VisiMisiProps {
   onNavigate: (sectionId: string) => void;
@@ -24,50 +22,9 @@ const defaultMisi = [
 ];
 
 export default function VisiMisi({ onNavigate }: VisiMisiProps) {
-  const [visiText, setVisiText] = useState(defaultVisi);
-  const [misiList, setMisiList] = useState<{ title: string; desc: string }[]>(defaultMisi);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const snap = await getDoc(doc(db, 'settings', 'visi-misi'));
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data.visi) {
-            setVisiText(data.visi);
-          }
-          if (data.misi && Array.isArray(data.misi) && data.misi.length > 0) {
-            // If misi stored as array of strings, map them
-            const mapped = data.misi.map((m: string, i: number) => {
-              // Try to split on bold part if any, or just make it simple
-              const parts = m.split(':');
-              if (parts.length > 1) {
-                return { title: parts[0].trim(), desc: parts.slice(1).join(':').trim() };
-              }
-              // Try to split on double spaces or other cues, otherwise use default headings
-              const headings = [
-                "Program Unggulan",
-                "Karakter & Etika",
-                "Kemitraan Industri",
-                "Kewirausahaan Mandiri",
-                "Kesiapan Kerja Vokasi",
-                "Kompetensi Global",
-                "Inovasi Estetika"
-              ];
-              return {
-                title: headings[i] || `Misi Ke-${i + 1}`,
-                desc: m
-              };
-            });
-            setMisiList(mapped);
-          }
-        }
-      } catch (err) {
-        console.error("Error loading Visi Misi on frontend:", err);
-      }
-    };
-    loadData();
-  }, []);
+  const visiText = defaultVisi;
+  const misiList = defaultMisi;
 
   return (
     <section className="py-24 bg-gradient-to-b from-white to-[#fffefe] border-t border-b border-pink-100/30 relative overflow-hidden">

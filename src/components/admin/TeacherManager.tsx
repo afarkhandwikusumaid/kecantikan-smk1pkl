@@ -1,8 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import {
-  collection, getDocs, addDoc, deleteDoc, doc, updateDoc
-} from 'firebase/firestore';
-import { db } from '../../firebase';
+import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, X, Users, Search } from 'lucide-react';
 
 interface Teacher {
@@ -15,74 +11,44 @@ interface Teacher {
 
 const emptyForm = { name: '', nip: '', subject: '', position: '' };
 
+const defaultTeachers: Teacher[] = [
+  { id: 't1', name: 'Dra. Hj. Wahyu Astuti', nip: '19680312 199403 2 004', subject: 'Etika Pelayanan & Beauty Service Excellence', position: 'Ketua Konsentrasi Keahlian' },
+  { id: 't2', name: 'Sri Mulyani, S.Pd.', nip: '19750824 200212 2 003', subject: 'Anatomi Fisiologi Kulit & Formulasi Kosmetik', position: 'Sekretaris Jurusan' },
+  { id: 't3', name: 'Rini Widowati, S.S.T', nip: '19841102 201001 2 008', subject: 'Terapi Spa Tubuh & Pijat Tradisional Nusantara', position: 'Koordinator Unit TEFA Eduspa Salon' },
+];
+
 export default function TeacherManager() {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [teachers, setTeachers] = useState<Teacher[]>(defaultTeachers);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [search, setSearch] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-
-  const fetchTeachers = async () => {
-    setLoading(true);
-    setErrorMsg('');
-    try {
-      const snapshot = await getDocs(collection(db, 'teachers'));
-      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Teacher));
-      setTeachers(data);
-    } catch (e) {
-      console.error('Error fetching teachers:', e);
-      setErrorMsg('Gagal memuat data guru dari database.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTeachers();
-  }, []);
 
   const openAdd = () => {
     setEditingId(null);
     setFormData(emptyForm);
-    setErrorMsg('');
     setShowModal(true);
   };
 
   const openEdit = (t: Teacher) => {
     setEditingId(t.id);
     setFormData({ name: t.name, nip: t.nip, subject: t.subject, position: t.position });
-    setErrorMsg('');
     setShowModal(true);
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg('');
-    try {
-      if (editingId) {
-        await updateDoc(doc(db, 'teachers', editingId), formData);
-      } else {
-        await addDoc(collection(db, 'teachers'), formData);
-      }
-      setShowModal(false);
-      fetchTeachers();
-    } catch (err) {
-      console.error('Error saving teacher:', err);
-      setErrorMsg('Gagal menyimpan data guru. Periksa rules Firestore.');
+    if (editingId) {
+      setTeachers(prev => prev.map(t => t.id === editingId ? { ...t, ...formData } : t));
+    } else {
+      setTeachers(prev => [...prev, { id: `t-${Date.now()}`, ...formData }]);
     }
+    setShowModal(false);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!window.confirm('Hapus data guru ini?')) return;
-    try {
-      await deleteDoc(doc(db, 'teachers', id));
-      fetchTeachers();
-    } catch (e) {
-      console.error('Error deleting teacher:', e);
-      alert('Gagal menghapus data guru.');
-    }
+    setTeachers(prev => prev.filter(t => t.id !== id));
   };
 
   const filtered = teachers.filter((t) =>
@@ -114,14 +80,8 @@ export default function TeacherManager() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink-500 border-t-transparent" />
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            {errorMsg && <div className="p-4 bg-red-50 text-red-700 text-sm border-b border-red-100">{errorMsg}</div>}
-            <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
               <thead>
                 <tr className="bg-slate-50 text-left">
                   <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Nama Guru</th>
@@ -164,7 +124,6 @@ export default function TeacherManager() {
               </tbody>
             </table>
           </div>
-        )}
       </div>
 
       {showModal && (
@@ -175,7 +134,6 @@ export default function TeacherManager() {
               <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
-              {errorMsg && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Nama Lengkap</label>
                 <input type="text" required value={formData.name}

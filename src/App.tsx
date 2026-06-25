@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, limit } from 'firebase/firestore';
-import { db } from './firebase';
 import Header from './components/layout/Header';
 import Hero from './components/sections/Hero';
 import Sambutan from './components/sections/Sambutan';
@@ -22,32 +20,10 @@ import AdminApp from './components/admin/AdminApp';
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>('beranda');
   const [isAdminRoute, setIsAdminRoute] = useState(false);
-  const [firebaseNews, setFirebaseNews] = useState<any[]>([]);
-
   useEffect(() => {
     if (window.location.pathname.startsWith('/admin')) {
       setIsAdminRoute(true);
     }
-    
-    const fetchNews = async () => {
-      try {
-        const q = query(collection(db, 'news'), limit(3));
-        const snapshot = await getDocs(q);
-        const fetchedNews: any[] = [];
-        snapshot.forEach(doc => {
-          fetchedNews.push({ id: doc.id, ...doc.data() });
-        });
-        if (fetchedNews.length > 0) {
-          setFirebaseNews(fetchedNews);
-        } else {
-          setFirebaseNews(homeNews);
-        }
-      } catch (err) {
-        console.error("Error fetching news:", err);
-        setFirebaseNews(homeNews);
-      }
-    };
-    fetchNews();
   }, []);
 
   // Scroll to top on page navigate to simulate multi-page routing
@@ -100,7 +76,7 @@ export default function App() {
 
               {/* News Grid (3 cols) from data */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {firebaseNews.map((news) => (
+                {homeNews.map((news) => (
                   <div 
                     key={news.id}
                     onClick={() => handleNavigate('dokumentasi')}

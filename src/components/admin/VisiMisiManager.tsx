@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import React, { useState } from 'react';
 import { Save, Eye, FileText } from 'lucide-react';
 
 const defaultVisi = 'Menjadi jurusan kecantikan unggulan yang menghasilkan tenaga ahli kecantikan dan spa yang profesional, berkarakter, dan berjiwa wirausaha, serta mampu bersaing di tingkat nasional maupun internasional.';
@@ -15,47 +13,13 @@ const defaultMisi = [
 export default function VisiMisiManager() {
   const [visi, setVisi] = useState(defaultVisi);
   const [misi, setMisi] = useState<string[]>(defaultMisi);
-  const [loading, setLoading] = useState(true);
   const [newMisi, setNewMisi] = useState('');
   const [saved, setSaved] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
 
-  const fetchVisiMisi = async () => {
-    setLoading(true);
-    setErrorMsg('');
-    try {
-      const docSnap = await getDoc(doc(db, 'settings', 'visi-misi'));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.visi) setVisi(data.visi);
-        if (data.misi && Array.isArray(data.misi)) setMisi(data.misi);
-      }
-    } catch (e) {
-      console.error('Error fetching Visi & Misi:', e);
-      setErrorMsg('Gagal memuat data Visi & Misi dari database.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchVisiMisi();
-  }, []);
-
-  const handleSave = async () => {
-    setErrorMsg('');
-    try {
-      await setDoc(doc(db, 'settings', 'visi-misi'), {
-        visi,
-        misi
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch (err) {
-      console.error('Error saving Visi & Misi:', err);
-      setErrorMsg('Gagal menyimpan Visi & Misi. Periksa rules Firestore.');
-    }
+  const handleSave = () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
   };
 
   const addMisi = () => {
@@ -81,7 +45,6 @@ export default function VisiMisiManager() {
             <Eye className="w-4 h-4" /> {preview ? 'Edit' : 'Preview'}
           </button>
           <button onClick={handleSave}
-            disabled={loading}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg transition-all ${saved ? 'bg-green-500 shadow-green-200' : 'shadow-pink-200 hover:scale-105 active:scale-95'}`}
             style={!saved ? { background: 'linear-gradient(135deg, #ec4899, #be185d)' } : {}}>
             <Save className="w-4 h-4" /> {saved ? 'Tersimpan!' : 'Simpan'}
@@ -89,13 +52,7 @@ export default function VisiMisiManager() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink-500 border-t-transparent" />
-        </div>
-      ) : (
-        <div>
-          {errorMsg && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
+      <div>
           
           {preview ? (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 space-y-6">
@@ -169,7 +126,6 @@ export default function VisiMisiManager() {
             </div>
           )}
         </div>
-      )}
     </div>
   );
 }

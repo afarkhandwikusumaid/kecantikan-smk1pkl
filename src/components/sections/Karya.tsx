@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase';
+import React, { useState } from 'react';
 import { Sparkles, Eye, User, BookOpen, Heart, Award, ArrowRight, ExternalLink } from 'lucide-react';
 import { Project } from '../../types';
 
@@ -61,36 +59,7 @@ const catMap: Record<string, 'makeup' | 'hair' | 'spa' | 'skin'> = {
 export default function Karya() {
   const [filter, setFilter] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [projects, setProjects] = useState<Project[]>(defaultProjects);
-
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        const snap = await getDocs(collection(db, 'gallery'));
-        if (!snap.empty) {
-          const loadedProjects = snap.docs.map((docItem) => {
-            const data = docItem.data();
-            const category = catMap[data.category] || 'makeup';
-            return {
-              id: docItem.id,
-              title: data.title,
-              studentName: data.studentName || 'Karya Siswi',
-              grade: data.grade || 'Konsentrasi Keahlian',
-              category: category,
-              image: data.imageUrl || 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600',
-              description: data.description || `${data.title} - Dokumentasi unjuk karya di bidang keahlian Kecantikan dan SPA Pekalongan.`,
-              productsUsed: data.productsUsed || ["Kosmetik Standar Industri", "Alat Praktik TEFA"],
-              achievementBadge: data.achievementBadge || (data.category === 'Prestasi' ? 'Prestasi Unggulan' : undefined)
-            } as Project;
-          });
-          setProjects(loadedProjects);
-        }
-      } catch (err) {
-        console.error("Error loading gallery projects on frontend:", err);
-      }
-    };
-    loadProjects();
-  }, []);
+  const projects = defaultProjects;
 
   const filteredProjects = filter === 'all' 
     ? projects 

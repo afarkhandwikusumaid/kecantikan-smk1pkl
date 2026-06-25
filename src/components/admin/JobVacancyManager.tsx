@@ -1,8 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import {
-  collection, getDocs, addDoc, deleteDoc, doc, updateDoc
-} from 'firebase/firestore';
-import { db } from '../../firebase';
+import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, X, Briefcase, Search, MapPin, Calendar } from 'lucide-react';
 
 interface JobVacancy {
@@ -24,81 +20,43 @@ const emptyForm = {
   status: 'Buka' as 'Buka' | 'Tutup'
 };
 
+const defaultData: JobVacancy[] = [
+  { id: 'j1', position: 'Beauty Consultant & Therapist', company: 'Larissa Aesthetic Center Pekalongan', location: 'Kota Pekalongan', deadline: '2026-08-30', description: 'Dibutuhkan alumni Jurusan Kecantikan yang jujur, komunikatif, dan terampil dalam facial treatment.', status: 'Buka' },
+  { id: 'j2', position: 'Aesthetician Assistant', company: 'Naavagreen Estetika', location: 'Kab. Batang', deadline: '2026-07-15', description: 'Membantu operasional treatment wajah dasar di bawah pengawasan dokter penanggung jawab klinik.', status: 'Buka' },
+];
+
 export default function JobVacancyManager() {
-  const [items, setItems] = useState<JobVacancy[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<JobVacancy[]>(defaultData);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [search, setSearch] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-
-  const fetchJobs = async () => {
-    setLoading(true);
-    setErrorMsg('');
-    try {
-      const snapshot = await getDocs(collection(db, 'jobVacancies'));
-      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as JobVacancy));
-      // Sort: Open jobs first, then by deadline
-      data.sort((a, b) => {
-        if (a.status !== b.status) {
-          return a.status === 'Buka' ? -1 : 1;
-        }
-        return a.deadline.localeCompare(b.deadline);
-      });
-      setItems(data);
-    } catch (e) {
-      console.error('Error fetching jobs:', e);
-      setErrorMsg('Gagal memuat lowongan dari database.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchJobs();
-  }, []);
 
   const openAdd = () => {
     setEditingId(null);
     setFormData(emptyForm);
-    setErrorMsg('');
     setShowModal(true);
   };
 
   const openEdit = (j: JobVacancy) => {
     setEditingId(j.id);
     setFormData({ position: j.position, company: j.company, location: j.location, deadline: j.deadline, description: j.description, status: j.status });
-    setErrorMsg('');
     setShowModal(true);
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg('');
-    try {
-      if (editingId) {
-        await updateDoc(doc(db, 'jobVacancies', editingId), formData);
-      } else {
-        await addDoc(collection(db, 'jobVacancies'), formData);
-      }
-      setShowModal(false);
-      fetchJobs();
-    } catch (err) {
-      console.error('Error saving vacancy:', err);
-      setErrorMsg('Gagal menyimpan lowongan. Periksa rules Firestore.');
+    if (editingId) {
+      setItems(prev => prev.map(i => i.id === editingId ? { ...i, ...formData } : i));
+    } else {
+      setItems(prev => [{ id: `j-${Date.now()}`, ...formData }, ...prev]);
     }
+    setShowModal(false);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!window.confirm('Hapus lowongan ini?')) return;
-    try {
-      await deleteDoc(doc(db, 'jobVacancies', id));
-      fetchJobs();
-    } catch (e) {
-      console.error('Error deleting vacancy:', e);
-      alert('Gagal menghapus lowongan.');
-    }
+    setItems(prev => prev.filter(i => i.id !== id));
   };
 
   const filtered = items.filter((i) =>
@@ -130,13 +88,7 @@ export default function JobVacancyManager() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink-500 border-t-transparent" />
-          </div>
-        ) : (
           <div className="p-5">
-            {errorMsg && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
             {filtered.length === 0 ? (
               <div className="text-center py-12 text-slate-400">
                 <Briefcase className="w-10 h-10 mx-auto mb-2 opacity-30" />
@@ -174,18 +126,16 @@ export default function JobVacancyManager() {
               </div>
             )}
           </div>
-        )}
       </div>
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10">
               <h3 className="font-bold text-slate-800">{editingId ? 'Edit Lowongan' : 'Tambah Lowongan Baru'}</h3>
               <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
-              {errorMsg && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Posisi / Jabatan</label>
                 <input type="text" required value={formData.position}
