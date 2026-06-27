@@ -57,7 +57,7 @@ export default function Hero({ onNavigate }: HeroProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* Left Column: Bold Titles, UDINUS Inspired Structure */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-8 order-2 lg:order-1">
             
             {/* Round Program Tag with Pink highlight */}
             <div className="inline-flex items-center space-x-2 bg-pink-50/70 border border-pink-100/60 px-4 py-2 rounded-full text-pink-700 text-xs font-semibold tracking-wide animate-fade-in">
@@ -154,7 +154,7 @@ export default function Hero({ onNavigate }: HeroProps) {
           </div>
 
           {/* Right Column: Hero Slider Frame - reference matched style */}
-          <div className="lg:col-span-5 relative w-full flex items-center justify-center">
+          <div className="lg:col-span-5 relative w-full flex items-center justify-center order-1 lg:order-2">
             <div className="relative w-full aspect-[4/3] sm:aspect-[1.4] lg:aspect-[1.12] rounded-[2rem] overflow-hidden border border-gray-100 shadow-lg group">
               
               {/* Active Image slide */}
@@ -175,12 +175,6 @@ export default function Hero({ onNavigate }: HeroProps) {
                 
                 {/* Decorative dark overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent pointer-events-none" />
-              </div>
-
-              {/* Floating Star / Prestige Badge */}
-              <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm border border-pink-100/30 shadow-md rounded-xl px-3 py-1.5 flex items-center space-x-1.5 z-10">
-                <Sparkles className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-                <span className="text-sm font-black text-gray-800 uppercase tracking-widest">Sekolah Hebat</span>
               </div>
 
               {/* Floating Slide Info Box - Clean white card reference match */}

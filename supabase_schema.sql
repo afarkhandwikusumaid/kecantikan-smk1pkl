@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS teachers CASCADE;
 DROP TABLE IF EXISTS curriculum CASCADE;
 DROP TABLE IF EXISTS services CASCADE;
 DROP TABLE IF EXISTS site_settings CASCADE;
+DROP TABLE IF EXISTS certificates CASCADE;
 
 -- 1. TABEL PENGATURAN SITUS (site_settings)
 -- Digunakan untuk menyimpan teks profil, visi-misi, kontak, dan data tunggal lainnya.
