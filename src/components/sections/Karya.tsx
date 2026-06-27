@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Eye, User, BookOpen, Heart, Award, ArrowRight, ExternalLink } from 'lucide-react';
 import { Project } from '../../types';
+import { supabase } from '../../lib/supabase';
 
 const defaultProjects: Project[] = [
   {
@@ -48,18 +49,57 @@ const defaultProjects: Project[] = [
   }
 ];
 
-const catMap: Record<string, 'makeup' | 'hair' | 'spa' | 'skin'> = {
-  'Praktik': 'skin',
-  'Prestasi': 'makeup',
-  'Kegiatan': 'spa',
-  'Fasilitas': 'hair',
-  'Wisuda': 'makeup'
-};
-
 export default function Karya() {
   const [filter, setFilter] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const projects = defaultProjects;
+  const [projects, setProjects] = useState<Project[]>(defaultProjects);
+
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const { data, error } = await supabase
+          .from('galleries')
+          .select('*')
+          .order('date', { ascending: false });
+        
+        if (data && data.length > 0) {
+          const studentWorks = data.filter((item: any) => 
+            ['Praktik', 'Prestasi', 'Wisuda'].includes(item.category)
+          );
+
+          if (studentWorks.length > 0) {
+            const mapped = studentWorks.map((item: any) => {
+              let cat: 'makeup' | 'hair' | 'skin' | 'spa' = 'makeup';
+              const titleLower = item.title.toLowerCase();
+              if (titleLower.includes('rambut') || titleLower.includes('sanggul') || titleLower.includes('hair')) {
+                cat = 'hair';
+              } else if (titleLower.includes('kulit') || titleLower.includes('facial') || titleLower.includes('dermal') || titleLower.includes('wajah')) {
+                cat = 'skin';
+              } else if (titleLower.includes('spa') || titleLower.includes('pijat') || titleLower.includes('massage') || titleLower.includes('body')) {
+                cat = 'spa';
+              }
+
+              return {
+                id: item.id,
+                title: item.title,
+                studentName: "Karya Siswi Vokasi",
+                grade: "Kelas XII - Eduspa",
+                category: cat,
+                image: item.image_url,
+                description: `Kajian analisis praktik dan unjuk kreativitas estetik bertema ${item.title}. Diselaraskan dengan standar keahlian industri kecantikan.`,
+                productsUsed: ["Mustika Ratu", "Wardah", "Makarizo"],
+                achievementBadge: item.category === 'Prestasi' ? "Karya Prestasi Terbaik" : undefined
+              };
+            });
+            setProjects(mapped);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching student projects from Supabase:', err);
+      }
+    }
+    fetchProjects();
+  }, []);
 
   const filteredProjects = filter === 'all' 
     ? projects 
@@ -72,7 +112,7 @@ export default function Karya() {
         
         {/* Title Section */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <p className="text-[10px] tracking-[0.2em] font-extrabold text-pink-600 uppercase">
+          <p className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase">
             STUDENT PORTFOLIO EXHIBITION
           </p>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 leading-tight">
@@ -125,13 +165,13 @@ export default function Karya() {
                   />
                   
                   {project.achievementBadge && (
-                    <div className="absolute top-3 left-3 bg-yellow-400 text-gray-950 text-[10px] font-extrabold px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
+                    <div className="absolute top-3 left-3 bg-yellow-400 text-gray-950 text-sm font-extrabold px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
                       <Award className="w-3.5 h-3.5 text-gray-950 fill-gray-500" />
                       <span>{project.achievementBadge}</span>
                     </div>
                   )}
 
-                  <div className="absolute bottom-3 right-3 bg-pink-500 text-white px-2.5 py-1 rounded-md text-[9px] font-bold tracking-wider uppercase shadow-sm">
+                  <div className="absolute bottom-3 right-3 bg-pink-500 text-white px-2.5 py-1 rounded-md text-xs font-bold tracking-wider uppercase shadow-sm">
                     {project.category}
                   </div>
                 </div>
@@ -159,10 +199,10 @@ export default function Karya() {
               <div className="mt-5 pt-3.5 border-t border-pink-100 px-2 flex flex-wrap items-center justify-between gap-3 text-xs">
                 {/* Brands utilized */}
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-gray-400">Kasus:</span>
+                  <span className="text-sm text-gray-400">Kasus:</span>
                   <div className="flex flex-wrap gap-1">
                     {project.productsUsed.slice(0, 2).map((prod, i) => (
-                      <span key={i} className="bg-pink-50 text-pink-750 text-pink-700 font-extrabold text-[9px] uppercase px-2 py-0.5 rounded border border-pink-100">
+                      <span key={i} className="bg-pink-50 text-pink-750 text-pink-700 font-extrabold text-xs uppercase px-2 py-0.5 rounded border border-pink-100">
                         {prod.split(' ')[0]}
                       </span>
                     ))}
@@ -172,7 +212,7 @@ export default function Karya() {
                 <button
                   id={`btn-view-project-${project.id}`}
                   onClick={() => setSelectedProject(project)}
-                  className="bg-white border border-pink-100 hover:bg-pink-50 text-pink-600 font-bold text-[11px] px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1 cursor-pointer shadow-sm"
+                  className="bg-white border border-pink-100 hover:bg-pink-50 text-pink-600 font-bold text-base px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1 cursor-pointer shadow-sm"
                 >
                   <span>Analisis Kasus</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -192,7 +232,7 @@ export default function Karya() {
               {/* Header */}
               <div className="flex justify-between items-start border-b border-pink-100 pb-4">
                 <div>
-                  <span className="text-[10px] tracking-wider uppercase text-pink-600 font-extrabold flex items-center gap-1">
+                  <span className="text-sm tracking-wider uppercase text-pink-600 font-extrabold flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
                     Kajian Kompetensi Siswa SMK Negeri 1
                   </span>
@@ -239,7 +279,7 @@ export default function Karya() {
 
               {/* Case text */}
               <div className="space-y-3 font-normal text-xs leading-relaxed text-gray-600">
-                <h5 className="font-bold text-gray-900 uppercase tracking-widest text-[10px] flex items-center">
+                <h5 className="font-bold text-gray-900 uppercase tracking-widest text-sm flex items-center">
                   <BookOpen className="w-3.5 h-3.5 text-pink-500 mr-1.5" />
                   Keterangan Kasus &amp; Tantangan Riasan
                 </h5>
@@ -250,7 +290,7 @@ export default function Karya() {
 
               {/* Inventory tools list */}
               <div className="space-y-2.5">
-                <h5 className="font-bold text-gray-900 text-[10px] uppercase tracking-widest">
+                <h5 className="font-bold text-gray-900 text-sm uppercase tracking-widest">
                   Produk &amp; Alat Profesional Kosmetik:
                 </h5>
                 <div className="flex flex-wrap gap-2 text-xs">

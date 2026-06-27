@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  collection, getDocs, addDoc, deleteDoc, doc, updateDoc
-} from 'firebase/firestore';
-import { db } from '../../firebase';
 import { Plus, Trash2, Edit2, X, Building2, Search, CheckCircle, AlertCircle } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface Facility {
   id: string;
@@ -26,61 +23,83 @@ export default function FacilityManager() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
-  const [errorMsg, setErrorMsg] = useState('');
   const [search, setSearch] = useState('');
 
   const fetchFacilities = async () => {
-    setLoading(true);
     try {
-      const snapshot = await getDocs(collection(db, 'facilities'));
-      const data: Facility[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Facility));
-      setFacilities(data);
-    } catch (e) {
-      console.error(e);
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('facilities')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setFacilities(data || []);
+    } catch (err: any) {
+      console.error('Error fetching facilities:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchFacilities(); }, []);
+  useEffect(() => {
+    fetchFacilities();
+  }, []);
 
   const openAdd = () => {
     setEditingId(null);
     setFormData(emptyForm);
-    setErrorMsg('');
     setShowModal(true);
   };
 
   const openEdit = (item: Facility) => {
     setEditingId(item.id);
-    setFormData({ name: item.name, description: item.description, capacity: item.capacity, status: item.status });
-    setErrorMsg('');
+    setFormData({ name: item.name, description: item.description || '', capacity: item.capacity || '', status: item.status });
     setShowModal(true);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg('');
     try {
       if (editingId) {
-        await updateDoc(doc(db, 'facilities', editingId), formData);
+        const { error } = await supabase
+          .from('facilities')
+          .update({
+            name: formData.name,
+            description: formData.description,
+            capacity: formData.capacity,
+            status: formData.status
+          })
+          .eq('id', editingId);
+        if (error) throw error;
       } else {
-        await addDoc(collection(db, 'facilities'), formData);
+        const { error } = await supabase
+          .from('facilities')
+          .insert({
+            name: formData.name,
+            description: formData.description,
+            capacity: formData.capacity,
+            status: formData.status
+          });
+        if (error) throw error;
       }
       setShowModal(false);
       fetchFacilities();
-    } catch (err: any) {
-      setErrorMsg('Gagal menyimpan. Periksa Firestore rules.');
+    } catch (error: any) {
+      alert('Gagal menyimpan fasilitas: ' + error.message);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Hapus fasilitas ini?')) return;
     try {
-      await deleteDoc(doc(db, 'facilities', id));
+      const { error } = await supabase
+        .from('facilities')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
       fetchFacilities();
-    } catch (e) {
-      console.error(e);
+    } catch (error: any) {
+      alert('Gagal menghapus fasilitas: ' + error.message);
     }
   };
 
@@ -99,7 +118,7 @@ export default function FacilityManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Fasilitas Praktik</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Kelola data fasilitas laboratorium dan ruang praktik</p>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola data fasilitas laboratorium (Data Dinamis FE-Only)</p>
         </div>
         <button
           onClick={openAdd}
@@ -117,7 +136,7 @@ export default function FacilityManager() {
             <input
               type="text" placeholder="Cari fasilitas..." value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-slate-50"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-slate-50 text-black"
             />
           </div>
         </div>
@@ -188,12 +207,11 @@ export default function FacilityManager() {
               </button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
-              {errorMsg && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Nama Fasilitas</label>
                 <input type="text" required value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black"
                   placeholder="Misal: Lab Kecantikan Kulit" />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -201,14 +219,14 @@ export default function FacilityManager() {
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Kapasitas</label>
                   <input type="text" value={formData.capacity}
                     onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black"
                     placeholder="Misal: 20 Orang" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
                   <select value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
+                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black">
                     <option>Aktif</option>
                     <option>Perbaikan</option>
                     <option>Tidak Aktif</option>
@@ -219,7 +237,7 @@ export default function FacilityManager() {
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Deskripsi</label>
                 <textarea rows={3} value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none"
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none bg-white text-black"
                   placeholder="Deskripsi singkat fasilitas..." />
               </div>
               <div className="flex justify-end gap-3 pt-2">

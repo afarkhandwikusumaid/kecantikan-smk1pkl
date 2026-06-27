@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import {
-  LogOut, LayoutDashboard, Menu, X, Handshake, ChevronDown, ChevronRight,
+  LogOut, LayoutDashboard, Menu, X, ChevronDown, ChevronRight,
   Building2, Newspaper, GraduationCap, Settings, Sparkles
 } from 'lucide-react';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { supabase } from '../../lib/supabase';
 
 interface NavSubItem {
   id: string;
@@ -32,36 +31,36 @@ const navItems: NavItem[] = [
     id: 'profil', label: 'Profil Jurusan', icon: Building2,
     children: [
       { id: 'visi-misi', label: 'Visi & Misi' },
+      { id: 'sambutan', label: 'Sambutan Jurusan' },
       { id: 'fasilitas', label: 'Fasilitas Praktik' },
       { id: 'guru', label: 'Direktori Guru' },
+      { id: 'mitra', label: 'Kemitraan Industri' },
     ],
   },
   {
-    id: 'konten', label: 'Konten & Info', icon: Newspaper,
-    children: [
-      { id: 'berita', label: 'Berita & Kegiatan' },
-      { id: 'pengumuman', label: 'Pengumuman' },
-      { id: 'galeri', label: 'Galeri' },
-    ],
-  },
-  {
-    id: 'akademik', label: 'Akademik & Siswa', icon: GraduationCap,
+    id: 'akademik', label: 'Akademik', icon: GraduationCap,
     children: [
       { id: 'curriculum', label: 'Kurikulum' },
-      { id: 'prestasi', label: 'Prestasi Siswa' },
-      { id: 'alumni', label: 'Testimoni Alumni' },
+      { id: 'karir', label: 'Peluang Karir' },
     ],
   },
   {
-    id: 'kemitraan', label: 'Kemitraan & BKK', icon: Handshake,
+    id: 'unggulan', label: 'Program Unggulan', icon: Sparkles,
     children: [
-      { id: 'partnership', label: 'Mitra Industri' },
-      { id: 'lowongan', label: 'Lowongan Kerja' },
+      { id: 'eduspa', label: 'Layanan Eduspa' },
+    ],
+  },
+  {
+    id: 'konten', label: 'Informasi & Galeri', icon: Newspaper,
+    children: [
+      { id: 'berita', label: 'Berita & Pengumuman' },
+      { id: 'galeri', label: 'Karya & Dokumentasi' },
+      { id: 'faq', label: 'Tanya Jawab (FAQ)' },
     ],
   },
   {
     id: 'settings', label: 'Pengaturan', icon: Settings,
-    children: [{ id: 'pengaturan', label: 'Kontak & Sosmed' }],
+    children: [{ id: 'pengaturan', label: 'Pengaturan Umum' }],
   },
 ];
 
@@ -99,8 +98,12 @@ export default function AdminLayout({ children, activeTab, setActiveTab, onLogou
   });
 
   const handleLogout = async () => {
-    try { await signOut(auth); onLogout(); }
-    catch (error) { console.error('Logout error:', error); }
+    try { 
+      await supabase.auth.signOut(); 
+      onLogout(); 
+    } catch (error) { 
+      console.error('Logout error:', error); 
+    }
   };
 
   const toggleMenu = (id: string) => {
@@ -121,7 +124,7 @@ export default function AdminLayout({ children, activeTab, setActiveTab, onLogou
           </div>
           <div>
             <p className="text-white font-bold text-sm leading-tight">Admin Portal</p>
-            <p className="text-pink-300/70 text-[10px] leading-tight font-medium tracking-wide uppercase">Kecantikan & SPA</p>
+            <p className="text-pink-300/70 text-sm leading-tight font-medium tracking-wide uppercase">Kecantikan & SPA</p>
           </div>
         </div>
       </div>
@@ -189,7 +192,7 @@ export default function AdminLayout({ children, activeTab, setActiveTab, onLogou
           </div>
           <div className="min-w-0">
             <p className="text-white text-xs font-semibold truncate">Administrator</p>
-            <p className="text-slate-500 text-[10px] truncate">{userEmail || 'admin@smk1pkl.sch.id'}</p>
+            <p className="text-slate-500 text-sm truncate">{userEmail || 'admin@smk1pkl.sch.id'}</p>
           </div>
         </div>
         <button onClick={handleLogout}
@@ -226,7 +229,7 @@ export default function AdminLayout({ children, activeTab, setActiveTab, onLogou
             </div>
             <div>
               <p className="text-white font-bold text-sm">Admin Portal</p>
-              <p className="text-pink-300/70 text-[10px] font-medium tracking-wide uppercase">Kecantikan & SPA</p>
+              <p className="text-pink-300/70 text-sm font-medium tracking-wide uppercase">Kecantikan & SPA</p>
             </div>
           </div>
           <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10">

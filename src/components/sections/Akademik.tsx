@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Compass, 
   Briefcase, 
@@ -17,15 +17,85 @@ import {
 import { 
   curriculumFoundations, 
   legalBases, 
-  curriculumSyllabus, 
-  careerProfiles 
+  curriculumSyllabus 
 } from '../../data';
+import { supabase } from '../../lib/supabase';
 
 export default function Akademik() {
   const [selectedClassTab, setSelectedClassTab] = useState<'all' | 'X' | 'XI' | 'XII'>('all');
+  const [visiText, setVisiText] = useState("Menjadi rujukan utama pendidikan vokasi estetika kecantikan kulit dan terapi spa nasional yang berkarakter agung, menguasai ilmu kosmetologi, dan berjiwa industri modern.");
+  const [misiList, setMisiList] = useState<string[]>([
+    "Menyelenggarakan proses pembelajaran berbasis teknologi elektro dermal medik dasar.",
+    "Mengembangkan unit mandiri Teaching Factory (TEFA) sebagai kawah candradimuka wirausaha.",
+    "Membangun lulusan berlisensi kualifikasi nasional (BNSP) untuk langsung bekerja di klinik premium."
+  ]);
+  const [syllabus, setSyllabus] = useState<{ X: any[]; XI: any[]; XII: any[] }>(curriculumSyllabus);
+  const [careerList, setCareerList] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Fetch Career Profiles
+        const { data: careerData } = await supabase.from('site_settings').select('value').eq('key', 'career_profiles').single();
+        if (careerData && careerData.value) setCareerList(careerData.value as any[]);
+
+        // 1. Fetch Visi Misi
+        const { data: settingsData } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'visi_misi')
+          .single();
+        if (settingsData && settingsData.value) {
+          if (settingsData.value.visi) setVisiText(settingsData.value.visi);
+          if (Array.isArray(settingsData.value.misi)) {
+            setMisiList(settingsData.value.misi.map((m: any) => {
+              if (typeof m === 'string') return m;
+              return m.title ? `${m.title}: ${m.desc}` : (m.desc || '');
+            }));
+          }
+        }
+
+        // 2. Fetch Curriculum
+        const { data: currData } = await supabase
+          .from('curriculum')
+          .select('*')
+          .order('semester', { ascending: true })
+          .order('name', { ascending: true });
+        
+        if (currData && currData.length > 0) {
+          const X: any[] = [];
+          const XI: any[] = [];
+          const XII: any[] = [];
+
+          currData.forEach((item) => {
+            const mapped = {
+              code: `SEM${item.semester}-${item.name.split(' ').map((w: string) => w[0] || '').join('').toUpperCase().substring(0, 3)}`,
+              name: item.name,
+              hrs: '144 JP',
+              desc: item.description,
+              skillsAcquired: ['SOP Kerja Vokasi']
+            };
+
+            if (item.semester === 1 || item.semester === 2) {
+              X.push(mapped);
+            } else if (item.semester === 3 || item.semester === 4) {
+              XI.push(mapped);
+            } else if (item.semester === 5 || item.semester === 6) {
+              XII.push(mapped);
+            }
+          });
+
+          setSyllabus({ X, XI, XII });
+        }
+      } catch (err) {
+        console.error('Error fetching academic data:', err);
+      }
+    }
+    fetchData();
+  }, []);
 
   return (
-    <div className="bg-[#fcf8fa] min-h-screen pt-24 pb-16 animate-fade-in font-sans">
+    <div className="bg-[#fcf8fa] min-h-screen pt-0 pb-16 animate-fade-in font-sans">
       
       {/* Premium Academic Hero Banner */}
       <div className="bg-gradient-to-r from-pink-700 via-pink-600 to-rose-700 text-white py-16 px-4 relative overflow-hidden mb-12 shadow-sm border-b border-pink-200">
@@ -33,7 +103,7 @@ export default function Akademik() {
         <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-pink-100/10 rounded-full blur-2xl pointer-events-none" />
         
         <div className="max-w-7xl mx-auto text-center relative z-10 space-y-4">
-          <div className="inline-flex items-center space-x-2 bg-white/20 text-white text-[10px] font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest border border-white/10">
+          <div className="inline-flex items-center space-x-2 bg-white/20 text-white text-sm font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest border border-white/10">
             <GraduationCap className="w-4 h-4 text-pink-100 animate-pulse" />
             <span>PORTAL AKADEMIK RESMI</span>
           </div>
@@ -70,7 +140,7 @@ export default function Akademik() {
         {/* LANDASAN KURIKULUM */}
         <section className="bg-white border border-pink-100/70 rounded-[2.5rem] p-6 sm:p-8 shadow-xs space-y-6">
           <div className="space-y-4">
-            <div className="flex items-center space-x-2 bg-pink-50 text-pink-600 w-fit px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider">
+            <div className="flex items-center space-x-2 bg-pink-50 text-pink-600 w-fit px-3 py-1 rounded-lg text-sm font-extrabold uppercase tracking-wider">
               <Target className="w-3.5 h-3.5" />
               <span>Uraian Filsafat Pendidikan</span>
             </div>
@@ -85,13 +155,13 @@ export default function Akademik() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
             {curriculumFoundations.map((foundation, index) => (
               <div key={foundation.id} className="flex items-start space-x-3.5 bg-gradient-to-r from-pink-50/15 to-pink-50/2 p-5 rounded-2xl border border-pink-100/30">
-                <div className="w-6 h-6 rounded-full bg-pink-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0 shadow-xs mt-0.5">
+                <div className="w-6 h-6 rounded-full bg-pink-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs mt-0.5">
                   {index + 1}
                 </div>
                 <div className="space-y-1">
                   <h4 className="font-bold text-gray-900 text-xs sm:text-sm">{foundation.title}</h4>
-                  <p className="text-[11px] text-gray-500 leading-normal">{foundation.desc}</p>
-                  <p className="text-[10px] text-pink-600 font-semibold mt-1 font-mono uppercase bg-pink-50/50 px-2 py-0.5 rounded w-fit">
+                  <p className="text-base text-gray-500 leading-normal">{foundation.desc}</p>
+                  <p className="text-sm text-pink-600 font-semibold mt-1 font-mono uppercase bg-pink-50/50 px-2 py-0.5 rounded w-fit">
                     Imp: {foundation.implementationDetail}
                   </p>
                 </div>
@@ -99,7 +169,7 @@ export default function Akademik() {
             ))}
           </div>
 
-          <div className="pt-4 border-t border-pink-50 flex items-center justify-between text-[10px] text-gray-400 font-medium font-mono">
+          <div className="pt-4 border-t border-pink-50 flex items-center justify-between text-sm text-gray-400 font-medium font-mono">
             <span>* FOKUS AKADEMIK VOKASI</span>
             <span>SMK PUSAT KEUNGGULAN (SMK-PK)</span>
           </div>
@@ -108,7 +178,7 @@ export default function Akademik() {
         {/* DASAR HUKUM */}
         <section className="bg-[#faf5f7]/60 border border-pink-100/80 rounded-[2.5rem] p-6 sm:p-8 space-y-6">
           <div className="space-y-4">
-            <div className="flex items-center space-x-2 bg-gray-900 text-white w-fit px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest font-mono">
+            <div className="flex items-center space-x-2 bg-gray-900 text-white w-fit px-3 py-1 rounded-lg text-sm font-extrabold uppercase tracking-widest font-mono">
               <Scale className="w-3.5 h-3.5 text-pink-400" />
               <span>LEGALITAS KURIKULUM</span>
             </div>
@@ -124,19 +194,19 @@ export default function Akademik() {
             {legalBases.map((lb) => (
               <div key={lb.id} className="bg-white border border-pink-100/50 p-5 rounded-2xl shadow-xs hover:border-pink-300 transition-colors flex flex-col justify-between">
                 <div className="space-y-2">
-                  <div className="flex items-center space-x-2 text-[10px] font-bold text-pink-600 mb-1">
+                  <div className="flex items-center space-x-2 text-sm font-bold text-pink-600 mb-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-pink-500 shrink-0" />
                     <span>{lb.source} ({lb.year})</span>
                   </div>
                   <h4 className="font-bold text-gray-900 text-xs sm:text-sm">{lb.regulationNo}</h4>
-                  <p className="text-[11px] font-semibold text-gray-700 mt-0.5">{lb.title}</p>
-                  <p className="text-[11px] text-gray-500 leading-normal mt-1">{lb.desc}</p>
+                  <p className="text-base font-semibold text-gray-700 mt-0.5">{lb.title}</p>
+                  <p className="text-base text-gray-500 leading-normal mt-1">{lb.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="pt-3 border-t border-pink-100/50 flex justify-between items-center text-[10px] text-gray-400">
+          <div className="pt-3 border-t border-pink-100/50 flex justify-between items-center text-sm text-gray-400">
             <span className="font-bold">Standar Pemerintah RI</span>
             <span>Dokumen Negara Resmi</span>
           </div>
@@ -154,18 +224,18 @@ export default function Akademik() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <h4 className="text-[10px] font-extrabold text-pink-600 uppercase tracking-widest font-mono">VISI JURUSAN</h4>
+                <h4 className="text-sm font-extrabold text-pink-600 uppercase tracking-widest font-mono">VISI JURUSAN</h4>
                 <p className="text-xs sm:text-sm italic text-gray-700 leading-relaxed bg-pink-50/30 p-4 rounded-2xl border border-pink-100/50 font-serif">
-                  "Menjadi rujukan utama pendidikan vokasi estetika kecantikan kulit dan terapi spa nasional yang berkarakter agung, menguasai ilmu kosmetologi, dan berjiwa industri modern."
+                  "{visiText}"
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-[10px] font-extrabold text-pink-600 uppercase tracking-widest font-mono">MISI UTAMA</h4>
+                <h4 className="text-sm font-extrabold text-pink-600 uppercase tracking-widest font-mono">MISI UTAMA</h4>
                 <ul className="space-y-2.5 text-xs text-gray-600 pl-3 list-decimal leading-relaxed">
-                  <li>Menyelenggarakan proses pembelajaran berbasis teknologi elektro dermal medik dasar.</li>
-                  <li>Mengembangkan unit mandiri Teaching Factory (TEFA) sebagai kawah candradimuka wirausaha.</li>
-                  <li>Membangun lulusan berlisensi kualifikasi nasional (BNSP) untuk langsung bekerja di klinik premium.</li>
+                  {misiList.map((m, idx) => (
+                    <li key={idx}>{m}</li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -184,7 +254,7 @@ export default function Akademik() {
                 <div className="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center font-bold text-white shadow-xs shrink-0 text-sm">A</div>
                 <div>
                   <h5 className="font-extrabold text-white text-xs">AKREDITASI BAN-PDM</h5>
-                  <p className="text-[10px] text-pink-200 mt-0.5">Predikat Unggul (Nilai 96/100) — Diperbarui 2025</p>
+                  <p className="text-sm text-pink-200 mt-0.5">Predikat Unggul (Nilai 96/100) — Diperbarui 2025</p>
                 </div>
               </div>
 
@@ -192,7 +262,7 @@ export default function Akademik() {
                 <div className="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center font-bold text-white shadow-xs shrink-0 text-xs text-center">LSP</div>
                 <div>
                   <h5 className="font-extrabold text-white text-xs">LISENSI RESMI BNSP</h5>
-                  <p className="text-[10px] text-pink-200 mt-0.5">Penyelenggara Sertifikasi Mandiri Lisensi LSP-P1</p>
+                  <p className="text-sm text-pink-200 mt-0.5">Penyelenggara Sertifikasi Mandiri Lisensi LSP-P1</p>
                 </div>
               </div>
             </div>
@@ -237,15 +307,15 @@ export default function Akademik() {
                 <div className="bg-gradient-to-r from-pink-600 to-pink-700 p-5 text-white flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <h3 className="font-serif text-lg font-bold tracking-tight">Kelas X (Dasar Keahlian Estetika)</h3>
-                    <p className="text-[10px] text-pink-100 font-medium">Beban dasar pembelajaran 512 Jam Pelajaran (JP) / Tahun</p>
+                    <p className="text-sm text-pink-100 font-medium">Beban dasar pembelajaran 512 Jam Pelajaran (JP) / Tahun</p>
                   </div>
-                  <span className="text-[10px] bg-white text-pink-700 font-extrabold px-3 py-1 rounded-full uppercase">SEMESTER 1 &amp; 2</span>
+                  <span className="text-sm bg-white text-pink-700 font-extrabold px-3 py-1 rounded-full uppercase">SEMESTER 1 &amp; 2</span>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-pink-50/40 border-b border-pink-100 text-gray-700 text-[10px] font-extrabold tracking-wider uppercase">
+                      <tr className="bg-pink-50/40 border-b border-pink-100 text-gray-700 text-sm font-extrabold tracking-wider uppercase">
                         <th className="px-6 py-3.5">Kode</th>
                         <th className="px-6 py-3.5">Mata Pelajaran</th>
                         <th className="px-6 py-3.5 text-center">Beban</th>
@@ -253,19 +323,19 @@ export default function Akademik() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
-                      {curriculumSyllabus.X.map((item, idx) => (
+                      {syllabus.X.map((item, idx) => (
                         <tr key={idx} className="hover:bg-pink-50/10 transition-colors">
                           <td className="px-6 py-4 font-mono font-bold text-pink-600">{item.code}</td>
                           <td className="px-6 py-4">
                             <span className="font-extrabold text-gray-900 block">{item.name}</span>
-                            <span className="text-[9px] bg-pink-100/40 text-pink-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Teori Dasar Kejuruan</span>
+                            <span className="text-xs bg-pink-100/40 text-pink-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Teori Dasar Kejuruan</span>
                           </td>
                           <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
                           <td className="px-6 py-4 space-y-1.5">
-                            <p className="text-gray-500 text-[11px] leading-relaxed max-w-2xl">{item.desc}</p>
+                            <p className="text-gray-500 text-base leading-relaxed max-w-2xl">{item.desc}</p>
                             <div className="flex flex-wrap gap-1">
-                              {item.skillsAcquired.map((skill, sIdx) => (
-                                <span key={sIdx} className="text-[9px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                              {item.skillsAcquired.map((skill: string, sIdx: number) => (
+                                <span key={sIdx} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                                   ✓ {skill}
                                 </span>
                               ))}
@@ -285,15 +355,15 @@ export default function Akademik() {
                 <div className="bg-gradient-to-r from-purple-700 to-pink-700 p-5 text-white flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <h3 className="font-serif text-lg font-bold tracking-tight">Kelas XI (Konsentrasi Menengah &amp; Spa)</h3>
-                    <p className="text-[10px] text-pink-100 font-medium">Beban kompetensi 728 Jam Pelajaran (JP) / Tahun</p>
+                    <p className="text-sm text-pink-100 font-medium">Beban kompetensi 728 Jam Pelajaran (JP) / Tahun</p>
                   </div>
-                  <span className="text-[10px] bg-white text-purple-700 font-extrabold px-3 py-1 rounded-full uppercase">SEMESTER 3 &amp; 4</span>
+                  <span className="text-sm bg-white text-purple-700 font-extrabold px-3 py-1 rounded-full uppercase">SEMESTER 3 &amp; 4</span>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-purple-50/20 border-b border-pink-100 text-gray-700 text-[10px] font-extrabold tracking-wider uppercase">
+                      <tr className="bg-purple-50/20 border-b border-pink-100 text-gray-700 text-sm font-extrabold tracking-wider uppercase">
                         <th className="px-6 py-3.5">Kode</th>
                         <th className="px-6 py-3.5">Mata Pelajaran</th>
                         <th className="px-6 py-3.5 text-center">Beban</th>
@@ -301,19 +371,19 @@ export default function Akademik() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
-                      {curriculumSyllabus.XI.map((item, idx) => (
+                      {syllabus.XI.map((item, idx) => (
                         <tr key={idx} className="hover:bg-purple-50/5 transition-colors">
                           <td className="px-6 py-4 font-mono font-bold text-purple-600">{item.code}</td>
                           <td className="px-6 py-4">
                             <span className="font-extrabold text-gray-900 block">{item.name}</span>
-                            <span className="text-[9px] bg-purple-100/40 text-purple-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Lab Praktikum Menengah</span>
+                            <span className="text-xs bg-purple-100/40 text-purple-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Lab Praktikum Menengah</span>
                           </td>
                           <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
                           <td className="px-6 py-4 space-y-1.5">
-                            <p className="text-gray-500 text-[11px] leading-relaxed max-w-2xl">{item.desc}</p>
+                            <p className="text-gray-500 text-base leading-relaxed max-w-2xl">{item.desc}</p>
                             <div className="flex flex-wrap gap-1">
-                              {item.skillsAcquired.map((skill, sIdx) => (
-                                <span key={sIdx} className="text-[9px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">
+                              {item.skillsAcquired.map((skill: string, sIdx: number) => (
+                                <span key={sIdx} className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">
                                   ✓ {skill}
                                 </span>
                               ))}
@@ -333,15 +403,15 @@ export default function Akademik() {
                 <div className="bg-gradient-to-r from-rose-700 to-orange-600 p-5 text-white flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <h3 className="font-serif text-lg font-bold tracking-tight">Kelas XII (Mahir &amp; Magang Klinik Terpadu)</h3>
-                    <p className="text-[10px] text-pink-100 font-medium">Beban kompetensi 778 Jam Pelajaran (JP) / Tahun</p>
+                    <p className="text-sm text-pink-100 font-medium">Beban kompetensi 778 Jam Pelajaran (JP) / Tahun</p>
                   </div>
-                  <span className="text-[10px] bg-white text-rose-700 font-extrabold px-3 py-1 rounded-full uppercase">SEMESTER 5 &amp; 6</span>
+                  <span className="text-sm bg-white text-rose-700 font-extrabold px-3 py-1 rounded-full uppercase">SEMESTER 5 &amp; 6</span>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-orange-50/15 border-b border-pink-100 text-gray-700 text-[10px] font-extrabold tracking-wider uppercase">
+                      <tr className="bg-orange-50/15 border-b border-pink-100 text-gray-700 text-sm font-extrabold tracking-wider uppercase">
                         <th className="px-6 py-3.5">Kode</th>
                         <th className="px-6 py-3.5">Mata Pelajaran</th>
                         <th className="px-6 py-3.5 text-center">Beban</th>
@@ -349,19 +419,19 @@ export default function Akademik() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
-                      {curriculumSyllabus.XII.map((item, idx) => (
+                      {syllabus.XII.map((item, idx) => (
                         <tr key={idx} className="hover:bg-rose-50/10 transition-colors">
                           <td className="px-6 py-4 font-mono font-bold text-rose-600">{item.code}</td>
                           <td className="px-6 py-4">
                             <span className="font-extrabold text-gray-900 block">{item.name}</span>
-                            <span className="text-[9px] bg-rose-100/40 text-rose-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Ekspertis &amp; Sinkronisasi DUDI</span>
+                            <span className="text-xs bg-rose-100/40 text-rose-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Ekspertis &amp; Sinkronisasi DUDI</span>
                           </td>
                           <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
                           <td className="px-6 py-4 space-y-1.5">
-                            <p className="text-gray-500 text-[11px] leading-relaxed max-w-2xl">{item.desc}</p>
+                            <p className="text-gray-500 text-base leading-relaxed max-w-2xl">{item.desc}</p>
                             <div className="flex flex-wrap gap-1">
-                              {item.skillsAcquired.map((skill, sIdx) => (
-                                <span key={sIdx} className="text-[9px] bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full font-mono">
+                              {item.skillsAcquired.map((skill: string, sIdx: number) => (
+                                <span key={sIdx} className="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full font-mono">
                                   * {skill}
                                 </span>
                               ))}
@@ -385,12 +455,12 @@ export default function Akademik() {
             <Briefcase className="w-5 h-5 shrink-0" />
             <div>
               <h3 className="font-serif font-bold text-gray-950 text-base sm:text-lg">Relevansi Industri &amp; Peluang Karir Lulusan</h3>
-              <p className="text-[11px] text-gray-400 font-medium">Berdasarkan data penelusuran tamatan BKK SMK Negeri 1 Pekalongan</p>
+              <p className="text-base text-gray-400 font-medium">Berdasarkan data penelusuran tamatan BKK SMK Negeri 1 Pekalongan</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {careerProfiles.map((car, idx) => (
+            {careerList.map((car, idx) => (
               <div 
                 key={idx}
                 className="bg-[#faf6f8]/70 border border-pink-100 p-5 rounded-2xl space-y-3 hover:border-pink-300 hover:shadow-xs transition-all duration-300 flex flex-col justify-between"
@@ -398,31 +468,31 @@ export default function Akademik() {
                 <div className="space-y-2">
                   <div className="flex flex-wrap gap-1">
                     {car.tags.map((tg, tIdx) => (
-                      <span key={tIdx} className="text-[9px] bg-pink-100/50 text-pink-600 font-bold px-2 py-0.5 rounded">
+                      <span key={tIdx} className="text-xs bg-pink-100/50 text-pink-600 font-bold px-2 py-0.5 rounded">
                         {tg}
                       </span>
                     ))}
                   </div>
                   <h4 className="font-serif font-bold text-gray-900 text-sm sm:text-base leading-snug">{car.title}</h4>
-                  <p className="text-[11px] text-gray-500 leading-relaxed">{car.desc}</p>
+                  <p className="text-base text-gray-500 leading-relaxed">{car.desc}</p>
                 </div>
 
                 <div className="space-y-2 pt-3 border-t border-pink-100">
-                  <div className="flex items-center justify-between text-[10px] text-gray-500">
+                  <div className="flex items-center justify-between text-sm text-gray-500">
                     <div>
-                      <span className="font-bold text-gray-400 uppercase block text-[8px]">ESTIMASI STIPEND/GAJI AWAL</span>
+                      <span className="font-bold text-gray-400 uppercase block text-sm">ESTIMASI STIPEND/GAJI AWAL</span>
                       <span className="font-extrabold text-pink-600 text-xs">{car.salary}</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold text-gray-400 uppercase block text-[8px]">PROYEKSI KEBUTUHAN</span>
+                      <span className="font-bold text-gray-400 uppercase block text-sm">PROYEKSI KEBUTUHAN</span>
                       <span className="font-extrabold text-gray-900 text-xs">{car.growth}</span>
                     </div>
                   </div>
 
                   <div className="pt-1.5 flex flex-wrap items-center gap-1">
-                    <span className="text-[8px] text-gray-400 uppercase font-bold mr-1">Rujukan Penempatan:</span>
+                    <span className="text-sm text-gray-400 uppercase font-bold mr-1">Rujukan Penempatan:</span>
                     {car.industrialPartners.map((partner, pIdx) => (
-                      <span key={pIdx} className="text-[9px] text-gray-700 bg-white border border-gray-100 font-bold px-1.5 py-0.5 rounded inline-flex items-center space-x-1 shadow-2xs">
+                      <span key={pIdx} className="text-xs text-gray-700 bg-white border border-gray-100 font-bold px-1.5 py-0.5 rounded inline-flex items-center space-x-1 shadow-2xs">
                         <span>{partner}</span>
                       </span>
                     ))}

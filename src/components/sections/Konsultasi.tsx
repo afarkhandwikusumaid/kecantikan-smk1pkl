@@ -79,7 +79,7 @@ export default function Konsultasi() {
         
         {/* Title */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="text-[10px] tracking-[0.2em] font-extrabold text-pink-600 uppercase">
+          <span className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase">
             AESTHETIC DIAGNOSTIC CALCULATOR
           </span>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 leading-tight">
@@ -217,7 +217,7 @@ export default function Konsultasi() {
                 {/* Result header */}
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-pink-100 pb-4">
                   <div>
-                    <span className="text-[10px] tracking-widest text-pink-600 uppercase font-extrabold font-sans">ANALYSIS REPORT</span>
+                    <span className="text-sm tracking-widest text-pink-600 uppercase font-extrabold font-sans">ANALYSIS REPORT</span>
                     <h4 className="font-serif text-xl font-bold text-gray-900 mt-0.5">Rekomendasi Estetika Personal</h4>
                   </div>
                   <button
@@ -233,18 +233,18 @@ export default function Konsultasi() {
                 {/* Grid stats */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-pink-50/30 p-4 rounded-2xl border border-pink-100">
-                    <span className="text-[9px] uppercase tracking-wider text-gray-400 font-bold">KOMPETENSI TERKAIT (SMK)</span>
+                    <span className="text-xs uppercase tracking-wider text-gray-400 font-bold">KOMPETENSI TERKAIT (SMK)</span>
                     <p className="font-serif font-bold text-xs sm:text-sm text-gray-900 mt-1">{diagnosticResult.recommendedTrack}</p>
-                    <div className="flex items-center space-x-1 text-[10px] text-pink-600 mt-2">
+                    <div className="flex items-center space-x-1 text-sm text-pink-600 mt-2">
                       <GraduationCap className="w-3.5 h-3.5" />
                       <span className="font-semibold">{diagnosticResult.recommendedLab}</span>
                     </div>
                   </div>
 
                   <div className="bg-pink-50/30 p-4 rounded-2xl border border-pink-100">
-                    <span className="text-[9px] uppercase tracking-wider text-gray-400 font-bold">PANDUAN KURIKULUM LAB</span>
+                    <span className="text-xs uppercase tracking-wider text-gray-400 font-bold">PANDUAN KURIKULUM LAB</span>
                     <p className="font-serif font-bold text-xs sm:text-sm text-gray-900 mt-1">Estimasi Jam Praktik Siswa</p>
-                    <div className="flex items-center space-x-1.5 text-[11px] text-pink-600 mt-2 font-mono font-bold">
+                    <div className="flex items-center space-x-1.5 text-base text-pink-600 mt-2 font-mono font-bold">
                       <Star className="w-3.5 h-3.5 fill-pink-500 text-pink-500" />
                       <span>{diagnosticResult.estimatedHours} Jam Kajian Kasus</span>
                     </div>
@@ -261,7 +261,7 @@ export default function Konsultasi() {
                   <div className="space-y-2 text-xs">
                     {diagnosticResult.customizedRegimen.map((step: string, idx: number) => (
                       <div key={idx} className="flex items-center space-x-2.5 p-2.5 bg-white rounded-2xl border border-pink-100 shadow-xs">
-                        <span className="w-5 h-5 rounded-full bg-pink-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0 shadow-sm">
+                        <span className="w-5 h-5 rounded-full bg-pink-500 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
                           {idx + 1}
                         </span>
                         <span className="text-gray-700 font-medium">{step}</span>
@@ -272,7 +272,7 @@ export default function Konsultasi() {
 
                 {/* Practical recommendation */}
                 <div className="pt-4 border-t border-pink-100 bg-gradient-to-r from-pink-50/50 to-pink-50/10 p-4 rounded-2xl border border-pink-100">
-                  <p className="text-[10px] tracking-wider uppercase text-pink-700 font-bold">Hasil Rekomendasi Terapi Belajar</p>
+                  <p className="text-sm tracking-wider uppercase text-pink-700 font-bold">Hasil Rekomendasi Terapi Belajar</p>
                   <p className="font-serif text-sm font-bold text-gray-950 mt-1">
                     Teknik Terapi Praktik Terkait: <span className="text-pink-600 underline decoration-pink-200">{diagnosticResult.activeEduspaTreatment}</span>
                   </p>
@@ -283,7 +283,7 @@ export default function Konsultasi() {
                   <div className="mt-4">
                     <a
                       id="btn-diagnostic-wa-consult"
-                      href={`https://wa.me/6282328981111?text=Halo%20Admin%20SMK%20Negeri%201%20Pekalongan,%20saya%20tertarik%20dengan%20rekomendasi%20terapi%20${encodeURIComponent(diagnosticResult.activeEduspaTreatment)}%2520pada%2520program%2520studi%2520Kecantikan.`}
+                      href={`https://wa.me/6281229516969?text=Halo%20Admin%20SMK%20Negeri%201%20Pekalongan,%20saya%20tertarik%20dengan%20rekomendasi%20terapi%20${encodeURIComponent(diagnosticResult.activeEduspaTreatment)}%2520pada%2520program%2520studi%2520Kecantikan.`}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center space-x-2 text-xs font-bold text-white bg-pink-500 hover:bg-pink-600 px-5 py-3 rounded-xl transition-all cursor-pointer shadow-sm"

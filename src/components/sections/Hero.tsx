@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase';
 import { Sparkles, ArrowRight, Award, Users, Briefcase, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { supabase } from '../../lib/supabase';
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -10,40 +9,22 @@ interface HeroProps {
 
 export default function Hero({ onNavigate }: HeroProps) {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [partnerships, setPartnerships] = useState<any[]>([]);
+  const [partnerships, setPartnerships] = useState<any[]>([
+    { id: '1', name: 'Martha Tilaar', subtitle: 'GROUP', isPink: false },
+    { id: '2', name: 'Mustika Ratu', subtitle: '', isPink: true },
+    { id: '3', name: 'Wardah', subtitle: 'Cosmetics', isPink: false },
+    { id: '4', name: 'BNSP LSP-P1', subtitle: '', isPink: false },
+    { id: '5', name: 'Rudy Hadisuwarno', subtitle: '', isPink: true }
+  ]);
 
   useEffect(() => {
-    const fetchPartnerships = async () => {
+    async function fetchMitra() {
       try {
-        const snapshot = await getDocs(collection(db, 'partnerships'));
-        const fetched: any[] = [];
-        snapshot.forEach(doc => {
-          fetched.push({ id: doc.id, ...doc.data() });
-        });
-        if (fetched.length > 0) {
-          setPartnerships(fetched);
-        } else {
-          // fallback data if empty
-          setPartnerships([
-            { id: '1', name: 'Martha Tilaar', subtitle: 'GROUP', isPink: false },
-            { id: '2', name: 'Mustika Ratu', subtitle: '', isPink: true },
-            { id: '3', name: 'Wardah', subtitle: 'Cosmetics', isPink: false },
-            { id: '4', name: 'BNSP LSP-P1', subtitle: '', isPink: false },
-            { id: '5', name: 'Rudy Hadisuwarno', subtitle: '', isPink: true }
-          ]);
-        }
-      } catch (err) {
-        console.error("Error fetching partnerships", err);
-        setPartnerships([
-          { id: '1', name: 'Martha Tilaar', subtitle: 'GROUP', isPink: false },
-          { id: '2', name: 'Mustika Ratu', subtitle: '', isPink: true },
-          { id: '3', name: 'Wardah', subtitle: 'Cosmetics', isPink: false },
-          { id: '4', name: 'BNSP LSP-P1', subtitle: '', isPink: false },
-          { id: '5', name: 'Rudy Hadisuwarno', subtitle: '', isPink: true }
-        ]);
-      }
-    };
-    fetchPartnerships();
+        const { data } = await supabase.from('site_settings').select('value').eq('key', 'mitra_industri').single();
+        if (data && data.value) setPartnerships(data.value as any[]);
+      } catch (err) { console.error(err); }
+    }
+    fetchMitra();
   }, []);
 
   const slides = [
@@ -148,7 +129,7 @@ export default function Hero({ onNavigate }: HeroProps) {
                 </div>
                 <div className="space-y-0.5">
                   <span className="block font-sans text-lg sm:text-xl font-black text-gray-950 leading-none">100%</span>
-                  <span className="block text-[10px] sm:text-[11px] text-gray-500 font-semibold whitespace-nowrap">Asesor BNSP</span>
+                  <span className="block text-sm sm:text-base text-gray-500 font-semibold whitespace-nowrap">Asesor BNSP</span>
                 </div>
               </div>
 
@@ -159,7 +140,7 @@ export default function Hero({ onNavigate }: HeroProps) {
                 </div>
                 <div className="space-y-0.5">
                   <span className="block font-sans text-lg sm:text-xl font-black text-gray-950 leading-none">98%</span>
-                  <span className="block text-[10px] sm:text-[11px] text-gray-500 font-semibold whitespace-nowrap">Peluang Kerja</span>
+                  <span className="block text-sm sm:text-base text-gray-500 font-semibold whitespace-nowrap">Peluang Kerja</span>
                 </div>
               </div>
 
@@ -170,7 +151,7 @@ export default function Hero({ onNavigate }: HeroProps) {
                 </div>
                 <div className="space-y-0.5">
                   <span className="block font-sans text-lg sm:text-xl font-black text-gray-950 leading-none">A</span>
-                  <span className="block text-[10px] sm:text-[11px] text-gray-500 font-semibold whitespace-nowrap">Akreditasi Unggul</span>
+                  <span className="block text-sm sm:text-base text-gray-500 font-semibold whitespace-nowrap">Akreditasi Unggul</span>
                 </div>
               </div>
 
@@ -205,12 +186,12 @@ export default function Hero({ onNavigate }: HeroProps) {
               {/* Floating Star / Prestige Badge */}
               <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm border border-pink-100/30 shadow-md rounded-xl px-3 py-1.5 flex items-center space-x-1.5 z-10">
                 <Sparkles className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-                <span className="text-[10px] font-black text-gray-800 uppercase tracking-widest">Sekolah Hebat</span>
+                <span className="text-sm font-black text-gray-800 uppercase tracking-widest">Sekolah Hebat</span>
               </div>
 
               {/* Floating Slide Info Box - Clean white card reference match */}
               <div className="absolute bottom-5 left-5 bg-white/95 backdrop-blur-md rounded-2xl py-3.5 px-4.5 shadow-lg border border-white/50 max-w-[260px] z-15 transform hover:scale-[1.02] transition-transform duration-300">
-                <span className="text-[9px] font-black uppercase tracking-widest text-pink-600 block">
+                <span className="text-xs font-black uppercase tracking-widest text-pink-600 block">
                   {slides[activeSlide].subtitle}
                 </span>
                 <h3 className="font-sans text-[13px] font-extrabold text-gray-950 mt-1.5 leading-snug">
@@ -241,7 +222,7 @@ export default function Hero({ onNavigate }: HeroProps) {
       {/* Trust & Academic Excellence Banner */}
       <div className="mt-16 bg-white py-10 border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-[10px] tracking-[0.25em] text-pink-600 uppercase font-black mb-8">
+          <p className="text-center text-sm tracking-[0.25em] text-pink-600 uppercase font-black mb-8">
             Kemitraan Industri &amp; Sertifikasi Terpercaya
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-16 opacity-75">

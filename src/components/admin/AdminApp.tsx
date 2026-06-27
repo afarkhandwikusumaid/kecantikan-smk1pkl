@@ -1,70 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '../../firebase';
 import LoginAdmin from './LoginAdmin';
 import AdminLayout from './AdminLayout';
 import Dashboard from './Dashboard';
 import CurriculumManager from './CurriculumManager';
-import PartnershipManager from './PartnershipManager';
 
 // New Components
 import NewsManager from './NewsManager';
 import GalleryManager from './GalleryManager';
 import FacilityManager from './FacilityManager';
 import TeacherManager from './TeacherManager';
-import AchievementManager from './AchievementManager';
-import AlumniManager from './AlumniManager';
-import JobVacancyManager from './JobVacancyManager';
+import MitraManager from './MitraManager';
+import FAQManager from './FAQManager';
+import KarirManager from './KarirManager';
 import SettingsManager from './SettingsManager';
 import VisiMisiManager from './VisiMisiManager';
-
-// Placeholder for Pengumuman (reuses NewsManager with filter)
-const PengumumanManager = () => (
-  <div className="space-y-4">
-    <div>
-      <h1 className="text-2xl font-bold text-slate-800">Pengumuman</h1>
-      <p className="text-sm text-slate-500 mt-0.5">Kelola pengumuman resmi jurusan</p>
-    </div>
-    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border border-amber-100">
-      <p className="text-sm text-amber-700 font-medium">
-        💡 Fitur pengumuman menggunakan sistem yang sama dengan <strong>Berita & Kegiatan</strong>.
-        Gunakan kategori <strong>"Pengumuman"</strong> saat menambahkan berita untuk membedakannya.
-      </p>
-    </div>
-    <NewsManager />
-  </div>
-);
+import ServiceManager from './ServiceManager';
+import SambutanManager from './SambutanManager';
 
 const renderContent = (tab: string, userEmail: string | undefined, setActiveTab: (t: string) => void) => {
   switch (tab) {
     case 'dashboard':      return <Dashboard userEmail={userEmail} setActiveTab={setActiveTab} />;
     case 'visi-misi':      return <VisiMisiManager />;
+    case 'sambutan':       return <SambutanManager />;
     case 'fasilitas':      return <FacilityManager />;
     case 'guru':           return <TeacherManager />;
-    case 'berita':         return <NewsManager />;
-    case 'pengumuman':     return <PengumumanManager />;
-    case 'galeri':         return <GalleryManager />;
+    case 'mitra':          return <MitraManager />;
     case 'curriculum':     return <CurriculumManager />;
-    case 'prestasi':       return <AchievementManager />;
-    case 'alumni':         return <AlumniManager />;
-    case 'partnership':    return <PartnershipManager />;
-    case 'lowongan':       return <JobVacancyManager />;
+    case 'karir':          return <KarirManager />;
+    case 'eduspa':         return <ServiceManager />;
+    case 'berita':         return <NewsManager />;
+    case 'galeri':         return <GalleryManager />;
+    case 'faq':            return <FAQManager />;
     case 'pengaturan':     return <SettingsManager />;
     default:               return <Dashboard userEmail={userEmail} setActiveTab={setActiveTab} />;
   }
 };
 
+import { supabase } from '../../lib/supabase';
+
 export default function AdminApp() {
-  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [userEmail, setUserEmail] = useState<string | undefined>("admin@smk1pkl.sch.id");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
+    async function checkAuth() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setIsAuthenticated(true);
+          setUserEmail(session.user.email);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        console.error('Auth session error:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setIsAuthenticated(true);
+        setUserEmail(session.user.email);
+      } else {
+        setIsAuthenticated(false);
+        setUserEmail(undefined);
+      }
     });
-    return () => unsubscribe();
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (loading) {
@@ -84,18 +92,18 @@ export default function AdminApp() {
     );
   }
 
-  if (!user) {
-    return <LoginAdmin onLoginSuccess={() => {}} />;
+  if (!isAuthenticated) {
+    return <LoginAdmin onLoginSuccess={() => setIsAuthenticated(true)} />;
   }
 
   return (
     <AdminLayout
       activeTab={activeTab}
       setActiveTab={setActiveTab}
-      onLogout={() => setUser(null)}
-      userEmail={user.email ?? undefined}
+      onLogout={() => setIsAuthenticated(false)}
+      userEmail={userEmail}
     >
-      {renderContent(activeTab, user.email ?? undefined, setActiveTab)}
+      {renderContent(activeTab, userEmail, setActiveTab)}
     </AdminLayout>
   );
 }

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  collection, getDocs, addDoc, deleteDoc, doc, updateDoc
-} from 'firebase/firestore';
-import { db } from '../../firebase';
 import { Plus, Trash2, Edit2, X, Newspaper, Search, Tag, Calendar } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface NewsItem {
   id: string;
@@ -28,62 +25,89 @@ export default function NewsManager() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
-  const [errorMsg, setErrorMsg] = useState('');
   const [search, setSearch] = useState('');
 
   const fetchNews = async () => {
-    setLoading(true);
     try {
-      const snapshot = await getDocs(collection(db, 'news'));
-      const data: NewsItem[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as NewsItem));
-      data.sort((a, b) => b.date.localeCompare(a.date));
-      setNews(data);
-    } catch (e) {
-      console.error(e);
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .order('date', { ascending: false });
+      if (error) throw error;
+      setNews((data || []).map((n: any) => ({
+        id: n.id,
+        title: n.title,
+        desc: n.description,
+        category: n.category,
+        date: n.date
+      })));
+    } catch (err: any) {
+      console.error('Error fetching news:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchNews(); }, []);
+  useEffect(() => {
+    fetchNews();
+  }, []);
 
   const openAdd = () => {
     setEditingId(null);
     setFormData(emptyForm);
-    setErrorMsg('');
     setShowModal(true);
   };
 
   const openEdit = (item: NewsItem) => {
     setEditingId(item.id);
     setFormData({ title: item.title, desc: item.desc, category: item.category, date: item.date });
-    setErrorMsg('');
     setShowModal(true);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg('');
     try {
       if (editingId) {
-        await updateDoc(doc(db, 'news', editingId), formData);
+        const { error } = await supabase
+          .from('news')
+          .update({
+            title: formData.title,
+            description: formData.desc,
+            category: formData.category,
+            date: formData.date
+          })
+          .eq('id', editingId);
+        if (error) throw error;
       } else {
-        await addDoc(collection(db, 'news'), formData);
+        const { error } = await supabase
+          .from('news')
+          .insert({
+            title: formData.title,
+            description: formData.desc,
+            category: formData.category,
+            date: formData.date
+          });
+        if (error) throw error;
       }
       setShowModal(false);
       fetchNews();
-    } catch (err: any) {
-      setErrorMsg('Gagal menyimpan. Periksa Firestore rules.');
+    } catch (error: any) {
+      alert('Gagal menyimpan berita: ' + error.message);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Hapus berita ini?')) return;
     try {
-      await deleteDoc(doc(db, 'news', id));
+      const { error } = await supabase
+        .from('news')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
       fetchNews();
-    } catch (e) {
-      console.error(e);
+    } catch (error: any) {
+      alert('Gagal menghapus berita: ' + error.message);
     }
   };
 
@@ -107,7 +131,7 @@ export default function NewsManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Berita & Kegiatan</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Kelola artikel berita dan kegiatan jurusan</p>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola artikel berita dan pengumuman (Dinamis Supabase)</p>
         </div>
         <button
           onClick={openAdd}
@@ -129,7 +153,7 @@ export default function NewsManager() {
               placeholder="Cari judul atau kategori..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-slate-50"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-slate-50 text-black"
             />
           </div>
         </div>
@@ -212,15 +236,12 @@ export default function NewsManager() {
               </button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
-              {errorMsg && (
-                <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">{errorMsg}</div>
-              )}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Judul Berita</label>
                 <input
                   type="text" required value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300"
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-white text-black"
                   placeholder="Masukkan judul berita..."
                 />
               </div>
@@ -230,7 +251,7 @@ export default function NewsManager() {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300"
+                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-white text-black"
                   >
                     {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                   </select>
@@ -240,7 +261,7 @@ export default function NewsManager() {
                   <input
                     type="date" required value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300"
+                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-white text-black"
                   />
                 </div>
               </div>
@@ -249,7 +270,7 @@ export default function NewsManager() {
                 <textarea
                   required rows={4} value={formData.desc}
                   onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 resize-none"
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 resize-none bg-white text-black"
                   placeholder="Tulis ringkasan berita..."
                 />
               </div>

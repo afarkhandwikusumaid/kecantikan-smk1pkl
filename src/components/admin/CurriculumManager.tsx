@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
-import { Plus, Trash2, Edit2, Check, X, BookOpen } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, BookOpen } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface Curriculum {
   id: string;
@@ -22,47 +21,57 @@ export default function CurriculumManager() {
     semester: 1
   });
 
-  const fetchCurriculums = async () => {
-    setLoading(true);
+  const fetchCurriculum = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'curriculum'));
-      const data: Curriculum[] = [];
-      querySnapshot.forEach((doc) => {
-        data.push({ id: doc.id, ...doc.data() } as Curriculum);
-      });
-      // Sort by semester
-      data.sort((a, b) => a.semester - b.semester);
-      setCurriculums(data);
-    } catch (error) {
-      console.error("Error fetching curriculums:", error);
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('curriculum')
+        .select('*')
+        .order('semester', { ascending: true })
+        .order('name', { ascending: true });
+      if (error) throw error;
+      setCurriculums(data || []);
+    } catch (err: any) {
+      console.error('Error fetching curriculum:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCurriculums();
+    fetchCurriculum();
   }, []);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, 'curriculum'), formData);
+      const { error } = await supabase
+        .from('curriculum')
+        .insert({
+          name: formData.name,
+          description: formData.description,
+          semester: formData.semester
+        });
+      if (error) throw error;
       setFormData({ name: '', description: '', semester: 1 });
       setIsAdding(false);
-      fetchCurriculums();
-    } catch (error) {
-      console.error("Error adding document: ", error);
+      fetchCurriculum();
+    } catch (err: any) {
+      alert('Gagal menambahkan pelajaran: ' + err.message);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?')) {
       try {
-        await deleteDoc(doc(db, 'curriculum', id));
-        fetchCurriculums();
-      } catch (error) {
-        console.error("Error deleting document: ", error);
+        const { error } = await supabase
+          .from('curriculum')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+        fetchCurriculum();
+      } catch (err: any) {
+        alert('Gagal menghapus pelajaran: ' + err.message);
       }
     }
   };
@@ -74,17 +83,28 @@ export default function CurriculumManager() {
       description: curriculum.description,
       semester: curriculum.semester
     });
+    setIsAdding(true);
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!editingId) return;
     try {
-      await updateDoc(doc(db, 'curriculum', editingId), formData);
+      const { error } = await supabase
+        .from('curriculum')
+        .update({
+          name: formData.name,
+          description: formData.description,
+          semester: formData.semester
+        })
+        .eq('id', editingId);
+      if (error) throw error;
       setEditingId(null);
       setFormData({ name: '', description: '', semester: 1 });
-      fetchCurriculums();
-    } catch (error) {
-      console.error("Error updating document: ", error);
+      setIsAdding(false);
+      fetchCurriculum();
+    } catch (err: any) {
+      alert('Gagal menyimpan perubahan: ' + err.message);
     }
   };
 
@@ -101,16 +121,16 @@ export default function CurriculumManager() {
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700"
         >
           {isAdding ? <X className="-ml-1 mr-2 h-5 w-5" /> : <Plus className="-ml-1 mr-2 h-5 w-5" />}
-          {isAdding ? 'Batal' : 'Tambah Mapel'}
+          {isAdding && !editingId ? 'Batal' : 'Tambah Mapel'}
         </button>
       </div>
 
-      {(isAdding || editingId) && (
+      {isAdding && (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             {editingId ? 'Edit Mata Pelajaran' : 'Tambah Mata Pelajaran Baru'}
           </h3>
-          <form onSubmit={editingId ? (e) => { e.preventDefault(); handleUpdate(); } : handleAdd} className="space-y-4">
+          <form onSubmit={editingId ? handleUpdate : handleAdd} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Nama Mata Pelajaran</label>
               <input

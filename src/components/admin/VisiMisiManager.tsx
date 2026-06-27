@@ -1,25 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, Eye, FileText } from 'lucide-react';
-
-const defaultVisi = 'Menjadi jurusan kecantikan unggulan yang menghasilkan tenaga ahli kecantikan dan spa yang profesional, berkarakter, dan berjiwa wirausaha, serta mampu bersaing di tingkat nasional maupun internasional.';
-const defaultMisi = [
-  'Menyelenggarakan pembelajaran kecantikan dan spa yang inovatif, kreatif, dan berbasis industri.',
-  'Membentuk peserta didik yang berkarakter, berakhlak mulia, dan memiliki etos kerja tinggi.',
-  'Mengembangkan kompetensi keahlian melalui kemitraan aktif dengan dunia usaha dan industri (DUDI).',
-  'Menumbuhkan jiwa wirausaha dan kemandirian pada peserta didik.',
-  'Mewujudkan lulusan yang siap kerja, cerdas, dan kompetitif di era global.',
-];
+import { supabase } from '../../lib/supabase';
 
 export default function VisiMisiManager() {
-  const [visi, setVisi] = useState(defaultVisi);
-  const [misi, setMisi] = useState<string[]>(defaultMisi);
+  const [visi, setVisi] = useState('');
+  const [misi, setMisi] = useState<string[]>([]);
   const [newMisi, setNewMisi] = useState('');
   const [saved, setSaved] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  useEffect(() => {
+    async function fetchVisiMisi() {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'visi_misi')
+          .single();
+        if (data && data.value) {
+          setVisi(data.value.visi || '');
+          setMisi(data.value.misi || []);
+        }
+      } catch (err) {
+        console.error('Error fetching Visi & Misi:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchVisiMisi();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({
+          key: 'visi_misi',
+          value: { visi, misi }
+        });
+      if (error) throw error;
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (error: any) {
+      alert('Gagal menyimpan Visi & Misi: ' + error.message);
+    }
   };
 
   const addMisi = () => {
@@ -32,12 +57,20 @@ export default function VisiMisiManager() {
     setMisi((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink-400 border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Visi & Misi</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Kelola visi dan misi jurusan yang tampil di website</p>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola visi dan misi jurusan yang tampil di website (Dinamis Supabase)</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setPreview(!preview)}
@@ -87,7 +120,7 @@ export default function VisiMisiManager() {
                 </div>
                 <div className="p-6">
                   <textarea rows={4} value={visi} onChange={(e) => setVisi(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none text-slate-700"
+                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none text-slate-700 bg-white"
                     placeholder="Tulis visi jurusan..." />
                 </div>
               </div>
@@ -105,7 +138,7 @@ export default function VisiMisiManager() {
                       <span className="w-7 h-7 rounded-full bg-pink-100 text-pink-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-2">{i + 1}</span>
                       <input type="text" value={m}
                         onChange={(e) => setMisi((prev) => prev.map((mi, idx) => idx === i ? e.target.value : mi))}
-                        className="flex-1 rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
+                        className="flex-1 rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black" />
                       <button onClick={() => removeMisi(i)}
                         className="mt-2 text-slate-300 hover:text-red-500 transition-colors text-lg font-bold flex-shrink-0">×</button>
                     </div>
@@ -113,7 +146,7 @@ export default function VisiMisiManager() {
                   <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-100">
                     <input type="text" value={newMisi} onChange={(e) => setNewMisi(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMisi(); } }}
-                      className="flex-1 rounded-xl border border-dashed border-slate-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-slate-50"
+                      className="flex-1 rounded-xl border border-dashed border-slate-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-slate-50 text-black"
                       placeholder="Tambah poin misi baru (Enter untuk tambah)..." />
                     <button onClick={addMisi}
                       className="px-4 py-3 rounded-xl text-sm font-semibold text-white flex-shrink-0"

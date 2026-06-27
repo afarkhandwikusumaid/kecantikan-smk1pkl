@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 import { 
   Building, 
   Quote, 
@@ -95,8 +96,56 @@ const defaultTeachers: Teacher[] = [
 
 export default function Fasilitas() {
   const [activeLabTab, setActiveLabTab] = useState<string>('lab1');
-  const facilities = defaultFacilities;
-  const teachers = defaultTeachers;
+  const [facilities, setFacilities] = useState<Facility[]>(defaultFacilities);
+  const [teachers, setTeachers] = useState<Teacher[]>(defaultTeachers);
+
+  useEffect(() => {
+    async function fetchFasilitasAndGuru() {
+      try {
+        // Fetch facilities
+        const { data: facData } = await supabase
+          .from('facilities')
+          .select('*')
+          .order('name', { ascending: true });
+        
+        if (facData && facData.length > 0) {
+          const mappedFac = facData.map((f: any, idx: number) => ({
+            id: f.id,
+            name: f.name,
+            description: f.description || '',
+            capacity: f.capacity || '',
+            image: f.image_url || defaultFacilities[idx % defaultFacilities.length].image,
+            equipment: f.tools && f.tools.length > 0 ? f.tools : ['Standard Lab Equipment']
+          }));
+          setFacilities(mappedFac);
+          if (mappedFac.length > 0) {
+            setActiveLabTab(mappedFac[0].id);
+          }
+        }
+
+        // Fetch teachers
+        const { data: teachData } = await supabase
+          .from('teachers')
+          .select('*')
+          .order('created_at', { ascending: true });
+        
+        if (teachData && teachData.length > 0) {
+          const mappedTeach = teachData.map((t: any, idx: number) => ({
+            id: t.id,
+            name: t.name,
+            role: t.position || t.subject,
+            image: t.image_url || defaultTeachers[idx % defaultTeachers.length].image,
+            certifications: t.certifications && t.certifications.length > 0 ? t.certifications : ['Sertifikasi Kompetensi Guru'],
+            quote: t.quote || 'Pendidikan vokasi berkualitas mempersiapkan generasi profesional masa depan.'
+          }));
+          setTeachers(mappedTeach);
+        }
+      } catch (err) {
+        console.error('Error fetching facilities/teachers:', err);
+      }
+    }
+    fetchFasilitasAndGuru();
+  }, []);
 
   const activeLab = facilities.find(f => f.id === activeLabTab) || facilities[0];
 
@@ -115,7 +164,7 @@ export default function Fasilitas() {
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center space-x-2 bg-pink-50 border border-pink-100 rounded-full px-4 py-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-pink-600" />
-                <span className="text-[10px] tracking-widest font-extrabold text-pink-600 uppercase">
+                <span className="text-sm tracking-widest font-extrabold text-pink-600 uppercase">
                   PENGERTIAN PROGRAM KEAHLIAN
                 </span>
               </div>
@@ -139,14 +188,14 @@ export default function Fasilitas() {
                   <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                   <div>
                     <h5 className="text-xs font-bold text-gray-900">Kurikulum Dual System</h5>
-                    <p className="text-[10px] text-gray-500">Kerja sama industri bersertifikasi</p>
+                    <p className="text-sm text-gray-500">Kerja sama industri bersertifikasi</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                   <div>
                     <h5 className="text-xs font-bold text-gray-900">Living Lab (TEFA)</h5>
-                    <p className="text-[10px] text-gray-500">Praktik layanan rias &amp; spa berbayar</p>
+                    <p className="text-sm text-gray-500">Praktik layanan rias &amp; spa berbayar</p>
                   </div>
                 </div>
               </div>
@@ -160,22 +209,22 @@ export default function Fasilitas() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded-2xl border border-pink-100/50 text-center shadow-xs">
                   <span className="block text-3xl font-serif font-black text-pink-600">A</span>
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-gray-500 mt-1 block">Akreditasi BAN-PDM</span>
+                  <span className="text-sm uppercase font-extrabold tracking-widest text-gray-500 mt-1 block">Akreditasi BAN-PDM</span>
                 </div>
                 <div className="bg-white p-4 rounded-2xl border border-pink-100/50 text-center shadow-xs">
                   <span className="block text-2xl font-serif font-black text-pink-600">PK</span>
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-gray-500 mt-1 block">Pusat Keunggulan</span>
+                  <span className="text-sm uppercase font-extrabold tracking-widest text-gray-500 mt-1 block">Pusat Keunggulan</span>
                 </div>
                 <div className="bg-white p-4 rounded-2xl border border-pink-100/50 text-center shadow-xs">
                   <span className="block text-xl font-sans font-black text-pink-600">100%</span>
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-gray-500 mt-1 block">Lulus Uji BNSP</span>
+                  <span className="text-sm uppercase font-extrabold tracking-widest text-gray-500 mt-1 block">Lulus Uji BNSP</span>
                 </div>
                 <div className="bg-white p-4 rounded-2xl border border-pink-100/50 text-center shadow-xs">
                   <span className="block text-xl font-sans font-black text-pink-600">92%</span>
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-gray-500 mt-1 block">Keterserapan Kerja</span>
+                  <span className="text-sm uppercase font-extrabold tracking-widest text-gray-500 mt-1 block">Keterserapan Kerja</span>
                 </div>
               </div>
-              <div className="text-[10px] text-center text-gray-400 font-medium">Data di atas terverifikasi resmi oleh Kemendikbudristek RI</div>
+              <div className="text-sm text-center text-gray-400 font-medium">Data di atas terverifikasi resmi oleh Kemendikbudristek RI</div>
             </div>
 
           </div>
@@ -189,7 +238,7 @@ export default function Fasilitas() {
             
             {/* Left Side: Accent info about national standard */}
             <div className="lg:col-span-4 space-y-5">
-              <span className="text-[9px] font-extrabold text-pink-600 uppercase tracking-widest bg-pink-50 border border-pink-100 px-3.5 py-1.5 rounded-full inline-block">
+              <span className="text-xs font-extrabold text-pink-600 uppercase tracking-widest bg-pink-50 border border-pink-100 px-3.5 py-1.5 rounded-full inline-block">
                 SISTEM AKREDITASI STANDARDISASI
               </span>
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900 leading-snug">
@@ -200,7 +249,7 @@ export default function Fasilitas() {
               </p>
               <div className="p-4 bg-pink-50/20 border border-pink-100 rounded-2xl flex items-center space-x-3.5">
                 <ShieldCheck className="w-8 h-8 text-pink-500 shrink-0" />
-                <p className="text-[10px] text-gray-500 leading-normal font-medium">
+                <p className="text-sm text-gray-500 leading-normal font-medium">
                   Sertifikat Akreditasi ini merupakan penjaminan mutu mutu pendidikan, validitas fasilitas praktik, dan kualifikasi kelulusan terpercaya.
                 </p>
               </div>
@@ -224,13 +273,13 @@ export default function Fasilitas() {
 
                 {/* Certificate Heading */}
                 <div className="text-center relative z-10 space-y-1.5 pb-4 border-b border-[#da9f5d]/20">
-                  <h4 className="text-[10px] font-extrabold uppercase text-[#73521d] tracking-[0.2em] font-sans">
+                  <h4 className="text-sm font-extrabold uppercase text-[#73521d] tracking-[0.2em] font-sans">
                     REPUBLIK INDONESIA
                   </h4>
                   <h3 className="text-xs sm:text-sm font-bold uppercase text-[#8c672b] tracking-wider">
                     BADAN AKREDITASI NASIONAL PENDIDIKAN (BAN-PDM)
                   </h3>
-                  <div className="text-[9px] text-[#73521d]/80 font-mono">
+                  <div className="text-xs text-[#73521d]/80 font-mono">
                     Keputusan Ketua Badan Akreditasi Nasional No. 134/BAN-PDM/SK/2025
                   </div>
                 </div>
@@ -248,7 +297,7 @@ export default function Fasilitas() {
                     <p className="text-xs font-bold text-gray-700 tracking-wide mt-1">
                       SMK NEGERI 1 PEKALONGAN
                     </p>
-                    <p className="text-[10px] text-gray-400 font-mono">
+                    <p className="text-sm text-gray-400 font-mono">
                       NPSN: 20328981 | Jl. Landungsari No. 2, Kota Pekalongan, Jawa Tengah
                     </p>
                   </div>
@@ -259,7 +308,7 @@ export default function Fasilitas() {
 
                   {/* Rating Grade A Ribbon */}
                   <div className="inline-flex flex-col items-center justify-center bg-gradient-to-b from-[#fbf5e7] to-[#f5e4c6] border border-[#d2ab6c] px-8 py-2.5 rounded-xl shadow-sm relative overflow-hidden">
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#73521d] leading-none">
+                    <span className="text-sm font-extrabold uppercase tracking-widest text-[#73521d] leading-none">
                       TERAKREDITASI
                     </span>
                     <span className="text-2xl sm:text-3xl font-serif font-black text-[#8c672b] leading-tight">
@@ -292,11 +341,11 @@ export default function Fasilitas() {
 
                   {/* Right Column: Signature Seal */}
                   <div className="text-center flex flex-col items-center justify-center">
-                    <span className="text-[8px] text-[#73521d] font-bold block leading-none uppercase">Ketua Komite Akreditasi,</span>
+                    <span className="text-sm text-[#73521d] font-bold block leading-none uppercase">Ketua Komite Akreditasi,</span>
                     
                     {/* Simulated elegant signature lines */}
                     <div className="w-20 h-8 border-b border-[#73521d]/30 relative my-1">
-                      <p className="font-serif italic text-[11px] text-[#da9f5d]/80 absolute left-1/2 -translate-x-1/2 top-1 tracking-widest select-none font-bold">
+                      <p className="font-serif italic text-base text-[#da9f5d]/80 absolute left-1/2 -translate-x-1/2 top-1 tracking-widest select-none font-bold">
                         Sudibyo.M
                       </p>
                     </div>
@@ -319,7 +368,7 @@ export default function Fasilitas() {
           
           {/* Top Intro Section */}
           <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-            <p className="text-[10px] tracking-[0.2em] font-extrabold text-pink-600 uppercase">
+            <p className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase">
               STATE-OF-THE-ART LAB TOUR
             </p>
             <h3 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
@@ -351,7 +400,7 @@ export default function Fasilitas() {
                     <Building className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-pink-500'}`} />
                     <div>
                       <h4 className="text-sm font-bold tracking-tight">{fac.name}</h4>
-                      <p className={`text-[10px] mt-0.5 font-normal ${isActive ? 'text-pink-100' : 'text-gray-400'}`}>{fac.capacity}</p>
+                      <p className={`text-sm mt-0.5 font-normal ${isActive ? 'text-pink-100' : 'text-gray-400'}`}>{fac.capacity}</p>
                     </div>
                   </button>
                 );
@@ -361,7 +410,7 @@ export default function Fasilitas() {
             {/* Right Area: Illustrated Lab details (8 col) */}
             <div className="lg:col-span-8 bg-pink-50/30 rounded-[2rem] p-6 sm:p-10 border border-pink-100 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-fade-in">
               <div className="space-y-5">
-                <span className="text-[9px] font-bold tracking-widest text-pink-600 bg-white border border-pink-100 px-3 py-1 rounded-full uppercase shadow-xs">
+                <span className="text-xs font-bold tracking-widest text-pink-600 bg-white border border-pink-100 px-3 py-1 rounded-full uppercase shadow-xs">
                   LABORATORIUM AKTIF JURUSAN
                 </span>
                 
@@ -374,8 +423,8 @@ export default function Fasilitas() {
                 </p>
 
                 <div>
-                  <h5 className="text-[10px] font-bold tracking-wider text-gray-900 uppercase mb-2">Instalasi Alat Sedia:</h5>
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-600">
+                  <h5 className="text-sm font-bold tracking-wider text-gray-900 uppercase mb-2">Instalasi Alat Sedia:</h5>
+                  <div className="grid grid-cols-2 gap-2 text-base text-gray-600">
                     {activeLab.equipment.map((eq, i) => (
                       <div key={i} className="flex items-center space-x-1.5 bg-white p-2 rounded-xl border border-pink-100 shadow-xs">
                         <span className="w-1.5 h-1.5 bg-pink-500 rounded-full shrink-0" />
@@ -395,7 +444,7 @@ export default function Fasilitas() {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-950/40 via-transparent to-transparent pointer-none" />
-                <span className="absolute bottom-4 left-4 text-[9px] font-extrabold uppercase tracking-widest text-white bg-pink-500 px-3 py-1.5 rounded-full shadow-sm">
+                <span className="absolute bottom-4 left-4 text-xs font-extrabold uppercase tracking-widest text-white bg-pink-500 px-3 py-1.5 rounded-full shadow-sm">
                   Standar Industri Vokasi
                 </span>
               </div>
@@ -445,7 +494,7 @@ export default function Fasilitas() {
                     />
                     
                     {/* Tiny Cert Badge floating on image for extra detail */}
-                    <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-xs text-[8px] font-extrabold uppercase tracking-widest text-[#be185d] px-2 py-1 rounded shadow-xs border border-pink-100/50">
+                    <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-xs text-sm font-extrabold uppercase tracking-widest text-[#be185d] px-2 py-1 rounded shadow-xs border border-pink-100/50">
                       Asesor BNSP
                     </span>
                   </div>
@@ -461,7 +510,7 @@ export default function Fasilitas() {
                 {/* Bottom Role bar with a border separator */}
                 <div className="px-4 pb-4">
                   <div className="border-t border-gray-100 pt-3">
-                    <p className="text-[11px] sm:text-xs text-gray-500 leading-normal font-medium">
+                    <p className="text-base sm:text-xs text-gray-500 leading-normal font-medium">
                       {teach.role}
                     </p>
                   </div>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Edit2, X, Users, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Trash2, Edit2, X, Users, Search, Upload } from 'lucide-react';
+import { supabase, uploadImage } from '../../lib/supabase';
 
 interface Teacher {
   id: string;
@@ -7,22 +8,41 @@ interface Teacher {
   nip: string;
   subject: string;
   position: string;
+  image_url?: string;
+  quote?: string;
+  certifications?: string[];
 }
 
-const emptyForm = { name: '', nip: '', subject: '', position: '' };
-
-const defaultTeachers: Teacher[] = [
-  { id: 't1', name: 'Dra. Hj. Wahyu Astuti', nip: '19680312 199403 2 004', subject: 'Etika Pelayanan & Beauty Service Excellence', position: 'Ketua Konsentrasi Keahlian' },
-  { id: 't2', name: 'Sri Mulyani, S.Pd.', nip: '19750824 200212 2 003', subject: 'Anatomi Fisiologi Kulit & Formulasi Kosmetik', position: 'Sekretaris Jurusan' },
-  { id: 't3', name: 'Rini Widowati, S.S.T', nip: '19841102 201001 2 008', subject: 'Terapi Spa Tubuh & Pijat Tradisional Nusantara', position: 'Koordinator Unit TEFA Eduspa Salon' },
-];
+const emptyForm = { name: '', nip: '', subject: '', position: '', image_url: '', quote: '', certifications: '' };
 
 export default function TeacherManager() {
-  const [teachers, setTeachers] = useState<Teacher[]>(defaultTeachers);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [search, setSearch] = useState('');
+  const [uploading, setUploading] = useState(false);
+
+  const fetchTeachers = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('teachers')
+        .select('*')
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      setTeachers(data || []);
+    } catch (err: any) {
+      console.error('Error fetching teachers:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
 
   const openAdd = () => {
     setEditingId(null);
@@ -32,23 +52,82 @@ export default function TeacherManager() {
 
   const openEdit = (t: Teacher) => {
     setEditingId(t.id);
-    setFormData({ name: t.name, nip: t.nip, subject: t.subject, position: t.position });
+    setFormData({ 
+      name: t.name, 
+      nip: t.nip || '', 
+      subject: t.subject, 
+      position: t.position,
+      image_url: t.image_url || '',
+      quote: t.quote || '',
+      certifications: t.certifications ? t.certifications.join(', ') : ''
+    });
     setShowModal(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingId) {
-      setTeachers(prev => prev.map(t => t.id === editingId ? { ...t, ...formData } : t));
-    } else {
-      setTeachers(prev => [...prev, { id: `t-${Date.now()}`, ...formData }]);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Ukuran file maksimal 2MB');
+        e.target.value = '';
+        return;
+      }
+      try {
+        setUploading(true);
+        const publicUrl = await uploadImage(file);
+        setFormData(prev => ({ ...prev, image_url: publicUrl }));
+      } catch (err: any) {
+        alert('Gagal mengunggah foto: ' + err.message);
+      } finally {
+        setUploading(false);
+      }
     }
-    setShowModal(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        name: formData.name,
+        nip: formData.nip,
+        subject: formData.subject,
+        position: formData.position,
+        image_url: formData.image_url,
+        quote: formData.quote,
+        certifications: formData.certifications.split(',').map(s => s.trim()).filter(s => s)
+      };
+
+      if (editingId) {
+        const { error } = await supabase
+          .from('teachers')
+          .update(payload)
+          .eq('id', editingId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('teachers')
+          .insert(payload);
+        if (error) throw error;
+      }
+      setShowModal(false);
+      fetchTeachers();
+    } catch (error: any) {
+      alert('Gagal menyimpan data guru. Pastikan Anda sudah menjalankan ALTER TABLE di database. Error: ' + error.message);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Hapus data guru ini?')) return;
-    setTeachers(prev => prev.filter(t => t.id !== id));
+    try {
+      const { error } = await supabase
+        .from('teachers')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      fetchTeachers();
+    } catch (error: any) {
+      alert('Gagal menghapus data guru: ' + error.message);
+    }
   };
 
   const filtered = teachers.filter((t) =>
@@ -101,9 +180,13 @@ export default function TeacherManager() {
                     <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center text-pink-700 font-bold text-sm flex-shrink-0">
-                            {t.name.charAt(0)}
-                          </div>
+                          {t.image_url ? (
+                            <img src={t.image_url} alt={t.name} className="w-9 h-9 rounded-full object-cover shadow-sm border border-pink-100" />
+                          ) : (
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center text-pink-700 font-bold text-sm flex-shrink-0">
+                              {t.name.charAt(0)}
+                            </div>
+                          )}
                           <span className="font-semibold text-slate-800">{t.name}</span>
                         </div>
                       </td>
@@ -127,42 +210,79 @@ export default function TeacherManager() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white rounded-t-2xl z-10">
               <h3 className="font-bold text-slate-800">{editingId ? 'Edit Data Guru' : 'Tambah Guru Baru'}</h3>
               <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleSave} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Nama Lengkap</label>
-                <input type="text" required value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Nama beserta gelar..." />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">NIP</label>
-                  <input type="text" value={formData.nip}
-                    onChange={(e) => setFormData({ ...formData, nip: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="NIP (jika ada)" />
+            <form onSubmit={handleSave} className="p-6 space-y-5">
+              
+              <div className="flex items-center gap-6 pb-2">
+                <div className="shrink-0">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Foto Profil</label>
+                  <div className="relative w-24 h-24 rounded-full border-2 border-dashed border-pink-200 bg-pink-50 flex flex-col items-center justify-center overflow-hidden group">
+                    {formData.image_url ? (
+                      <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <Users className="w-8 h-8 text-pink-300 mb-1" />
+                    )}
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <Upload className="w-5 h-5 text-white" />
+                      <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+                    </div>
+                  </div>
+                  {uploading && <p className="text-sm text-pink-500 mt-1 text-center font-bold animate-pulse">Mengunggah...</p>}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Jabatan</label>
-                  <input type="text" required value={formData.position}
-                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Guru Kejuruan / Ka. Jurusan" />
+                
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Nama Lengkap & Gelar</label>
+                    <input type="text" required value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Contoh: Dra. Endang Sulastri, M.Pd." />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">NIP</label>
+                      <input type="text" value={formData.nip}
+                        onChange={(e) => setFormData({ ...formData, nip: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="NIP (jika ada)" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Jabatan / Posisi</label>
+                      <input type="text" required value={formData.position}
+                        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Misal: Ketua Jurusan" />
+                    </div>
+                  </div>
                 </div>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Bidang Studi</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Bidang Studi yang Diajarkan</label>
                 <input type="text" required value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Misal: Tata Kecantikan Kulit" />
+                  className="w-full rounded-xl border border-slate-200 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Misal: Tata Kecantikan Kulit" />
               </div>
-              <div className="flex justify-end gap-3 pt-2">
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Sertifikasi & Lisensi (Pisahkan dengan koma)</label>
+                <input type="text" value={formData.certifications}
+                  onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Asesor BNSP, Sertifikasi Wardah MUA, ..." />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Kutipan / Moto (Quote) Guru</label>
+                <textarea rows={2} value={formData.quote}
+                  onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none" placeholder="Estetika sejati lahir dari kedisiplinan..." />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50">Batal</button>
-                <button type="submit" className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200"
+                <button type="submit" disabled={uploading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 disabled:opacity-50"
                   style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
                   {editingId ? 'Simpan Perubahan' : 'Tambah Guru'}
                 </button>

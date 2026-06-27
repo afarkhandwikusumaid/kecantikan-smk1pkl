@@ -84,7 +84,7 @@ export default function Kompetensi() {
         
         {/* Section Title */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <p className="text-[10px] tracking-[0.2em] font-extrabold text-pink-600 uppercase">
+          <p className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase">
             SPEKTRUM KEAHLIAN AKADEMIK
           </p>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 leading-tight">
@@ -127,16 +127,16 @@ export default function Kompetensi() {
                 alt={activeComp.title}
                 className="w-full h-full object-cover filter brightness-95 transform transition-transform duration-700 hover:scale-105"
               />
-              <div className="absolute top-4 left-4 bg-pink-500 text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+              <div className="absolute top-4 left-4 bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
                 FOKUS: {activeComp.badge}
               </div>
               
               <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-xl p-3.5 border border-pink-100 shadow-sm">
                 <div className="flex items-center space-x-2 text-pink-600 mb-0.5">
                   <Clock className="w-3.5 h-3.5 shrink-0" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">{activeComp.duration}</span>
+                  <span className="text-sm font-bold uppercase tracking-wider">{activeComp.duration}</span>
                 </div>
-                <p className="text-[10px] text-gray-500">Masa belajar intensif sebelum sertifikasi kompetensi LSP-P1/BNSP.</p>
+                <p className="text-sm text-gray-500">Masa belajar intensif sebelum sertifikasi kompetensi LSP-P1/BNSP.</p>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function Kompetensi() {
           <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
-                <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                <span className="bg-green-100 text-green-700 text-sm px-2 py-0.5 rounded font-bold uppercase">
                   {activeComp.titleEn}
                 </span>
               </div>
@@ -190,7 +190,7 @@ export default function Kompetensi() {
                 {activeComp.tools.map((tool, index) => (
                   <span
                     key={index}
-                    className="bg-white text-pink-700 text-[10px] font-bold px-2.5 py-1 rounded-md border border-pink-100 shadow-sm"
+                    className="bg-white text-pink-700 text-sm font-bold px-2.5 py-1 rounded-md border border-pink-100 shadow-sm"
                   >
                     {tool}
                   </span>
@@ -206,7 +206,7 @@ export default function Kompetensi() {
                 </div>
                 <div>
                   <h5 className="text-xs font-bold text-gray-900 leading-none">Standar Sertifikasi Nasional</h5>
-                  <p className="text-[10px] text-gray-500">Lisensi BNSP Indonesia</p>
+                  <p className="text-sm text-gray-500">Lisensi BNSP Indonesia</p>
                 </div>
               </div>
               <button

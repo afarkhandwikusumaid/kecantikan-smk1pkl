@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar, 
   MapPin, 
@@ -16,17 +16,77 @@ import {
   Building
 } from 'lucide-react';
 import { activityDocs, ActivityDoc } from '../../data';
+import { supabase } from '../../lib/supabase';
 
 export default function Dokumentasi() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [featuredDoc, setFeaturedDoc] = useState<ActivityDoc | null>(null);
+  const [docs, setDocs] = useState<ActivityDoc[]>(activityDocs);
+
+  useEffect(() => {
+    async function fetchDocs() {
+      try {
+        const { data, error } = await supabase
+          .from('galleries')
+          .select('*')
+          .order('date', { ascending: false });
+        
+        if (data && data.length > 0) {
+          const activityItems = data.filter((item: any) => 
+            ['Kegiatan', 'Fasilitas'].includes(item.category)
+          );
+
+          if (activityItems.length > 0) {
+            const mapped = activityItems.map((item: any) => {
+              let cat: 'Sertifikasi & Lisensi' | 'Sempro & Expo' | 'Seminar & Workshop' | 'Pengabdian Masyarakat' | 'Kemitraan DUDI' = 'Sertifikasi & Lisensi';
+              const titleLower = item.title.toLowerCase();
+              if (titleLower.includes('uji') || titleLower.includes('lsp') || titleLower.includes('sertifikasi')) {
+                cat = 'Sertifikasi & Lisensi';
+              } else if (titleLower.includes('expo') || titleLower.includes('pameran') || titleLower.includes('pekan')) {
+                cat = 'Sempro & Expo';
+              } else if (titleLower.includes('workshop') || titleLower.includes('seminar') || titleLower.includes('kursus')) {
+                cat = 'Seminar & Workshop';
+              } else if (titleLower.includes('sosial') || titleLower.includes('bakti') || titleLower.includes('masyarakat') || titleLower.includes('peduli')) {
+                cat = 'Pengabdian Masyarakat';
+              } else if (titleLower.includes('martha') || titleLower.includes('mustika') || titleLower.includes('dudi') || titleLower.includes('mitra') || titleLower.includes('kemitraan')) {
+                cat = 'Kemitraan DUDI';
+              }
+
+              const formattedDate = new Date(item.date).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              });
+
+              return {
+                id: item.id,
+                title: item.title,
+                date: formattedDate,
+                category: cat,
+                summary: `Dokumentasi resmi kegiatan ${item.title} yang dilaksanakan pada tanggal ${formattedDate}.`,
+                description: `Pelaksanaan kegiatan ${item.title} ini merupakan bagian dari penjaminan mutu kurikulum vokasi Tata Kecantikan Kulit dan Spa SMKN 1 Pekalongan, bertujuan untuk mematangkan kesiapan kerja peserta didik dan jalinan mitra industri.`,
+                imageUrl: item.image_url,
+                writer: "Humas Eduspa SMKN 1",
+                tags: [item.category, "Eduspa", "Kegiatan"],
+                location: "Kampus SMKN 1 Pekalongan"
+              };
+            });
+            setDocs(mapped);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching activity docs from Supabase:', err);
+      }
+    }
+    fetchDocs();
+  }, []);
 
   // Get distinct categories
   const categories = ['Semua', 'Sertifikasi & Lisensi', 'Sempro & Expo', 'Seminar & Workshop', 'Pengabdian Masyarakat', 'Kemitraan DUDI'];
 
   // Filter docs
-  const filteredDocs = activityDocs.filter((doc) => {
+  const filteredDocs = docs.filter((doc) => {
     const matchesCategory = selectedCategory === 'Semua' || doc.category === selectedCategory;
     const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           doc.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -43,7 +103,7 @@ export default function Dokumentasi() {
         <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-pink-600/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto text-center relative z-10 space-y-4">
-          <div className="inline-flex items-center space-x-2 bg-pink-500/20 text-pink-300 text-[10px] font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider border border-pink-500/30">
+          <div className="inline-flex items-center space-x-2 bg-pink-500/20 text-pink-300 text-sm font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider border border-pink-500/30">
             <Camera className="w-3.5 h-3.5" />
             <span>DOKUMENTASI JURUSAN</span>
           </div>
@@ -78,13 +138,13 @@ export default function Dokumentasi() {
             
             {/* Stat Counter */}
             <div className="text-xs text-gray-500 font-semibold font-mono text-left md:text-right">
-              Menampilkan <span className="text-pink-600 font-bold">{filteredDocs.length}</span> dari {activityDocs.length} arsip kegiatan
+              Menampilkan <span className="text-pink-600 font-bold">{filteredDocs.length}</span> dari {docs.length} arsip kegiatan
             </div>
           </div>
 
           {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-gray-100">
-            <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mr-2">Saring Kategori:</span>
+            <span className="text-sm font-extrabold text-gray-400 uppercase tracking-widest mr-2">Saring Kategori:</span>
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -137,14 +197,14 @@ export default function Dokumentasi() {
                     alt={doc.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-4 left-4 bg-gray-900/90 backdrop-blur-xs text-white text-[9px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                  <span className="absolute top-4 left-4 bg-gray-900/90 backdrop-blur-xs text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
                     {doc.category}
                   </span>
                 </div>
 
                 {/* Card Content */}
                 <div className="p-6 space-y-3">
-                  <div className="flex items-center space-x-3 text-[10px] text-gray-400 font-bold">
+                  <div className="flex items-center space-x-3 text-sm text-gray-400 font-bold">
                     <span className="flex items-center space-x-1">
                       <Calendar className="w-3.5 h-3.5 text-pink-500 shrink-0" />
                       <span>{doc.date}</span>
@@ -170,13 +230,13 @@ export default function Dokumentasi() {
               <div className="px-6 pb-6 pt-4 border-t border-pink-50/50 flex items-center justify-between">
                 <div className="flex flex-wrap gap-1">
                   {doc.tags.slice(0, 2).map((tg, idx) => (
-                    <span key={idx} className="text-[8px] bg-pink-50 text-pink-600 font-semibold px-2 py-0.5 rounded">
+                    <span key={idx} className="text-sm bg-pink-50 text-pink-600 font-semibold px-2 py-0.5 rounded">
                       #{tg}
                     </span>
                   ))}
                 </div>
                 
-                <span className="text-[10px] font-bold text-pink-600 flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                <span className="text-sm font-bold text-pink-600 flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
                   <span>Lihat Rincian</span>
                   <ChevronRight className="w-3 h-3" />
                 </span>
@@ -216,7 +276,7 @@ export default function Dokumentasi() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 
                 <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
-                  <span className="bg-pink-600 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest border border-pink-400">
+                  <span className="bg-pink-600 text-sm font-extrabold px-3 py-1 rounded-full uppercase tracking-widest border border-pink-400">
                     {featuredDoc.category}
                   </span>
                   <h2 className="font-serif text-lg sm:text-2xl font-bold leading-tight">
@@ -230,7 +290,7 @@ export default function Dokumentasi() {
                 <div className="flex items-center space-x-2">
                   <Calendar className="w-4 h-4 text-pink-500" />
                   <div>
-                    <span className="text-[9px] text-gray-400 uppercase block">Tanggal Kegiatan</span>
+                    <span className="text-xs text-gray-400 uppercase block">Tanggal Kegiatan</span>
                     <span className="font-bold text-gray-800">{featuredDoc.date}</span>
                   </div>
                 </div>
@@ -238,7 +298,7 @@ export default function Dokumentasi() {
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4 text-pink-500" />
                   <div>
-                    <span className="text-[9px] text-gray-400 uppercase block">Tempat Pelaksanaan</span>
+                    <span className="text-xs text-gray-400 uppercase block">Tempat Pelaksanaan</span>
                     <span className="font-bold text-gray-800 truncate block max-w-[150px]">{featuredDoc.location}</span>
                   </div>
                 </div>
@@ -246,7 +306,7 @@ export default function Dokumentasi() {
                 <div className="flex items-center space-x-2 col-span-2 sm:col-span-1">
                   <User className="w-4 h-4 text-pink-500" />
                   <div>
-                    <span className="text-[9px] text-gray-400 uppercase block">Penanggung Jawab / Penulis</span>
+                    <span className="text-xs text-gray-400 uppercase block">Penanggung Jawab / Penulis</span>
                     <span className="font-bold text-gray-800 truncate block max-w-[180px]">{featuredDoc.writer}</span>
                   </div>
                 </div>
@@ -270,16 +330,16 @@ export default function Dokumentasi() {
                 {/* Full list of action tags */}
                 <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-1.5">
                   <Tag className="w-3.5 h-3.5 text-gray-400 mr-1" />
-                  <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mr-1">Topik Terkait:</span>
+                  <span className="text-xs text-gray-400 font-bold uppercase tracking-wider mr-1">Topik Terkait:</span>
                   {featuredDoc.tags.map((t, idx) => (
-                    <span key={idx} className="bg-pink-50 text-pink-700 text-[10px] font-bold px-3 py-1 rounded-lg">
+                    <span key={idx} className="bg-pink-50 text-pink-700 text-sm font-bold px-3 py-1 rounded-lg">
                       #{t}
                     </span>
                   ))}
                 </div>
 
                 {/* Footnote statement */}
-                <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center space-x-3.5 text-[10px] text-gray-500 leading-relaxed font-sans">
+                <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center space-x-3.5 text-sm text-gray-500 leading-relaxed font-sans">
                   <span className="text-lg">📢</span>
                   <p>
                     Diterbitkan oleh Portal Hubungan Industri dan Kemasyarakatan (Hubin) SMK Negeri 1 Pekalongan. Seluruh informasi data di atas adalah arsip dokumentasi nyata pembelajaran vokasional tata kecantikan kulit dan spa.
@@ -292,7 +352,7 @@ export default function Dokumentasi() {
 
             {/* Modal Bottom control bar */}
             <div className="bg-gray-50 px-6 py-4 border-t border-pink-100 flex items-center justify-between shrink-0">
-              <span className="text-[9px] text-gray-400 tracking-wider uppercase font-bold font-mono">DOKUMEN ID: {featuredDoc.id}</span>
+              <span className="text-xs text-gray-400 tracking-wider uppercase font-bold font-mono">DOKUMEN ID: {featuredDoc.id}</span>
               <button
                 onClick={() => setFeaturedDoc(null)}
                 className="bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs uppercase tracking-widest px-6 py-2.5 rounded-xl cursor-pointer transition-all"

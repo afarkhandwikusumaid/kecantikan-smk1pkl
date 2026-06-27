@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp, Sparkles, MessageCircle, ArrowRight } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface FAQItem {
   id: string;
@@ -10,7 +11,7 @@ interface FAQItem {
 export default function FAQ() {
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const faqItems: FAQItem[] = [
+  const [faqItems, setFaqItems] = useState<FAQItem[]>([
     {
       id: 'faq-1',
       question: 'Apakah lulusan Jurusan Tata Kecantikan & Spa hanya bisa bekerja di salon biasa?',
@@ -36,7 +37,18 @@ export default function FAQ() {
       question: 'Bagaimana sistem Teaching Factory (TEFA) di Eduspa Salon dijalankan?',
       answer: 'Eduspa Salon merupakan perwujudan Living Lab sekolah. Di sini, siswa diajarkan simulasi operasional bisnis salon kecantikan komersial sesungguhnya. Siswa melayani pelanggan umum Pekalongan (seperti perawatan facial manual, creambath rambut, nail art, manicure-pedicure, lulur rempah) di bawah bimbingan guru ahli pembina sehingga terbentuk jiwa wirausaha mandiri.'
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    async function fetchFaqs() {
+      try {
+        const { data } = await supabase.from('site_settings').select('value').eq('key', 'faqs').single();
+        if (data && data.value) setFaqItems(data.value as FAQItem[]);
+      } catch (err) { console.error(err); }
+    }
+    fetchFaqs();
+  }, []);
+
 
   const toggleFAQ = (id: string) => {
     setOpenId(openId === id ? null : id);
@@ -48,7 +60,7 @@ export default function FAQ() {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
-          <div className="inline-flex items-center space-x-2 bg-pink-50 border border-pink-100 text-pink-600 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest">
+          <div className="inline-flex items-center space-x-2 bg-pink-50 border border-pink-100 text-pink-600 px-3.5 py-1.5 rounded-full text-sm font-extrabold uppercase tracking-widest">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>TANYA JAWAB UMUM</span>
           </div>

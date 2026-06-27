@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { supabase } from '../../lib/supabase';
 import {
   FileText, Building2, BookOpen, Handshake, Users,
   Image, TrendingUp, ArrowRight, Sparkles, Star
@@ -29,7 +28,7 @@ interface DashboardProps {
 
 export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
   const [stats, setStats] = useState({
-    news: 0, gallery: 0, curriculum: 0, partnerships: 0, facilities: 0,
+    news: 0, gallery: 0, curriculum: 0, partnerships: 5, facilities: 0,
   });
   const [recentNews, setRecentNews] = useState<RecentNews[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,28 +37,38 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
     const fetchAll = async () => {
       setLoading(true);
       try {
-        const [newsSnap, gallerySnap, currSnap, partnerSnap, facSnap] = await Promise.all([
-          getDocs(collection(db, 'news')),
-          getDocs(collection(db, 'gallery')),
-          getDocs(collection(db, 'curriculum')),
-          getDocs(collection(db, 'partnerships')),
-          getDocs(collection(db, 'facilities')),
+        const [newsRes, galleryRes, currRes, facRes] = await Promise.all([
+          supabase.from('news').select('*', { count: 'exact', head: true }),
+          supabase.from('galleries').select('*', { count: 'exact', head: true }),
+          supabase.from('curriculum').select('*', { count: 'exact', head: true }),
+          supabase.from('facilities').select('*', { count: 'exact', head: true }),
         ]);
 
         setStats({
-          news: newsSnap.size,
-          gallery: gallerySnap.size,
-          curriculum: currSnap.size,
-          partnerships: partnerSnap.size,
-          facilities: facSnap.size,
+          news: newsRes.count || 0,
+          gallery: galleryRes.count || 0,
+          curriculum: currRes.count || 0,
+          partnerships: 5,
+          facilities: facRes.count || 0,
         });
 
         // Recent news
-        const newsData: RecentNews[] = newsSnap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as RecentNews))
-          .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-          .slice(0, 5);
-        setRecentNews(newsData);
+        const { data: newsData, error: newsError } = await supabase
+          .from('news')
+          .select('id, title, category, date')
+          .order('date', { ascending: false })
+          .limit(5);
+
+        if (newsError) throw newsError;
+
+        if (newsData) {
+          setRecentNews(newsData.map((n: any) => ({
+            id: n.id,
+            title: n.title,
+            category: n.category,
+            date: n.date
+          })));
+        }
       } catch (e) {
         console.error('Dashboard fetch error:', e);
       } finally {
@@ -175,7 +184,7 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
                     <p className="text-xs text-slate-400">{item.date}</p>
                   </div>
                   {item.category && (
-                    <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold ${categoryColor[item.category] || 'bg-slate-100 text-slate-500'}`}>
+                    <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-sm font-semibold ${categoryColor[item.category] || 'bg-slate-100 text-slate-500'}`}>
                       {item.category}
                     </span>
                   )}

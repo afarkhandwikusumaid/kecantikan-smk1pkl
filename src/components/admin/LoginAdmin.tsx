@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface LoginAdminProps {
   onLoginSuccess: () => void;
@@ -19,11 +18,14 @@ export default function LoginAdmin({ onLoginSuccess }: LoginAdminProps) {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
       onLoginSuccess();
     } catch (err: any) {
-      console.error(err);
-      setError('Gagal login. Periksa email dan password Anda.');
+      setError(err.message || 'Gagal login. Silakan periksa kembali email dan password Anda.');
     } finally {
       setLoading(false);
     }
@@ -41,7 +43,7 @@ export default function LoginAdmin({ onLoginSuccess }: LoginAdminProps) {
           Portal Admin
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Akses khusus untuk administrator sistem
+          Akses khusus untuk administrator sistem (Mode FE-Only)
         </p>
       </div>
 

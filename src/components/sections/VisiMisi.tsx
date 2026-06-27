@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { supabase } from '../../lib/supabase';
 
 interface VisiMisiProps {
   onNavigate: (sectionId: string) => void;
@@ -22,9 +23,48 @@ const defaultMisi = [
 ];
 
 export default function VisiMisi({ onNavigate }: VisiMisiProps) {
+  const [visiText, setVisiText] = useState(defaultVisi);
+  const [misiList, setMisiList] = useState<{ title: string; desc: string }[]>(defaultMisi);
 
-  const visiText = defaultVisi;
-  const misiList = defaultMisi;
+  useEffect(() => {
+    async function fetchVisiMisi() {
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'visi_misi')
+          .single();
+        
+        if (data && data.value) {
+          if (data.value.visi) {
+            setVisiText(data.value.visi);
+          }
+          if (Array.isArray(data.value.misi)) {
+            const parsed = data.value.misi.map((m: any) => {
+              if (typeof m === 'string') {
+                const parts = m.split(/[:—–-]/);
+                if (parts.length > 1) {
+                  return {
+                    title: parts[0].trim(),
+                    desc: parts.slice(1).join(':').trim()
+                  };
+                }
+                return { title: m, desc: '' };
+              }
+              return {
+                title: m.title || '',
+                desc: m.desc || ''
+              };
+            });
+            setMisiList(parsed);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching Visi & Misi on public page:', err);
+      }
+    }
+    fetchVisiMisi();
+  }, []);
 
   return (
     <section className="py-24 bg-gradient-to-b from-white to-[#fffefe] border-t border-b border-pink-100/30 relative overflow-hidden">
@@ -41,7 +81,7 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
           viewport={{ once: true }}
           className="text-center max-w-3xl mx-auto mb-16 space-y-3"
         >
-          <span className="text-[10px] tracking-[0.25em] font-extrabold text-pink-600 bg-pink-50 border border-pink-100 px-4 py-1.5 rounded-full uppercase">
+          <span className="text-sm tracking-[0.25em] font-extrabold text-pink-600 bg-pink-50 border border-pink-100 px-4 py-1.5 rounded-full uppercase">
             HALUAN AKADEMIK JURUSAN
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-gray-900 tracking-tight">
@@ -63,7 +103,7 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
           >
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none transition-transform duration-700 group-hover:scale-150" />
             <div className="space-y-6 relative z-10">
-              <span className="text-[9px] border border-white/30 px-3 py-1 rounded-full uppercase tracking-widest font-semibold inline-block backdrop-blur-sm bg-white/5">
+              <span className="text-xs border border-white/30 px-3 py-1 rounded-full uppercase tracking-widest font-semibold inline-block backdrop-blur-sm bg-white/5">
                 VISI UTAMA 2030
               </span>
               <h3 className="text-3xl sm:text-4xl font-serif font-bold text-white leading-tight">
@@ -74,7 +114,7 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
               </p>
             </div>
             <div className="pt-8 flex items-center space-x-2.5 border-t border-white/20 mt-8 relative z-10">
-              <span className="text-[10px] font-bold text-pink-100 tracking-wider font-sans uppercase flex items-center space-x-2">
+              <span className="text-sm font-bold text-pink-100 tracking-wider font-sans uppercase flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 <span>SMK HEBAT - SMK BISA</span>
               </span>
@@ -91,7 +131,7 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
           >
             <div className="space-y-8">
               <div className="inline-block">
-                <span className="text-[10px] tracking-[0.2em] font-extrabold text-pink-600 uppercase bg-pink-50 px-3 py-1 rounded-md">
+                <span className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase bg-pink-50 px-3 py-1 rounded-md">
                   MISI JURUSAN &amp; TUJUAN STRATEGIS
                 </span>
               </div>
@@ -119,7 +159,7 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
                 <span>Buka Lembar Kurikulum Rinci</span>
                 <span className="ml-2 transform transition-transform group-hover:translate-x-1">→</span>
               </button>
-              <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider bg-gray-50 px-2 py-1 rounded">Berdasarkan Regulasi Ditjen Vokasi RI</span>
+              <span className="text-sm text-gray-400 font-medium uppercase tracking-wider bg-gray-50 px-2 py-1 rounded">Berdasarkan Regulasi Ditjen Vokasi RI</span>
             </div>
           </motion.div>
         </div>

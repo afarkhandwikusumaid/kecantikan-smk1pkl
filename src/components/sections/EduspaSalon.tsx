@@ -1,27 +1,17 @@
-import React, { useState } from 'react';
-import { Sparkles, Clock, Calendar, Check, Tag, ShieldAlert, FileText, UserPlus, FileCheck, RefreshCw, Smartphone, Palette, Scroll } from 'lucide-react';
-import { Service, Booking } from '../../types';
+import React, { useState, useEffect } from 'react';
+import { Clock, Palette } from 'lucide-react';
+import { Service } from '../../types';
+import { supabase } from '../../lib/supabase';
 
 export default function EduspaSalon() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedServiceId, setSelectedServiceId] = useState<string>('skin1');
-  const [customerName, setCustomerName] = useState<string>('');
-  const [customerEmail, setCustomerEmail] = useState<string>('');
-  const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [bookingDate, setBookingDate] = useState<string>('2026-06-18');
-  const [bookingTime, setBookingTime] = useState<string>('10:00');
-  const [customNotes, setCustomNotes] = useState<string>('');
-  const [bookingVoucher, setBookingVoucher] = useState<Booking | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string>('');
-  const [isSaved, setIsSaved] = useState<boolean>(false);
-
-  const services: Service[] = [
+  const [services, setServices] = useState<Service[]>([
     {
       id: "skin1",
       category: "skincare",
       name: "Ozone Cleanse & Acne Therapy",
       duration: 45,
-      price: 75000,
+      price: 35000,
       description: "Pembersihan pori mendalam menggunakan uap Ozone, ditutup dengan High Frequency electrotherapy untuk membunuh bakteri jerawat.",
       features: ["Pembersihan ganda", "Ozone Vapourisation", "Sinar High-Frequency", "Masker Tea Tree", "Dermal Hydrating Serum"],
       image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=400"
@@ -31,7 +21,7 @@ export default function EduspaSalon() {
       category: "skincare",
       name: "Dermal Ultra-Rejuvenation Facial",
       duration: 60,
-      price: 120000,
+      price: 50000,
       description: "Perawatan anti-aging premium menggunakan mesin Ultrasound. Memasukkan serum kolagen hingga ke dermis kulit agar kenyal.",
       features: ["Mikroeksfoliasi Scrubber", "Transmisi Gel Kolagen", "Ultrasound Sonophoresis", "Peel-off Gold Mask", "Ice Globe massage"],
       image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=400"
@@ -41,7 +31,7 @@ export default function EduspaSalon() {
       category: "hair",
       name: "Botanical Hair Spa & Blow Styling",
       duration: 60,
-      price: 65000,
+      price: 40000,
       description: "Terapi nutrisi rambut kering & rontok menggunakan ekstrak aloe vera/ginseng alami, dipadu dengan pijat rileksasi pundak.",
       features: ["Scalp Scrubbing", "Creambath Massage (20 m)", "Ozone Hair Steam", "Keratin Coat Serum", "Sleek Standard Blow Dry"],
       image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=400"
@@ -51,7 +41,7 @@ export default function EduspaSalon() {
       category: "hair",
       name: "Pivot Point Creative Haircut & Tone",
       duration: 50,
-      price: 55000,
+      price: 30000,
       description: "Potong rambut presisi mengikuti geometri wajah, ditambah dengan pewarnaan penutup uban atau fashion tint basic.",
       features: ["Wood Hair Diagnosis", "Symmetric Sectioning Cut", "Wash & Scalp Stimulator", "Basic Fashion Tinting", "Blow Styling"],
       image: "https://images.unsplash.com/photo-1521590832167-7bcbfeac2531?q=80&w=400"
@@ -61,7 +51,7 @@ export default function EduspaSalon() {
       category: "body",
       name: "Keraton Royal Javanese Body Massage",
       duration: 80,
-      price: 95000,
+      price: 60000,
       description: "Seni pijat warisan keraton Jawa menggunakan minyak melati hangat, melancarkan peredaran darah, disusul scrub lulur rempah kuning.",
       features: ["Foot Bath Aromatherapy", "Signature Javanese Stroke Pijat", "Lulur Kuning Mangir Organik", "Traditional Body Warming Tea", "Hot Herbal Towel Wipe"],
       image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=400"
@@ -71,7 +61,7 @@ export default function EduspaSalon() {
       category: "body",
       name: "Mineral Hot Stone Reliever Therapy",
       duration: 90,
-      price: 135000,
+      price: 75000,
       description: "Perawatan spa holistik menggunakan batu basal vulkanik hangat untuk melemaskan otot tegang dan membuang racun tubuh.",
       features: ["Aromatic Foot Wash", "Basalt Hot Stone Placement", "Effleurage Spa Strokes", "Thermal Acupressure Stimulation", "Ginger Spice Drink"],
       image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=400"
@@ -81,7 +71,7 @@ export default function EduspaSalon() {
       category: "makeup",
       name: "Youthful Graduate Corrective Makeup",
       duration: 50,
-      price: 85000,
+      price: 45000,
       description: "Riasan wajah segar, tahan lama, dan berdimensi natural untuk upacara wisuda, syukuran, atau acara pesta formal siang hari.",
       features: ["Skin Preparation", "Satin-finish Foundation Blend", "Corrective Nose & Face Shading", "Elegant Eyebrow Framing", "Dewy Mist Settler"],
       image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=400"
@@ -91,57 +81,44 @@ export default function EduspaSalon() {
       category: "makeup",
       name: "Prada Traditional Bridal Makeup Art",
       duration: 120,
-      price: 350000,
+      price: 150000,
       description: "Mahakarya tata rias pengantin adat Jawa (Solo Putri/Jogja Paes Ageng) lengkap dengan penataan sanggul, prada, & hiasan melati sintetik.",
       features: ["Advanced Paes Drawing", "High Definition 12H Foundation", "Intricate Sanggul Traditional", "Ronce Melati & Cunduk Mentul Setup", "Aksesoris Pengantin Komplet"],
       image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=400"
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const { data, error } = await supabase
+          .from('services')
+          .select('*')
+          .order('name', { ascending: true });
+        
+        if (data && data.length > 0) {
+          const mapped = data.map((item: any) => ({
+            id: item.id,
+            category: item.category,
+            name: item.name,
+            duration: item.duration,
+            price: item.price,
+            description: item.description,
+            features: item.features || [],
+            image: item.image_url || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=400'
+          }));
+          setServices(mapped);
+        }
+      } catch (err) {
+        console.error('Error fetching services:', err);
+      }
+    }
+    fetchServices();
+  }, []);
 
   const filteredServices = selectedCategory === 'all' 
     ? services 
     : services.filter(s => s.category === selectedCategory);
-
-  const activeService = services.find(s => s.id === selectedServiceId) || services[0];
-
-  const handleSimulateBooking = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg('');
-    setIsSaved(false);
-
-    if (!customerName.trim() || !customerPhone.trim()) {
-      setErrorMsg("Mohon isi nama lengkap dan nomor WhatsApp!");
-      return;
-    }
-
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const code = `EDUSPA-${randomNum}`;
-
-    const newBooking: Booking = {
-      customerName,
-      email: customerEmail || "guest@pekalongan.school",
-      phone: customerPhone,
-      serviceId: selectedServiceId,
-      date: bookingDate,
-      timeSlot: bookingTime,
-      notes: customNotes,
-      totalPrice: activeService.price,
-      bookingCode: code,
-      status: 'Simulated'
-    };
-
-    setBookingVoucher(newBooking);
-  };
-
-  const resetSimulator = () => {
-    setCustomerName('');
-    setCustomerEmail('');
-    setCustomerPhone('');
-    setCustomNotes('');
-    setBookingVoucher(null);
-    setErrorMsg('');
-    setIsSaved(false);
-  };
 
   return (
     <section id="eduspa" className="py-20 md:py-28 bg-pink-50/20 border-y border-pink-100">
@@ -149,395 +126,104 @@ export default function EduspaSalon() {
         
         {/* Intro */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="text-[10px] tracking-[0.2em] font-extrabold text-pink-600 uppercase">
+          <span className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase">
             UNIT BISNIS JURUSAN &amp; TRAINING FACTORY
           </span>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 leading-tight">
             Eduspa Living Salon: <span className="text-pink-500 underline decoration-pink-200 underline-offset-8">Layanan Publik oleh Siswa</span>
           </h2>
-          <p className="text-sm sm:text-base text-gray-550 pt-3">
+          <p className="text-sm sm:text-base text-gray-500 pt-3">
             Sebuah konsep <span className="font-semibold text-gray-800">Teaching Factory</span> di mana para siswa tingkat akhir mempraktikkan keterampilan mereka secara langsung kepada masyarakat umum di bawah bimbingan dan pengawasan ketat Guru Instruktur bersertifikasi asesor nasional.
           </p>
         </div>
 
-        {/* Warning Indicator */}
-        <div className="bg-yellow-50/60 border border-yellow-200 rounded-3xl p-5 mb-10 flex items-start space-x-3 text-sm text-yellow-800 shadow-sm">
-          <ShieldAlert className="w-5 h-5 shrink-0 text-yellow-600 mt-0.5" />
-          <div>
-            <p className="font-bold text-gray-900">Info Simulasi Interaktif &amp; Non-Satelit</p>
-            <p className="text-xs text-yaml-700 text-gray-600 mt-1">
-              Semua layanan di bawah ini sepenuhnya nyata diadakan di Eduspa Salon SMK Negeri 1 Pekalongan. Form pemesanan di bawah berfungsi sebagai <strong>simulasi digital</strong> untuk menghitung estimasi biaya dan memvisualisasikan voucher tiket kelas industri Anda.
-            </p>
-          </div>
-        </div>
+        {/* Catalog Section */}
+        <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between border-b border-pink-100 pb-4 gap-4">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Palette className="w-5 h-5 text-pink-500" />
+              Katalog Layanan Eduspa
+            </h3>
 
-        {/* Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Left Column: Menu Catalog (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center justify-between border-b border-pink-100 pb-4">
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <Palette className="w-5 h-5 text-pink-500" />
-                Menu Layanan Eduspa
-              </h3>
-
-              {/* Filter Toggles */}
-              <div className="flex gap-1 bg-pink-100/50 p-1 rounded-xl border border-pink-100/30">
-                {['all', 'skincare', 'hair', 'body', 'makeup'].map(cat => (
-                  <button
-                    key={cat}
-                    id={`cat-filter-${cat}`}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold tracking-wider transition-all uppercase ${
-                      selectedCategory === cat
-                        ? 'bg-pink-500 text-white shadow-sm'
-                        : 'text-gray-500 hover:text-pink-600'
-                    }`}
-                  >
-                    {cat === 'all' ? 'Semua' : cat === 'skincare' ? 'Kulit' : cat === 'hair' ? 'Rambut' : cat === 'body' ? 'Spa' : 'Rias'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Services Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {filteredServices.map((service) => {
-                const isSelected = selectedServiceId === service.id;
-                return (
-                  <div
-                    key={service.id}
-                    id={`service-card-${service.id}`}
-                    onClick={() => setSelectedServiceId(service.id)}
-                    className={`group cursor-pointer rounded-3xl overflow-hidden bg-white border transition-all duration-300 relative hover:-translate-y-0.5 hover:shadow-md ${
-                      isSelected
-                        ? 'border-pink-500 ring-2 ring-pink-500/20 shadow-sm'
-                        : 'border-pink-100'
-                    }`}
-                  >
-                    <div className="h-40 relative overflow-hidden">
-                      <img
-                        src={service.image}
-                        alt={service.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute top-2 right-2 bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest shadow-sm">
-                        {service.category}
-                      </div>
-                      <div className="absolute bottom-2 left-2 bg-gray-950/80 backdrop-blur-sm px-2.5 py-1 rounded-md text-[10px] font-bold text-white flex items-center gap-1 shadow-sm">
-                        <Clock className="w-3 h-3 text-pink-400" />
-                        {service.duration} Menit
-                      </div>
-                    </div>
-
-                    <div className="p-5 space-y-2">
-                      <h4 className="font-serif text-base font-bold text-gray-900 leading-tight">
-                        {service.name}
-                      </h4>
-                      <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium">
-                        {service.description}
-                      </p>
-                      
-                      <div className="flex items-center justify-between pt-3 border-t border-pink-50">
-                        <span className="text-pink-600 font-sans font-black text-sm">
-                          Rp {service.price.toLocaleString('id-ID')}
-                        </span>
-                        
-                        <div className="flex items-center space-x-1.5">
-                          <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Siswi Lab</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {isSelected && (
-                      <div className="absolute top-2 left-2 bg-pink-500 text-white rounded-full p-1.5 shadow-md">
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+            {/* Filter Toggles */}
+            <div className="flex flex-wrap gap-1 bg-pink-100/50 p-1 rounded-xl border border-pink-100/30">
+              {['all', 'skincare', 'hair', 'body', 'makeup'].map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold tracking-wider transition-all uppercase ${
+                    selectedCategory === cat
+                      ? 'bg-pink-500 text-white shadow-sm'
+                      : 'text-gray-500 hover:text-pink-600'
+                  }`}
+                >
+                  {cat === 'all' ? 'Semua Layanan' : cat === 'skincare' ? 'Kulit' : cat === 'hair' ? 'Rambut' : cat === 'body' ? 'Spa' : 'Rias'}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Right Column: Interaction Planner / Booking simulated voucher (5 cols) */}
-          <div className="lg:col-span-5">
-            {!bookingVoucher ? (
-              <form
-                id="booking-simulation-form"
-                onSubmit={handleSimulateBooking}
-                className="bg-white rounded-[2rem] p-6 sm:p-8 border border-pink-100 shadow-sm space-y-5"
+          {/* Services Grid (Full Width) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredServices.map((service) => (
+              <div
+                key={service.id}
+                className="group rounded-3xl overflow-hidden bg-white border border-pink-100 transition-all duration-300 relative hover:-translate-y-1 hover:shadow-lg flex flex-col h-full"
               >
-                <div className="border-b border-pink-100 pb-3">
-                  <h3 className="font-serif text-lg font-bold text-gray-900">
-                    Simulator Pemesanan Eduspa
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Hitung biaya &amp; persiapkan voucher digital langsung di bawah ini.
-                  </p>
-                </div>
-
-                {/* Selected service preview */}
-                <div className="bg-pink-50/50 border border-pink-100 p-4 rounded-2xl flex items-center space-x-3 shadow-inner">
+                <div className="h-48 relative overflow-hidden">
                   <img
-                    src={activeService.image}
-                    alt=""
-                    className="w-12 h-12 object-cover rounded-xl"
+                    src={service.image}
+                    alt={service.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[9px] tracking-wider uppercase text-pink-600 font-extrabold">Layanan Terpilih</p>
-                    <h5 className="font-serif text-sm font-bold text-gray-900 truncate">{activeService.name}</h5>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-xs text-gray-500">{activeService.duration} Menit</span>
-                      <span className="text-xs font-bold text-pink-600">Rp {activeService.price.toLocaleString('id-ID')}</span>
-                    </div>
+                  <div className="absolute top-3 right-3 bg-pink-500 text-white text-sm font-bold px-2.5 py-1 rounded uppercase tracking-widest shadow-sm">
+                    {service.category}
+                  </div>
+                  <div className="absolute bottom-3 left-3 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1.5 shadow-sm">
+                    <Clock className="w-3.5 h-3.5 text-pink-400" />
+                    {service.duration} Menit
                   </div>
                 </div>
 
-                {/* Step fields */}
-                <div className="space-y-3.5 text-xs">
-                  <div>
-                    <label className="block text-gray-800 font-bold uppercase tracking-widest text-[9px] mb-1.5">
-                      Nama Pelanggan (Untuk Tiket) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: Ibu Rina Amalia, M.Pd."
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full bg-pink-50/20 border border-pink-100 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-pink-500 focus:bg-white text-sm"
-                    />
+                <div className="p-6 flex flex-col justify-between flex-grow space-y-4">
+                  <div className="space-y-2">
+                    <h4 className="font-serif text-lg font-bold text-gray-900 leading-tight">
+                      {service.name}
+                    </h4>
+                    <p className="text-xs text-gray-500 line-clamp-3 leading-relaxed font-medium">
+                      {service.description}
+                    </p>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-gray-800 font-bold uppercase tracking-widest text-[9px] mb-1.5">
-                        WhatsApp (Wajib) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="0812xxxxxx"
-                        value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        className="w-full bg-pink-50/20 border border-pink-100 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-pink-500 focus:bg-white text-sm"
-                      />
+                  
+                  <div className="pt-4 border-t border-pink-50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-400 font-semibold uppercase tracking-wider">Harga</span>
+                      <span className="text-sm font-bold text-pink-600">
+                        {service.price === 0 ? 'Gratis/Praktik' : `Rp ${service.price.toLocaleString('id-ID')}`}
+                      </span>
                     </div>
-                    <div>
-                      <label className="block text-gray-800 font-bold uppercase tracking-widest text-[9px] mb-1.5">
-                        Email Pelanggan
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="custom@mail.com"
-                        value={customerEmail}
-                        onChange={(e) => setCustomerEmail(e.target.value)}
-                        className="w-full bg-pink-50/20 border border-pink-100 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-pink-500 focus:bg-white text-sm"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-gray-800 font-bold uppercase tracking-widest text-[9px] mb-1.5">
-                        Tanggal Perawatan
-                      </label>
-                      <input
-                        type="date"
-                        value={bookingDate}
-                        onChange={(e) => setBookingDate(e.target.value)}
-                        className="w-full bg-pink-50/20 border border-pink-100 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-pink-500 focus:bg-white text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-gray-800 font-bold uppercase tracking-widest text-[9px] mb-1.5">
-                        Jam Kedatangan
-                      </label>
-                      <select
-                        value={bookingTime}
-                        onChange={(e) => setBookingTime(e.target.value)}
-                        className="w-full bg-pink-50/20 border border-pink-100 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-pink-500 focus:bg-white text-sm"
-                      >
-                        <option value="09:00">09:00 WIB (Sesi Pagi)</option>
-                        <option value="10:00">10:00 WIB (Sesi Menengah)</option>
-                        <option value="11:00">11:00 WIB</option>
-                        <option value="13:00">13:00 WIB (Sesi Siang)</option>
-                        <option value="14:00">14:00 WIB</option>
-                        <option value="15:00">15:00 WIB (Sesi Sore)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-800 font-bold uppercase tracking-widest text-[9px] mb-1.5">
-                      Catatan Tambahan (Alergi / Kondisi Khusus)
-                    </label>
-                    <textarea
-                      placeholder="Misal: Tidak mau pakai scrub terlalu panas, tipe kulit sangat kering"
-                      rows={2}
-                      value={customNotes}
-                      onChange={(e) => setCustomNotes(e.target.value)}
-                      className="w-full bg-pink-50/20 border border-pink-100 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-pink-500 focus:bg-white text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  {errorMsg && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl p-3 text-center font-semibold animate-fade-in">
-                      ⚠️ {errorMsg}
-                    </div>
-                  )}
-
-                  <button
-                    id="submit-simulate-booking"
-                    type="submit"
-                    className="w-full py-3.5 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-sm transition-all duration-300 cursor-pointer"
-                  >
-                    Proses Slip Simulasi
-                  </button>
-                </div>
-              </form>
-            ) : (
-              /* Beautiful Simulated Ticket / Voucher UI block */
-              <div className="bg-gradient-to-b from-gray-900 to-gray-950 text-white rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-pink-900/40">
-                {/* Visual tickets notches */}
-                <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full bg-[#faf5f5] -translate-y-1/2" />
-                <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-[#faf5f5] -translate-y-1/2" />
-                <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-pink-500/10 blur-xl pointer-events-none" />
-
-                {/* Header Ticket */}
-                <div className="border-b border-dashed border-gray-700 pb-5 text-center space-y-1.5">
-                  <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-pink-500/20 rounded-full text-pink-400 text-[10px] font-bold uppercase tracking-widest border border-pink-500/30">
-                    <Sparkles className="w-3 h-3" />
-                    <span>EDUSPA VOUCHER</span>
-                  </div>
-                  <h4 className="font-serif text-xl font-bold tracking-tight">Kecantikan &amp; Spa SMK 1</h4>
-                  <p className="text-[10px] tracking-widest text-gray-400 uppercase">SMK NEGERI 1 PEKALONGAN</p>
-                </div>
-
-                {/* Booking Code Dynamic Row */}
-                <div className="py-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] uppercase text-gray-500 tracking-wider font-bold">KODE BOOKING (SIMULATED)</p>
-                    <p className="text-lg font-mono font-bold text-pink-400">{bookingVoucher.bookingCode}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase text-gray-500 tracking-wider font-bold">STATUS</p>
-                    <span className="inline-block bg-green-500/20 border border-green-500/50 text-green-400 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase animate-pulse">
-                      READY TO VISIT
-                    </span>
-                  </div>
-                </div>
-
-                {/* Ticket Details */}
-                <div className="space-y-3.5 border-t border-gray-800/80 pt-4 text-xs">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-400 font-medium">Layanan Perawatan</p>
-                      <p className="font-serif font-bold text-sm text-pink-100">{activeService.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400 font-medium">Kategori</p>
-                      <p className="font-bold uppercase tracking-wider text-pink-300">{activeService.category}</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-400 font-medium">Nama Tamu</p>
-                      <p className="font-semibold text-gray-100">{bookingVoucher.customerName}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400 font-medium">No. Telepon / WA</p>
-                      <p className="font-mono text-gray-200">{bookingVoucher.phone}</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-400 font-medium">Hari &amp; Tanggal</p>
-                      <p className="font-semibold text-gray-100">
-                        {new Date(bookingVoucher.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400 font-medium">Jam Booking &amp; Durasi</p>
-                      <p className="font-semibold text-gray-100">{bookingVoucher.timeSlot} WIB ({activeService.duration}m)</p>
-                    </div>
-                  </div>
-
-                  {/* Educational Staff Assigned */}
-                  <div className="bg-gray-900 border border-gray-850 p-3 rounded-2xl grid grid-cols-2 gap-2">
-                    <div>
-                      <p className="text-[10px] text-gray-500">Student Therapist</p>
-                      <p className="font-medium text-pink-200 text-[11px] truncate">
-                        Siswa Tingkat III (Asisten {activeService.category})
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-500">Instruktur Supervisi</p>
-                      <p className="font-medium text-pink-200 text-[11px] truncate">
-                        Dra. Endang Sulastri (Asesor)
-                      </p>
-                    </div>
-                  </div>
-
-                  {bookingVoucher.notes && (
-                    <div className="border-t border-gray-850/50 pt-2 text-[10px] text-gray-400">
-                      <span className="font-bold text-gray-300">Catatan Khusus:</span> {bookingVoucher.notes}
-                    </div>
-                  )}
-
-                  {/* Pricing Total Row */}
-                  <div className="border-t border-dashed border-gray-800 pt-4 flex items-center justify-between">
-                    <span className="text-gray-400 font-semibold text-xs">Total Kontribusi Bahan:</span>
-                    <span className="text-lg font-serif font-black text-pink-400">
-                      Rp {bookingVoucher.totalPrice.toLocaleString('id-ID')}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex flex-col gap-3">
-                  <div className="flex gap-2">
-                    <button
-                      id="print-download-voucher"
-                      onClick={() => {
-                        setIsSaved(true);
-                      }}
-                      className="flex-1 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
+                    <a
+                      href={`https://wa.me/6281229516969?text=${encodeURIComponent(
+                        `Halo Admin Eduspa SMKN 1 Pekalongan, saya ingin memesan layanan "${service.name}" (${service.duration} menit) dengan harga ${
+                          service.price === 0 ? 'Gratis/Praktik' : `Rp ${service.price.toLocaleString('id-ID')}`
+                        }. Mohon informasi jadwal ketersediaan praktik siswa.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all shadow-md shadow-pink-100 hover:shadow-pink-200 hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wider"
+                      style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
                     >
-                      Unduh Slip / Simpan
-                    </button>
-                    <button
-                      id="reset-booking-sim"
-                      onClick={resetSimulator}
-                      className="p-3 bg-gray-800 text-gray-400 hover:text-white rounded-xl transition-all"
-                      title="Simulasi Baru"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                    </button>
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.864.001-2.637-1.03-5.116-2.905-6.993-1.876-1.879-4.36-2.914-7.01-2.914-5.441 0-9.866 4.426-9.869 9.87-.001 1.796.468 3.548 1.362 5.095L.893 22.005l6.09-1.599c-1.552.83-2.502.267-2.502.267zm12.234-7.658c-.329-.165-1.948-.963-2.247-1.073-.299-.11-.517-.165-.736.165-.219.329-.848 1.073-1.039 1.293-.191.22-.383.247-.712.082-1.341-.67-2.345-1.173-3.21-2.67-.228-.396.228-.367.652-1.214.1-.2.05-.375-.025-.539-.075-.165-.736-1.77-.999-2.428-.27-.647-.542-.55-.736-.56-.19-.01-.41-.01-.629-.01-.219 0-.575.082-.876.411-.3.329-1.148 1.123-1.148 2.738 0 1.615 1.176 3.178 1.34 3.397.164.22 2.313 3.53 5.6 4.95 2.734 1.182 3.313.948 4.5.836 1.19-.112 2.248-.714 2.562-1.484.314-.769.314-1.429.219-1.566-.094-.137-.329-.22-.657-.385z"/>
+                      </svg>
+                      Booking via WA
+                    </a>
                   </div>
-
-                  {isSaved && (
-                    <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-3 text-center text-green-300 text-[11px] font-medium leading-relaxed animate-fade-in">
-                      ✓ Slip <strong>{bookingVoucher.bookingCode}</strong> tersimpan! Silakan screenshot layar ini &amp; tunjukkan ke resepsionis Eduspa saat kunjungan Anda.
-                    </div>
-                  )}
-                </div>
-
-                {/* Footnote inside ticket */}
-                <div className="mt-4 text-center">
-                  <p className="text-[8px] text-gray-600">
-                    Sembari berkunjung, Anda berkontribusi langsung pada ujian praktik kerja nyata siswi kami.
-                  </p>
                 </div>
               </div>
-            )}
+            ))}
           </div>
-
         </div>
 
       </div>

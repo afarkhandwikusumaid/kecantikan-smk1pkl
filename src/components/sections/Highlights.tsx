@@ -14,7 +14,7 @@ export default function Highlights() {
             viewport={{ once: true }}
             className="md:col-span-1 space-y-1"
           >
-            <span className="text-[10px] tracking-widest font-extrabold text-pink-600 uppercase">PEKALONGAN PRIDE</span>
+            <span className="text-sm tracking-widest font-extrabold text-pink-600 uppercase">PEKALONGAN PRIDE</span>
             <h3 className="font-serif text-xl font-bold text-gray-900 leading-tight">Prestasi &amp; Kualitas</h3>
             <p className="text-xs text-gray-400 font-medium">Standar Keunggulan Nasional</p>
           </motion.div>
@@ -31,7 +31,7 @@ export default function Highlights() {
             </div>
             <div className="min-w-0">
               <h4 className="text-xs font-bold text-gray-900">Juara LKS Provinsi</h4>
-              <p className="text-[10px] text-gray-500 mt-0.5 font-medium">Medali Emas 3 Tahun Beruntun</p>
+              <p className="text-sm text-gray-500 mt-0.5 font-medium">Medali Emas 3 Tahun Beruntun</p>
             </div>
           </motion.div>
 
@@ -47,7 +47,7 @@ export default function Highlights() {
             </div>
             <div className="min-w-0">
               <h4 className="text-xs font-bold text-gray-900">Sertifikasi BNSP</h4>
-              <p className="text-[10px] text-gray-500 mt-0.5 font-medium">100% Kelulusan Kualifikasi Lisensi</p>
+              <p className="text-sm text-gray-500 mt-0.5 font-medium">100% Kelulusan Kualifikasi Lisensi</p>
             </div>
           </motion.div>
 
@@ -63,7 +63,7 @@ export default function Highlights() {
             </div>
             <div className="min-w-0">
               <h4 className="text-xs font-bold text-gray-900">Bursa Kerja Khusus</h4>
-              <p className="text-[10px] text-gray-500 mt-0.5 font-medium font-sans">Kemitraan Klinik &amp; Spa Terbesar</p>
+              <p className="text-sm text-gray-500 mt-0.5 font-medium font-sans">Kemitraan Klinik &amp; Spa Terbesar</p>
             </div>
           </motion.div>
 
