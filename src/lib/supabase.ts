@@ -10,15 +10,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder');
 
 /**
- * Uploads a file to the 'eduspa-media' bucket and returns its public URL.
+ * Uploads a file to the 'asset-saya' bucket and returns its public URL.
+ * File can be grouped into folders (e.g. 'guru', 'layanan', 'dokumentasi').
  */
-export async function uploadImage(file: File): Promise<string> {
+export async function uploadImage(file: File, folder: string = 'general'): Promise<string> {
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-  const filePath = `${fileName}`;
+  
+  // Clean folder name to ensure no leading/trailing slashes
+  const cleanFolder = folder.replace(/^\/+|\/+$/g, '');
+  const filePath = `${cleanFolder}/${fileName}`;
 
   const { data, error } = await supabase.storage
-    .from('eduspa-media')
+    .from('asset-saya')
     .upload(filePath, file);
 
   if (error) {
@@ -26,7 +30,7 @@ export async function uploadImage(file: File): Promise<string> {
   }
 
   const { data: { publicUrl } } = supabase.storage
-    .from('eduspa-media')
+    .from('asset-saya')
     .getPublicUrl(filePath);
 
   return publicUrl;

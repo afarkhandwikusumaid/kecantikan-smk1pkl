@@ -1,24 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, BookOpen } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface Curriculum {
   id: string;
+  code: string;
   name: string;
+  credits: string;
   description: string;
   semester: number;
 }
 
+const getKelasLabel = (s: number) => {
+  if (s === 1 || s === 2 || s === 10) return 'Kelas X';
+  if (s === 3 || s === 4 || s === 11) return 'Kelas XI';
+  if (s === 5 || s === 6 || s === 12) return 'Kelas XII';
+  return `Kelas ${s}`;
+};
+
 export default function CurriculumManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [curriculums, setCurriculums] = useState<Curriculum[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
+    code: '',
     name: '',
+    credits: '',
     description: '',
-    semester: 1
+    semester: 10
   });
 
   const fetchCurriculum = async () => {
@@ -48,21 +62,23 @@ export default function CurriculumManager() {
       const { error } = await supabase
         .from('curriculum')
         .insert({
+          code: formData.code,
           name: formData.name,
+          credits: formData.credits,
           description: formData.description,
           semester: formData.semester
         });
       if (error) throw error;
-      setFormData({ name: '', description: '', semester: 1 });
+      setFormData({ code: '', name: '', credits: '', description: '', semester: 10 });
       setIsAdding(false);
       fetchCurriculum();
     } catch (err: any) {
-      alert('Gagal menambahkan pelajaran: ' + err.message);
+      showAlert('Gagal menambahkan pelajaran: ' + err.message, 'error');
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?')) {
+  const handleDelete = (id: string) => {
+    showConfirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?', async () => {
       try {
         const { error } = await supabase
           .from('curriculum')
@@ -70,16 +86,19 @@ export default function CurriculumManager() {
           .eq('id', id);
         if (error) throw error;
         fetchCurriculum();
+        showAlert('Mata pelajaran berhasil dihapus', 'success');
       } catch (err: any) {
-        alert('Gagal menghapus pelajaran: ' + err.message);
+        showAlert('Gagal menghapus pelajaran: ' + err.message, 'error');
       }
-    }
+    });
   };
 
   const startEdit = (curriculum: Curriculum) => {
     setEditingId(curriculum.id);
     setFormData({
+      code: curriculum.code || '',
       name: curriculum.name,
+      credits: curriculum.credits || '',
       description: curriculum.description,
       semester: curriculum.semester
     });
@@ -93,18 +112,20 @@ export default function CurriculumManager() {
       const { error } = await supabase
         .from('curriculum')
         .update({
+          code: formData.code,
           name: formData.name,
+          credits: formData.credits,
           description: formData.description,
           semester: formData.semester
         })
         .eq('id', editingId);
       if (error) throw error;
       setEditingId(null);
-      setFormData({ name: '', description: '', semester: 1 });
+      setFormData({ code: '', name: '', credits: '', description: '', semester: 10 });
       setIsAdding(false);
       fetchCurriculum();
     } catch (err: any) {
-      alert('Gagal menyimpan perubahan: ' + err.message);
+      showAlert('Gagal menyimpan perubahan: ' + err.message, 'error');
     }
   };
 
@@ -116,7 +137,7 @@ export default function CurriculumManager() {
           onClick={() => {
             setIsAdding(!isAdding);
             setEditingId(null);
-            setFormData({ name: '', description: '', semester: 1 });
+            setFormData({ code: '', name: '', credits: '', description: '', semester: 10 });
           }}
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700"
         >
@@ -131,38 +152,67 @@ export default function CurriculumManager() {
             {editingId ? 'Edit Mata Pelajaran' : 'Tambah Mata Pelajaran Baru'}
           </h3>
           <form onSubmit={editingId ? handleUpdate : handleAdd} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Nama Mata Pelajaran</label>
-              <input
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
-                placeholder="Misal: Perawatan Kulit Wajah"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Kode Mata Pelajaran</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
+                  placeholder="Misal: KEC-101"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nama Mata Pelajaran</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
+                  placeholder="Misal: Perawatan Kulit Wajah"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Semester</label>
-              <input
-                type="number"
-                min="1"
-                max="6"
-                required
-                value={formData.semester}
-                onChange={(e) => setFormData({ ...formData, semester: parseInt(e.target.value) })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
-              />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tingkat Kelas</label>
+                <select
+                  required
+                  value={formData.semester}
+                  onChange={(e) => setFormData({ ...formData, semester: parseInt(e.target.value) })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
+                >
+                  <option value={10}>Kelas X (10)</option>
+                  <option value={11}>Kelas XI (11)</option>
+                  <option value={12}>Kelas XII (12)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Beban / SKS / JP</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.credits}
+                  onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
+                  placeholder="Misal: 4 SKS / 144 JP"
+                />
+              </div>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">Deskripsi Silabus</label>
+              <label className="block text-sm font-medium text-gray-700">Kompetensi Inti &amp; Luaran</label>
               <textarea
                 required
                 rows={3}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
-                placeholder="Deskripsi materi yang diajarkan..."
+                placeholder="Deskripsi luaran materi yang diajarkan..."
               />
             </div>
             <div className="flex justify-end">
@@ -190,16 +240,17 @@ export default function CurriculumManager() {
                   <div className="px-4 py-4 flex items-center sm:px-6">
                     <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
                       <div className="truncate">
-                        <div className="flex text-sm">
+                        <div className="flex text-sm items-center">
+                          <span className="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded mr-2">{curriculum.code || '-'}</span>
                           <p className="font-medium text-pink-600 truncate">{curriculum.name}</p>
-                          <p className="ml-1 flex-shrink-0 font-normal text-gray-500">
-                            (Semester {curriculum.semester})
+                          <p className="ml-2 flex-shrink-0 font-normal text-gray-500 text-xs border-l border-gray-300 pl-2">
+                            {getKelasLabel(curriculum.semester)} • {curriculum.credits || '-'}
                           </p>
                         </div>
                         <div className="mt-2 flex">
                           <div className="flex items-center text-sm text-gray-500">
                             <BookOpen className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-                            <p className="truncate max-w-md">{curriculum.description}</p>
+                            <p className="truncate max-w-xl">{curriculum.description}</p>
                           </div>
                         </div>
                       </div>

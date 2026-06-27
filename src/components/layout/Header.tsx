@@ -48,20 +48,20 @@ export default function Header({ activeSection, setActiveSection }: HeaderProps)
         <div className="flex items-center justify-between">
           {/* Logo Brand */}
           <div 
-            className="flex items-center space-x-3 cursor-pointer group"
+            className="flex items-center space-x-3 sm:space-x-4 cursor-pointer group"
             onClick={() => handleNavClick('beranda')}
           >
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-pink-800 text-white shadow-sm transition-transform duration-500 group-hover:rotate-12">
-              <Sparkles className="w-5 h-5 text-pink-100" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-1">
-                <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-gray-900">
-                  BEAUTY<span className="text-pink-600 font-sans font-light text-base ml-1">SMK 1PKL</span>
-                </span>
-              </div>
-              <p className="text-sm tracking-widest text-pink-600 uppercase font-medium -mt-1">
-                Tata Kecantikan &amp; Spa
+            <img 
+              src="/logo-kecantikan.png" 
+              alt="Logo Jurusan Kecantikan dan Spa" 
+              className="w-12 h-12 sm:w-14 sm:h-14 object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-sm"
+            />
+            <div className="flex flex-col justify-center">
+              <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-gray-900 leading-tight">
+                Kecantikan <span className="text-pink-600 font-sans font-medium text-base sm:text-lg">&amp; Spa</span>
+              </span>
+              <p className="text-[10px] sm:text-xs tracking-[0.2em] text-pink-600/90 uppercase font-semibold mt-0.5">
+                SMK Negeri 1 Pekalongan
               </p>
             </div>
           </div>

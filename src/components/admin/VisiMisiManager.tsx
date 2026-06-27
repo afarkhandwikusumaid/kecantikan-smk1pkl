@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Eye, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 export default function VisiMisiManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [visi, setVisi] = useState('');
   const [misi, setMisi] = useState<string[]>([]);
   const [newMisi, setNewMisi] = useState('');
@@ -43,7 +46,7 @@ export default function VisiMisiManager() {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (error: any) {
-      alert('Gagal menyimpan Visi & Misi: ' + error.message);
+      showAlert('Gagal menyimpan Visi & Misi: ' + error.message, 'error');
     }
   };
 
@@ -70,7 +73,7 @@ export default function VisiMisiManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Visi & Misi</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Kelola visi dan misi jurusan yang tampil di website (Dinamis Supabase)</p>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola visi dan misi jurusan yang tampil di website</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setPreview(!preview)}

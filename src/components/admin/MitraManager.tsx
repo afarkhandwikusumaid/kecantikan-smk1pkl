@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Briefcase, Save } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface Partner {
   id: string;
@@ -9,17 +10,13 @@ interface Partner {
   isPink: boolean;
 }
 
-const defaultPartners: Partner[] = [
-  { id: '1', name: 'Martha Tilaar', subtitle: 'GROUP', isPink: false },
-  { id: '2', name: 'Mustika Ratu', subtitle: '', isPink: true },
-  { id: '3', name: 'Wardah', subtitle: 'Cosmetics', isPink: false },
-  { id: '4', name: 'BNSP LSP-P1', subtitle: '', isPink: false },
-  { id: '5', name: 'Rudy Hadisuwarno', subtitle: '', isPink: true }
-];
+
 
 const emptyForm: Partner = { id: '', name: '', subtitle: '', isPink: false };
 
 export default function MitraManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -38,11 +35,7 @@ export default function MitraManager() {
       
       if (data && data.value) {
         setPartners(data.value as Partner[]);
-      } else {
-        // Init with defaults if empty
-        setPartners(defaultPartners);
-        await saveToSupabase(defaultPartners);
-      }
+      } else { setPartners([]); }
     } catch (err: any) {
       console.error('Error fetching partners:', err);
     } finally {
@@ -63,7 +56,7 @@ export default function MitraManager() {
       if (error) throw error;
       setPartners(newPartners);
     } catch (error: any) {
-      alert('Gagal menyimpan mitra: ' + error.message);
+      showAlert('Gagal menyimpan mitra: ' + error.message, 'error');
     } finally {
       setSaving(false);
       setShowModal(false);
@@ -94,9 +87,11 @@ export default function MitraManager() {
   };
 
   const handleDelete = (id: string) => {
-    if (!window.confirm('Hapus mitra ini?')) return;
-    const updated = partners.filter(p => p.id !== id);
-    saveToSupabase(updated);
+    showConfirm('Hapus mitra ini?', () => {
+      const updated = partners.filter(p => p.id !== id);
+      saveToSupabase(updated);
+      showAlert('Mitra berhasil dihapus', 'success');
+    });
   };
 
   return (

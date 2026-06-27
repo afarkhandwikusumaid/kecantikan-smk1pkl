@@ -271,7 +271,7 @@ export const activityDocs: ActivityDoc[] = [
     category: 'Sertifikasi & Lisensi',
     summary: 'Sebanyak 84 siswi tingkat akhir sukses menempuh ujian sertifikasi profesi resmi BNSP dengan asesor eksternal bersertifikat nasional.',
     description: 'Penyelenggaraan uji kompetensi ini dilakukan secara riil di TPA (Tempat Uji Kompetensi) Laboratorium Estetika Utama SMKN 1 Pekalongan. Siswi dinilai berdasarkan ketangkasan analisis kulit wajah menggunakan metode Woods Lamp, ketelatenan sterilisasi alat ekstraksi, serta keluwesan pijat wajah effleurage. Sertifikat kompetensi berlambang Garuda Emas dari BNSP ini menjadi senjata utama lulusan untuk langsung mendaftar sebagai staf ahli di jaringan klinik kecantikan premium papan atas.',
-    imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800',
+    imageUrl: '/images/photo-1522337360788-8b13dee7a37e.jpg',
     writer: 'Dra. Hj. Wahyu Astuti (Ketua Konsentrasi Keahlian)',
     tags: ['LSP-P1', 'BNSP', 'Kecantikan Kulit', 'Sertifikasi Resmi'],
     location: 'Lab Utama Kosmetologi Terapan, SMKN 1 Pekalongan'
@@ -295,7 +295,7 @@ export const activityDocs: ActivityDoc[] = [
     category: 'Kemitraan DUDI',
     summary: 'Penyelarasan kurikulum kecantikan kulit tropis berstandar salon komersial modern guna optimalisasi jaminan kerja pasca lulus.',
     description: 'Pertemuan strategis dewan guru SMKN 1 Pekalongan dengan Direktur Pelatihan PT Cantika Puspa Pesona (Martha Tilaar Group). Workshop ini melahirkan nota kesepakatan penyesuaian kompetensi pemotongan rambut Pivot Point terkini serta skema beasiswa ikatan dinas eksklusif untuk 10 wisudawati terbaik per tahun untuk langsung berkontribusi sebagai terapis spa Martha Tilaar seluruh Indonesia.',
-    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=800',
+    imageUrl: '/images/photo-1540555700478-4be289fbecef.jpg',
     writer: 'Sri Mulyani, S.Pd. (Sie Kurikulum)',
     tags: ['Link and Match', 'Martha Tilaar', 'Beasiswa Kerja', 'Sinkronisasi Industri'],
     location: 'Meeting Room Grand Pekalongan Hotel'
@@ -307,7 +307,7 @@ export const activityDocs: ActivityDoc[] = [
     category: 'Seminar & Workshop',
     summary: 'Kursus singkat penguasaan elektro-dermal estetik menghadirkan dewan instruktur dokter spesialis kulit (Dermatologis) senior.',
     description: 'Guna menjawab maraknya klinik estetika canggih yang menggunakan peralatan kelistrikan dermal, sekolah menyelenggarakan workshop intensif penguasaan mesin High Frequency, Galvanic Iontophoresis, dan ultrasound skin scrubber. Siswi diajarkan metodologi keamanan listrik statis, kalibrasi daya pancar gelombang, serta indikasi medis yang dilarang bagi pasien berkelainan jantung atau ibu hamil.',
-    imageUrl: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=800',
+    imageUrl: '/images/photo-1512290923902-8a9f81dc236c.jpg',
     writer: 'dr. Farah Nabila, Sp.DVE (Instruktur Tamu Klinik Medis)',
     tags: ['Elektro-Dermal', 'Laser Dermal Helper', 'Skincare Medis', 'Teknologi Salon'],
     location: 'Lab Facial Medik Terpadu SMKN 1 Pekalongan'

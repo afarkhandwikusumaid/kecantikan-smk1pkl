@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Newspaper, Search, Tag, Calendar } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface NewsItem {
   id: string;
@@ -20,6 +21,8 @@ const emptyForm = {
 };
 
 export default function NewsManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -93,22 +96,24 @@ export default function NewsManager() {
       setShowModal(false);
       fetchNews();
     } catch (error: any) {
-      alert('Gagal menyimpan berita: ' + error.message);
+      showAlert('Gagal menyimpan berita: ' + error.message, 'error');
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Hapus berita ini?')) return;
-    try {
+  const handleDelete = (id: string) => {
+    showConfirm('Hapus berita ini?', async () => {
+      try {
       const { error } = await supabase
         .from('news')
         .delete()
         .eq('id', id);
       if (error) throw error;
       fetchNews();
-    } catch (error: any) {
-      alert('Gagal menghapus berita: ' + error.message);
-    }
+            showAlert('Data berhasil dihapus', 'success');
+      } catch (error: any) {
+        showAlert('Gagal menghapus berita: ' + error.message, 'error');
+      }
+    });
   };
 
   const categoryColor: Record<string, string> = {
@@ -131,7 +136,7 @@ export default function NewsManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Berita & Kegiatan</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Kelola artikel berita dan pengumuman (Dinamis Supabase)</p>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola artikel berita dan pengumuman</p>
         </div>
         <button
           onClick={openAdd}

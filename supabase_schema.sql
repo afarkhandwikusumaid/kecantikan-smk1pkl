@@ -1,4 +1,7 @@
--- SQL Schema untuk Web Profil SMK Jurusan Kecantikan
+-- ==========================================
+-- SQL SCHEMA JURUSAN KECANTIKAN & SPA
+-- SMKN 1 PEKALONGAN
+-- ==========================================
 
 -- Hapus tabel lama jika sudah ada agar bisa mulai dari awal dengan bersih
 DROP TABLE IF EXISTS news CASCADE;
@@ -9,7 +12,19 @@ DROP TABLE IF EXISTS curriculum CASCADE;
 DROP TABLE IF EXISTS services CASCADE;
 DROP TABLE IF EXISTS site_settings CASCADE;
 
--- 1. Tabel Berita (news)
+-- 1. TABEL PENGATURAN SITUS (site_settings)
+-- Digunakan untuk menyimpan teks profil, visi-misi, kontak, dan data tunggal lainnya.
+-- Menggunakan format Key-Value (JSON) agar sangat fleksibel.
+CREATE TABLE site_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Note: Data default tidak disisipkan di sini agar admin dapat memasukkan secara manual melalui portal admin.
+-- Jika ingin menambahkan default, cukup insert ke tabel ini (contoh: 'visi_misi', 'sambutan', 'faqs').
+
+-- 2. TABEL BERITA & PENGUMUMAN (news)
 CREATE TABLE news (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
@@ -19,7 +34,7 @@ CREATE TABLE news (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. Tabel Galeri (galleries)
+-- 3. TABEL GALERI & DOKUMENTASI (galleries)
 CREATE TABLE galleries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
@@ -29,7 +44,7 @@ CREATE TABLE galleries (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. Tabel Fasilitas (facilities)
+-- 4. TABEL FASILITAS & LABORATORIUM (facilities)
 CREATE TABLE facilities (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -40,7 +55,7 @@ CREATE TABLE facilities (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 4. Tabel Guru (teachers)
+-- 5. TABEL GURU & STAFF (teachers)
 CREATE TABLE teachers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -53,16 +68,18 @@ CREATE TABLE teachers (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 4b. Tabel Kurikulum (curriculum)
+-- 6. TABEL KURIKULUM (curriculum)
 CREATE TABLE curriculum (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT,
   name TEXT NOT NULL,
+  credits TEXT,
   description TEXT NOT NULL,
   semester INTEGER NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 5. Tabel Layanan Eduspa (services)
+-- 7. TABEL LAYANAN EDUSPA SALON (services)
 CREATE TABLE services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category TEXT NOT NULL,
@@ -75,40 +92,30 @@ CREATE TABLE services (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 6. Tabel Pengaturan Situs (site_settings)
--- Menggunakan format Key-Value agar fleksibel untuk menyimpan teks panjang atau JSON
-CREATE TABLE site_settings (
-  key TEXT PRIMARY KEY,
-  value JSONB NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- ==========================================
+-- PENGATURAN STORAGE & KEAMANAN
+-- ==========================================
 
--- Insert Default Settings
-INSERT INTO site_settings (key, value) VALUES
-  ('visi_misi', '{"visi": "Menjadi program keahlian unggulan dalam bidang kecantikan dan spa di tingkat nasional...", "misi": ["Menyelenggarakan pembelajaran berbasis proyek", "Menjalin kemitraan industri"]}'::jsonb),
-  ('sambutan', '{"name": "Dra. Endang Sulastri, M.Pd.", "title": "Kakomli", "photoUrl": "", "greetingText": "Selamat datang di website resmi..."}'::jsonb),
-  ('contact', '{"address": "Jl. Landungsari No. 2, Pekalongan, Jawa Tengah", "phone": "+62 812-2951-6969", "email": "kecantikan@smkn1pekalongan.sch.id", "mapsUrl": ""}'::jsonb),
-  ('social', '{"instagram": "", "facebook": "", "youtube": "", "tiktok": ""}'::jsonb);
-
--- 7. Setup Storage Bucket (eduspa-media)
--- Pastikan untuk membuat Bucket secara manual atau lewat SQL ini jika diizinkan:
-INSERT INTO storage.buckets (id, name, public) VALUES ('eduspa-media', 'eduspa-media', true)
+-- Pastikan untuk membuat Bucket bernama 'asset-saya' di menu Storage Supabase Anda dan set ke "Public".
+-- Script di bawah mencoba membuatnya secara otomatis (jika ada error, buat manual di dashboard Supabase).
+INSERT INTO storage.buckets (id, name, public) VALUES ('asset-saya', 'asset-saya', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Hapus policy lama jika sudah ada agar bisa dibuat ulang dengan bersih
+-- Hapus policy lama jika sudah ada
 DROP POLICY IF EXISTS "Public Access" ON storage.objects;
 DROP POLICY IF EXISTS "Allow All Uploads" ON storage.objects;
 DROP POLICY IF EXISTS "Allow All Updates" ON storage.objects;
 DROP POLICY IF EXISTS "Allow All Deletes" ON storage.objects;
 
--- Policy untuk mengizinkan akses publik ke bucket eduspa-media
-CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'eduspa-media');
-CREATE POLICY "Allow All Uploads" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'eduspa-media');
-CREATE POLICY "Allow All Updates" ON storage.objects FOR UPDATE USING (bucket_id = 'eduspa-media');
-CREATE POLICY "Allow All Deletes" ON storage.objects FOR DELETE USING (bucket_id = 'eduspa-media');
+-- Policy untuk mengizinkan akses publik penuh ke bucket asset-saya
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'asset-saya');
+CREATE POLICY "Allow All Uploads" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'asset-saya');
+CREATE POLICY "Allow All Updates" ON storage.objects FOR UPDATE USING (bucket_id = 'asset-saya');
+CREATE POLICY "Allow All Deletes" ON storage.objects FOR DELETE USING (bucket_id = 'asset-saya');
 
--- Agar API dapat melakukan read/write tanpa auth yang rumit (hanya untuk testing/FE-only sementara), pastikan RLS di-disable pada tabel atau buat policy public.
--- PENTING: Untuk tahap awal, kita disable RLS agar frontend bisa langsung akses data. Nanti bisa diaktifkan lagi setelah setup auth yang aman.
+-- DISABLE ROW LEVEL SECURITY (RLS)
+-- PENTING: Untuk tahap ini, kita mematikan keamanan lapis kedua (RLS) 
+-- agar portal admin (frontend) bisa bebas menambahkan, mengedit, dan menghapus data tanpa perlu token otentikasi login yang kompleks.
 ALTER TABLE news DISABLE ROW LEVEL SECURITY;
 ALTER TABLE galleries DISABLE ROW LEVEL SECURITY;
 ALTER TABLE facilities DISABLE ROW LEVEL SECURITY;

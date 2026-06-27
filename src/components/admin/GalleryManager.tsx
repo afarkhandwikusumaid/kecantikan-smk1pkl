@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon, Search } from 'lucide-react';
 import { supabase, uploadImage } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface GalleryItem { id: string; title: string; imageUrl: string; category: string; date: string; }
 const CATEGORIES = ['Kegiatan', 'Praktik', 'Prestasi', 'Fasilitas', 'Wisuda'];
 const emptyForm = { title: '', imageUrl: '', category: 'Kegiatan', date: new Date().toISOString().split('T')[0] };
 
 export default function GalleryManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -51,7 +54,7 @@ export default function GalleryManager() {
       setUploading(true);
       let finalImageUrl = formData.imageUrl;
       if (selectedFile) {
-        finalImageUrl = await uploadImage(selectedFile);
+        finalImageUrl = await uploadImage(selectedFile, 'dokumentasi');
       }
 
       if (editingId) {
@@ -80,24 +83,26 @@ export default function GalleryManager() {
       setSelectedFile(null);
       fetchGallery();
     } catch (err: any) {
-      alert('Gagal menyimpan foto: ' + err.message);
+      showAlert('Gagal menyimpan foto: ' + err.message, 'error');
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Hapus foto ini?')) return;
-    try {
+  const handleDelete = (id: string) => {
+    showConfirm('Hapus foto ini?', async () => {
+      try {
       const { error } = await supabase
         .from('galleries')
         .delete()
         .eq('id', id);
       if (error) throw error;
       fetchGallery();
-    } catch (error: any) {
-      alert('Gagal menghapus foto: ' + error.message);
-    }
+            showAlert('Data berhasil dihapus', 'success');
+      } catch (error: any) {
+        showAlert('Gagal menghapus foto: ' + error.message, 'error');
+      }
+    });
   };
 
   const filtered = items.filter(i => i.title.toLowerCase().includes(search.toLowerCase()) || i.category.toLowerCase().includes(search.toLowerCase()));
@@ -105,7 +110,7 @@ export default function GalleryManager() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div><h1 className="text-2xl font-bold text-slate-800">Galeri Foto</h1><p className="text-sm text-slate-500 mt-0.5">Kelola foto kegiatan dan karya siswa (Dinamis Supabase)</p></div>
+        <div><h1 className="text-2xl font-bold text-slate-800">Galeri Foto</h1><p className="text-sm text-slate-500 mt-0.5">Kelola foto kegiatan dan karya siswa</p></div>
         <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}><Plus className="w-4 h-4" /> Tambah Foto</button>
       </div>
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -152,11 +157,11 @@ export default function GalleryManager() {
                   {formData.imageUrl && (
                     <img src={formData.imageUrl} alt="Preview" className="w-16 h-16 rounded-xl object-cover border border-slate-200" />
                   )}
-                  <input type="file" accept="image/*" required={!formData.imageUrl} onChange={(e) => {
+                  <input type="file" accept="image/*" onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
                       if (file.size > 2 * 1024 * 1024) {
-                        alert('Ukuran file maksimal 2MB');
+                        showAlert('Ukuran file maksimal 2MB', 'error');
                         e.target.value = '';
                         return;
                       }

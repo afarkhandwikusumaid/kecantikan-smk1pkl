@@ -30,7 +30,7 @@ const defaultFacilities: Facility[] = [
     name: "Studio Tata Rias & Paes Pengantin",
     description: "Dilengkapi dengan meja rias kaca cermin keliling berlampu LED High Definition (HD Ring Lights), bar kosmetik lengkap dari brand mustika ratu & wardah, serta jajaran gaun pengantin adat lengkap untuk simulasi pagelaran MUA.",
     capacity: "Kapasitas 20 Siswi simultan",
-    image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=800",
+    image: "/images/photo-1487412720507-e7ab37603c6f.jpg",
     equipment: ["Dimmable Makeup Ring Lights", "Airbrush Compressor Kits", "Advanced Paes Paes Stencils", "Mannequin Face Planners"]
   },
   {
@@ -38,7 +38,7 @@ const defaultFacilities: Facility[] = [
     name: "Salon Hairdressing & Sanggul Lab",
     description: "Didominasi stasiun keramas keramik mewah standar internasional, mesin pencuci rambut, hair steaming ozone otomatis, set gunting pivot point, serta jajaran wig dan manekin rambut untuk penguasaan guntingan & pewarnaan.",
     capacity: "Kapasitas 24 Siswi simultan",
-    image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=800",
+    image: "/images/photo-1562322140-8baeececf3df.jpg",
     equipment: ["Ceramic Wash Stations", "Ozone Hair Steamer Machines", "Symmetric Shears & Blowers", "Keratin Coating Steam Irons"]
   },
   {
@@ -46,7 +46,7 @@ const defaultFacilities: Facility[] = [
     name: "Laboratorium Royal Javanese Spa",
     description: "Menghadirkan suasana relaksasi tradisional berpencahayaan hangat temaram yang menyegarkan. Dilengkapi kasur spa aromatik kayu jati asli Pekalongan, kabin timbang sauna uap herbal, bath tub hidromassage, dan set hot stones.",
     capacity: "Kapasitas 8 Siswi simultan",
-    image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800",
+    image: "/images/photo-1608571423902-eed4a5ad8108.jpg",
     equipment: ["Teakwood Spa Massage Beds", "Herbal Steam Wood Cabins", "Thermal Stone Warmer Ovens", "Pedicure Hydro Foot Tubs"]
   }
 ];
@@ -56,7 +56,7 @@ const defaultTeachers: Teacher[] = [
     id: "t1",
     name: "DRA. ENDANG SULASTRI, M.PD.",
     role: "Ketua Komite Keahlian (K3)",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
+    image: "/images/photo-1573496359142-b8d87734a5a2.jpg",
     certifications: ["Sertifikasi Asesor LSP Kecantikan", "Kualifikasi Martha Tilaar Advanced", "Uji Kompetensi Nasional Level IV"],
     quote: "Estetika sejati lahir dari kedisiplinan tangan, presisi teknik, serta kelembutan hati melayani pelanggan."
   },
@@ -64,7 +64,7 @@ const defaultTeachers: Teacher[] = [
     id: "t2",
     name: "SRI WAHYUNINGSIH, S.PD.",
     role: "Sekretaris Komite Keahlian",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400",
+    image: "/images/photo-1580489944761-15a19d654956.jpg",
     certifications: ["Sertifikat Pivot Point Internasional", "Trainer Hair-Design Mustika Ratu", "Lisensi Asesor LSP-P1"],
     quote: "Rambut adalah mahkota. Di tangan siswi kami, mahkota tersebut dibentuk secara geometrik, presisi, dan sehat."
   },
@@ -72,7 +72,7 @@ const defaultTeachers: Teacher[] = [
     id: "t3",
     name: "RIANA KARTIKA, S.ST.",
     role: "Koordinator Unit TEFA (Eduspa)",
-    image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=400",
+    image: "/images/photo-1567532939604-b6b5b0db2604.jpg",
     certifications: ["Juara 1 Paes Pengantin Jawa Tengah", "Sertifikasi Wardah Professional MUA", "Asesor Tata Rias Wajah"],
     quote: "Setiap riasan adalah kanvas kepribadian. Kami melatih presisi sapuan kuas untuk merayakan kecantikan unik nusantara."
   },
@@ -80,7 +80,7 @@ const defaultTeachers: Teacher[] = [
     id: "t4",
     name: "AYU LESTARI, S.PD.",
     role: "Koordinator Hubungan Industri (Prakerin)",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400",
+    image: "/images/photo-1534528741775-53994a69daeb.jpg",
     certifications: ["Asesor LSP-P1 Kecantikan", "Sertifikasi Keratase Hairdresser", "Uji Kompetensi Nasional Level III"],
     quote: "Keterampilan adalah paspor masa depan. Kemitraan industri global menjamin karier bersinar bagi lulusan unggul."
   },
@@ -88,7 +88,7 @@ const defaultTeachers: Teacher[] = [
     id: "t5",
     name: "BUDI PRATAMA, M.SN.",
     role: "Koordinator Sarana & Seni Rias Prada",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400",
+    image: "/images/photo-1507003211169-0a1dd7228f2d.jpg",
     certifications: ["Sertifikasi MUA Senior BNSP", "Seni Rupa Universitas Negeri Semarang", "Trainer Karakter Rias Panggung"],
     quote: "Kreativitas panggung memperkaya khazanah tata rias modern melalui sentuhan kreasi lokal berdaya saing internasional."
   }
@@ -96,8 +96,8 @@ const defaultTeachers: Teacher[] = [
 
 export default function Fasilitas() {
   const [activeLabTab, setActiveLabTab] = useState<string>('lab1');
-  const [facilities, setFacilities] = useState<Facility[]>(defaultFacilities);
-  const [teachers, setTeachers] = useState<Teacher[]>(defaultTeachers);
+  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
 
   useEffect(() => {
     async function fetchFasilitasAndGuru() {
@@ -414,40 +414,48 @@ export default function Fasilitas() {
                   LABORATORIUM AKTIF JURUSAN
                 </span>
                 
-                <h3 className="font-serif text-2xl font-bold text-gray-950">
-                  {activeLab.name}
-                </h3>
-                
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed text-gray-600 font-medium">
-                  {activeLab.description}
-                </p>
+                {activeLab ? (
+                  <>
+                    <h3 className="font-serif text-2xl font-bold text-gray-950">
+                      {activeLab.name}
+                    </h3>
+                    
+                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
+                      {activeLab.description}
+                    </p>
 
-                <div>
-                  <h5 className="text-sm font-bold tracking-wider text-gray-900 uppercase mb-2">Instalasi Alat Sedia:</h5>
-                  <div className="grid grid-cols-2 gap-2 text-base text-gray-600">
-                    {activeLab.equipment.map((eq, i) => (
-                      <div key={i} className="flex items-center space-x-1.5 bg-white p-2 rounded-xl border border-pink-100 shadow-xs">
-                        <span className="w-1.5 h-1.5 bg-pink-500 rounded-full shrink-0" />
-                        <span className="truncate font-semibold text-gray-700">{eq}</span>
+                    <div>
+                      <h5 className="text-sm font-bold tracking-wider text-gray-900 uppercase mb-2">Instalasi Alat Sedia:</h5>
+                      <div className="grid grid-cols-2 gap-2 text-base text-gray-600">
+                        {activeLab.equipment.map((eq, i) => (
+                          <div key={i} className="flex items-center space-x-1.5 bg-white p-2 rounded-xl border border-pink-100 shadow-xs">
+                            <span className="w-1.5 h-1.5 bg-pink-500 rounded-full shrink-0" />
+                            <span className="truncate font-semibold text-gray-700">{eq}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="py-10 text-center text-gray-500 font-medium">Belum ada data laboratorium fasilitas.</div>
+                )}
               </div>
 
               {/* Photo Showcase */}
-              <div className="relative rounded-2xl overflow-hidden h-[260px] md:h-full min-h-[250px] shadow-sm border border-pink-100 bg-white">
-                <img
-                  src={activeLab.image}
-                  alt={activeLab.name}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-950/40 via-transparent to-transparent pointer-none" />
-                <span className="absolute bottom-4 left-4 text-xs font-extrabold uppercase tracking-widest text-white bg-pink-500 px-3 py-1.5 rounded-full shadow-sm">
-                  Standar Industri Vokasi
-                </span>
-              </div>
+              {activeLab && (
+                <div className="relative rounded-2xl overflow-hidden h-[260px] md:h-full min-h-[250px] shadow-sm border border-pink-100 bg-white">
+                  <img
+                    src={activeLab.image}
+                    alt={activeLab.name}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950/40 via-transparent to-transparent pointer-none" />
+                  <span className="absolute bottom-4 left-4 text-xs font-extrabold uppercase tracking-widest text-white bg-pink-500 px-3 py-1.5 rounded-full shadow-sm">
+                    Standar Industri Vokasi
+                  </span>
+                </div>
+              )}
             </div>
 
           </div>

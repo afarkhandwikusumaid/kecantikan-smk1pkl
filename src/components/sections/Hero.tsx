@@ -9,13 +9,7 @@ interface HeroProps {
 
 export default function Hero({ onNavigate }: HeroProps) {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [partnerships, setPartnerships] = useState<any[]>([
-    { id: '1', name: 'Martha Tilaar', subtitle: 'GROUP', isPink: false },
-    { id: '2', name: 'Mustika Ratu', subtitle: '', isPink: true },
-    { id: '3', name: 'Wardah', subtitle: 'Cosmetics', isPink: false },
-    { id: '4', name: 'BNSP LSP-P1', subtitle: '', isPink: false },
-    { id: '5', name: 'Rudy Hadisuwarno', subtitle: '', isPink: true }
-  ]);
+  const [partnerships, setPartnerships] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchMitra() {
@@ -29,17 +23,17 @@ export default function Hero({ onNavigate }: HeroProps) {
 
   const slides = [
     {
-      img: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=800",
+      img: "/images/photo-1540555700478-4be289fbecef.jpg",
       title: "Praktik Eduspa Salon",
       subtitle: "Teaching Factory Unggulan"
     },
     {
-      img: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=800",
+      img: "/images/photo-1487412720507-e7ab37603c6f.jpg",
       title: "Seni Hairdressing Kreatif",
       subtitle: "Kurikulum Hubungan Industri"
     },
     {
-      img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=800",
+      img: "/images/photo-1512290923902-8a9f81dc236c.jpg",
       title: "Rias Pengantin Nusantara",
       subtitle: "Estetika Tradisional & Modern"
     }
@@ -96,12 +90,12 @@ export default function Hero({ onNavigate }: HeroProps) {
             </motion.div>
 
             {/* Program Description */}
-            <p className="text-gray-600 text-sm sm:text-base md:text-[15px] leading-relaxed max-w-xl font-medium">
+            <p className="text-gray-600 text-base md:text-lg leading-relaxed max-w-xl font-medium">
               Membangun masa depan karir gemilang melalui <strong className="text-gray-950 font-extrabold bg-pink-50/80 px-1 py-0.5 rounded">pendidikan vokasi kecantikan</strong> yang bersertifikasi industri nasional dan internasional serta berbasis technopreneurship yang inovatif.
             </p>
 
             {/* Interactive Call to Actions */}
-            <div className="pt-2 flex flex-wrap gap-3">
+            <div className="pt-6 flex flex-wrap gap-4">
               <button
                 id="hero-enroll-action"
                 onClick={() => onNavigate('akademik')}
@@ -120,7 +114,7 @@ export default function Hero({ onNavigate }: HeroProps) {
             </div>
 
             {/* Elegant Vertical/Horizontal Statistics Cards - Exact reference style */}
-            <div className="grid grid-cols-3 gap-4 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-8">
               
               {/* Stat 1 */}
               <div className="bg-white rounded-2xl border border-gray-150 p-3 sm:p-4 shadow-2xs flex sm:items-center space-y-1.5 sm:space-y-0 sm:space-x-3.5 hover:shadow-xs transition-all duration-300 flex-col sm:flex-row">

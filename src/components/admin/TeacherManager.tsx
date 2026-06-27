@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Users, Search, Upload } from 'lucide-react';
 import { supabase, uploadImage } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface Teacher {
   id: string;
@@ -16,6 +17,8 @@ interface Teacher {
 const emptyForm = { name: '', nip: '', subject: '', position: '', image_url: '', quote: '', certifications: '' };
 
 export default function TeacherManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -68,16 +71,16 @@ export default function TeacherManager() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert('Ukuran file maksimal 2MB');
+        showAlert('Ukuran file maksimal 2MB', 'error');
         e.target.value = '';
         return;
       }
       try {
         setUploading(true);
-        const publicUrl = await uploadImage(file);
+        const publicUrl = await uploadImage(file, 'guru');
         setFormData(prev => ({ ...prev, image_url: publicUrl }));
       } catch (err: any) {
-        alert('Gagal mengunggah foto: ' + err.message);
+        showAlert('Gagal mengunggah foto: ' + err.message, 'error');
       } finally {
         setUploading(false);
       }
@@ -112,22 +115,24 @@ export default function TeacherManager() {
       setShowModal(false);
       fetchTeachers();
     } catch (error: any) {
-      alert('Gagal menyimpan data guru. Pastikan Anda sudah menjalankan ALTER TABLE di database. Error: ' + error.message);
+      showAlert('Gagal menyimpan data guru. Pastikan Anda sudah menjalankan ALTER TABLE di database. Error: ' + error.message, 'error');
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Hapus data guru ini?')) return;
-    try {
+  const handleDelete = (id: string) => {
+    showConfirm('Hapus data guru ini?', async () => {
+      try {
       const { error } = await supabase
         .from('teachers')
         .delete()
         .eq('id', id);
       if (error) throw error;
       fetchTeachers();
-    } catch (error: any) {
-      alert('Gagal menghapus data guru: ' + error.message);
-    }
+            showAlert('Data berhasil dihapus', 'success');
+      } catch (error: any) {
+        showAlert('Gagal menghapus data guru: ' + error.message, 'error');
+      }
+    });
   };
 
   const filtered = teachers.filter((t) =>

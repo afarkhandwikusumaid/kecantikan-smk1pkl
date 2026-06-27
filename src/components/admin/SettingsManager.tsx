@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Phone, Mail, MapPin, Instagram, Facebook, Youtube, Globe } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface ContactSettings { address: string; phone: string; email: string; mapsUrl: string; }
 interface SocialSettings { instagram: string; facebook: string; youtube: string; tiktok: string; website: string; }
 
 export default function SettingsManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [contact, setContact] = useState<ContactSettings>({ address: '', phone: '', email: '', mapsUrl: '' });
   const [social, setSocial] = useState<SocialSettings>({ instagram: '', facebook: '', youtube: '', tiktok: '', website: '' });
   
@@ -55,7 +58,7 @@ export default function SettingsManager() {
       setSavedContact(true);
       setTimeout(() => setSavedContact(false), 2500);
     } catch (err: any) {
-      alert('Gagal menyimpan kontak: ' + err.message);
+      showAlert('Gagal menyimpan kontak: ' + err.message, 'error');
     }
   };
 
@@ -72,7 +75,7 @@ export default function SettingsManager() {
       setSavedSocial(true);
       setTimeout(() => setSavedSocial(false), 2500);
     } catch (err: any) {
-      alert('Gagal menyimpan media sosial: ' + err.message);
+      showAlert('Gagal menyimpan media sosial: ' + err.message, 'error');
     }
   };
 
@@ -88,7 +91,7 @@ export default function SettingsManager() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Pengaturan Web</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Kelola informasi umum yang tampil di website (Dinamis Supabase)</p>
+        <p className="text-sm text-slate-500 mt-0.5">Kelola informasi umum yang tampil di website</p>
       </div>
 
       <div className="space-y-6">

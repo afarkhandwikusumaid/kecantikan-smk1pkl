@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Save, UserCheck } from 'lucide-react';
 import { supabase, uploadImage } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface KaprodiSettings { name: string; photoUrl: string; title: string; greetingText: string; }
 
 export default function SambutanManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [kaprodi, setKaprodi] = useState<KaprodiSettings>({ name: '', photoUrl: '', title: '', greetingText: '' });
   const [savedKaprodi, setSavedKaprodi] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -34,16 +37,16 @@ export default function SambutanManager() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert('Ukuran file maksimal 2MB');
+        showAlert('Ukuran file maksimal 2MB', 'error');
         e.target.value = '';
         return;
       }
       try {
         setUploading(true);
-        const publicUrl = await uploadImage(file);
+        const publicUrl = await uploadImage(file, 'profil');
         setKaprodi(prev => ({ ...prev, photoUrl: publicUrl }));
       } catch (err: any) {
-        alert('Gagal mengunggah foto: ' + err.message);
+        showAlert('Gagal mengunggah foto: ' + err.message, 'error');
       } finally {
         setUploading(false);
       }
@@ -63,7 +66,7 @@ export default function SambutanManager() {
       setSavedKaprodi(true);
       setTimeout(() => setSavedKaprodi(false), 2500);
     } catch (error: any) {
-      alert('Gagal menyimpan Sambutan: ' + error.message);
+      showAlert('Gagal menyimpan Sambutan: ' + error.message, 'error');
     }
   };
 
@@ -79,7 +82,7 @@ export default function SambutanManager() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Sambutan Ketua Jurusan</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Kelola foto dan teks profil untuk sambutan ketua jurusan di Beranda (Dinamis Supabase)</p>
+        <p className="text-sm text-slate-500 mt-0.5">Kelola foto dan teks profil untuk sambutan ketua jurusan di Beranda</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">

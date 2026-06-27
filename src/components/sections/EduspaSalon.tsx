@@ -5,88 +5,7 @@ import { supabase } from '../../lib/supabase';
 
 export default function EduspaSalon() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: "skin1",
-      category: "skincare",
-      name: "Ozone Cleanse & Acne Therapy",
-      duration: 45,
-      price: 35000,
-      description: "Pembersihan pori mendalam menggunakan uap Ozone, ditutup dengan High Frequency electrotherapy untuk membunuh bakteri jerawat.",
-      features: ["Pembersihan ganda", "Ozone Vapourisation", "Sinar High-Frequency", "Masker Tea Tree", "Dermal Hydrating Serum"],
-      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=400"
-    },
-    {
-      id: "skin2",
-      category: "skincare",
-      name: "Dermal Ultra-Rejuvenation Facial",
-      duration: 60,
-      price: 50000,
-      description: "Perawatan anti-aging premium menggunakan mesin Ultrasound. Memasukkan serum kolagen hingga ke dermis kulit agar kenyal.",
-      features: ["Mikroeksfoliasi Scrubber", "Transmisi Gel Kolagen", "Ultrasound Sonophoresis", "Peel-off Gold Mask", "Ice Globe massage"],
-      image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=400"
-    },
-    {
-      id: "hair1",
-      category: "hair",
-      name: "Botanical Hair Spa & Blow Styling",
-      duration: 60,
-      price: 40000,
-      description: "Terapi nutrisi rambut kering & rontok menggunakan ekstrak aloe vera/ginseng alami, dipadu dengan pijat rileksasi pundak.",
-      features: ["Scalp Scrubbing", "Creambath Massage (20 m)", "Ozone Hair Steam", "Keratin Coat Serum", "Sleek Standard Blow Dry"],
-      image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=400"
-    },
-    {
-      id: "hair2",
-      category: "hair",
-      name: "Pivot Point Creative Haircut & Tone",
-      duration: 50,
-      price: 30000,
-      description: "Potong rambut presisi mengikuti geometri wajah, ditambah dengan pewarnaan penutup uban atau fashion tint basic.",
-      features: ["Wood Hair Diagnosis", "Symmetric Sectioning Cut", "Wash & Scalp Stimulator", "Basic Fashion Tinting", "Blow Styling"],
-      image: "https://images.unsplash.com/photo-1521590832167-7bcbfeac2531?q=80&w=400"
-    },
-    {
-      id: "body1",
-      category: "body",
-      name: "Keraton Royal Javanese Body Massage",
-      duration: 80,
-      price: 60000,
-      description: "Seni pijat warisan keraton Jawa menggunakan minyak melati hangat, melancarkan peredaran darah, disusul scrub lulur rempah kuning.",
-      features: ["Foot Bath Aromatherapy", "Signature Javanese Stroke Pijat", "Lulur Kuning Mangir Organik", "Traditional Body Warming Tea", "Hot Herbal Towel Wipe"],
-      image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=400"
-    },
-    {
-      id: "body2",
-      category: "body",
-      name: "Mineral Hot Stone Reliever Therapy",
-      duration: 90,
-      price: 75000,
-      description: "Perawatan spa holistik menggunakan batu basal vulkanik hangat untuk melemaskan otot tegang dan membuang racun tubuh.",
-      features: ["Aromatic Foot Wash", "Basalt Hot Stone Placement", "Effleurage Spa Strokes", "Thermal Acupressure Stimulation", "Ginger Spice Drink"],
-      image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=400"
-    },
-    {
-      id: "makeup1",
-      category: "makeup",
-      name: "Youthful Graduate Corrective Makeup",
-      duration: 50,
-      price: 45000,
-      description: "Riasan wajah segar, tahan lama, dan berdimensi natural untuk upacara wisuda, syukuran, atau acara pesta formal siang hari.",
-      features: ["Skin Preparation", "Satin-finish Foundation Blend", "Corrective Nose & Face Shading", "Elegant Eyebrow Framing", "Dewy Mist Settler"],
-      image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=400"
-    },
-    {
-      id: "makeup2",
-      category: "makeup",
-      name: "Prada Traditional Bridal Makeup Art",
-      duration: 120,
-      price: 150000,
-      description: "Mahakarya tata rias pengantin adat Jawa (Solo Putri/Jogja Paes Ageng) lengkap dengan penataan sanggul, prada, & hiasan melati sintetik.",
-      features: ["Advanced Paes Drawing", "High Definition 12H Foundation", "Intricate Sanggul Traditional", "Ronce Melati & Cunduk Mentul Setup", "Aksesoris Pengantin Komplet"],
-      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=400"
-    }
-  ]);
+  const [services, setServices] = useState<Service[]>([]);
 
   useEffect(() => {
     async function fetchServices() {
@@ -125,7 +44,7 @@ export default function EduspaSalon() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Intro */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
           <span className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase">
             UNIT BISNIS JURUSAN &amp; TRAINING FACTORY
           </span>
@@ -138,8 +57,8 @@ export default function EduspaSalon() {
         </div>
 
         {/* Catalog Section */}
-        <div className="space-y-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between border-b border-pink-100 pb-4 gap-4">
+        <div className="space-y-12">
+          <div className="flex flex-col sm:flex-row items-center justify-between border-b border-pink-100 pb-6 gap-4">
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
               <Palette className="w-5 h-5 text-pink-500" />
               Katalog Layanan Eduspa
@@ -185,12 +104,12 @@ export default function EduspaSalon() {
                   </div>
                 </div>
 
-                <div className="p-6 flex flex-col justify-between flex-grow space-y-4">
-                  <div className="space-y-2">
+                <div className="p-8 flex flex-col justify-between flex-grow space-y-6">
+                  <div className="space-y-3">
                     <h4 className="font-serif text-lg font-bold text-gray-900 leading-tight">
                       {service.name}
                     </h4>
-                    <p className="text-xs text-gray-500 line-clamp-3 leading-relaxed font-medium">
+                    <p className="text-sm text-gray-500 line-clamp-3 leading-relaxed font-medium mt-2">
                       {service.description}
                     </p>
                   </div>

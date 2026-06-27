@@ -17,9 +17,15 @@ import AdminApp from './components/admin/AdminApp';
 import { supabase } from './lib/supabase';
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState<string>('beranda');
+  const [activeSection, setActiveSection] = useState<string>(() => {
+    return localStorage.getItem('publicActiveSection') || 'beranda';
+  });
   const [isAdminRoute, setIsAdminRoute] = useState(false);
   const [dynamicNews, setDynamicNews] = useState<any[]>([]);
+
+  useEffect(() => {
+    localStorage.setItem('publicActiveSection', activeSection);
+  }, [activeSection]);
 
   useEffect(() => {
     async function fetchHomeNews() {
@@ -109,7 +115,7 @@ export default function App() {
 
       {/* PROFIL */}
       {activeSection === 'profil' && (
-        <div className="pt-20 pb-12 animate-fade-in">
+        <div className="pb-12 animate-fade-in bg-white">
           {/* Section: Visi, Misi & Sasaran Strategis */}
           <VisiMisi onNavigate={handleNavigate} />
           
@@ -133,16 +139,16 @@ export default function App() {
 
       {/* AKADEMIK */}
       {activeSection === 'akademik' && (
-        <div className="pt-20 animate-fade-in">
+        <div className="animate-fade-in bg-[#fcf8fa]">
           <Akademik />
         </div>
       )}
 
       {/* PROGRAM UNGGULAN */}
       {activeSection === 'unggulan' && (
-        <div className="pt-20 animate-fade-in space-y-4">
+        <div className="animate-fade-in space-y-4 bg-white">
           <div className="bg-white pb-12">
-            <div className="max-w-7xl mx-auto px-4 py-16 text-center space-y-4 border-b border-pink-50 mb-8">
+            <div className="max-w-7xl mx-auto px-4 pt-32 pb-16 text-center space-y-4 border-b border-pink-50 mb-8">
               <span className="text-[10px] tracking-widest font-bold text-pink-800 bg-pink-50 border border-pink-100 px-3.5 py-1.5 rounded-full uppercase">
                 EDUSPA CLINIC &amp; SALON
               </span>
@@ -190,9 +196,9 @@ export default function App() {
 
       {/* PENGUMUMAN */}
       {activeSection === 'pengumuman' && (
-        <div className="pt-20 animate-fade-in">
+        <div className="animate-fade-in bg-white">
           {/* Section: Berita, Pengumuman & Agenda Terkini */}
-          <section className="py-16 bg-white">
+          <section className="pt-32 pb-16 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
                 <span className="text-[10px] tracking-[0.25em] font-bold text-pink-800 bg-pink-50 border border-pink-100 px-4 py-1.5 rounded-full uppercase">

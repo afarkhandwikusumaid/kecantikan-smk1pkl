@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, TrendingUp, Save } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface CareerProfile {
   id?: string;
@@ -12,30 +13,13 @@ interface CareerProfile {
   industrialPartners: string[];
 }
 
-const defaultCareers: CareerProfile[] = [
-  {
-    id: "c1",
-    title: 'Medical Aesthetician / Dermal Therapist Helper',
-    salary: 'Rp 4,5 Juta - Rp 8,5 Juta / bulan',
-    growth: 'Sangat Tinggi (Lulusan Selalu Terserap Habis)',
-    desc: 'Bekerja secara sinergis profesional membantu dokter spesialis kulit di berbagai klinik kecantikan medis terakreditasi nasional, mengoperasikan mesin laser dermal dasar, facial cleansing klinis, serta memberikan rekomendasi skincare.',
-    tags: ['Klinik Estetika Medik', 'Aesthetic Consultant', 'Clinical Helper'],
-    industrialPartners: ['Erha Clinic Group', 'Naavagreen Estetika', 'Skingame Center', 'Larissa Aesthetic Center']
-  },
-  {
-    id: "c2",
-    title: 'Senior Wellness Spa Lead & Aromatherapis',
-    salary: 'Rp 5,5 Juta - Rp 12 Juta / bulan',
-    growth: 'Kebutuhan Tinggi Sektor Pariwisata Resor Bintang 5',
-    desc: 'Terapis tubuh premium bersertifikat BNSP nasional yang menguasai teknik pemijatan warisan budaya nusantara, hidroterapi, totok meridian wajah, serta peracikan aromaterapi herbal spesifik bagi wisatawan mancanegara.',
-    tags: ['Hotels & Resors Bintang 5', 'Terapi Spa Tradisional', 'Wellness Director'],
-    industrialPartners: ['Martha Tilaar Salon & Day Spa', 'Mustika Ratu Royal Spa', 'Plataran Resorts Bali', 'Alila Wellness Resor']
-  }
-];
+
 
 const emptyForm: CareerProfile = { id: '', title: '', salary: '', growth: '', desc: '', tags: [], industrialPartners: [] };
 
 export default function KarirManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [careers, setCareers] = useState<CareerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -54,10 +38,7 @@ export default function KarirManager() {
       
       if (data && data.value) {
         setCareers(data.value as CareerProfile[]);
-      } else {
-        setCareers(defaultCareers);
-        await saveToSupabase(defaultCareers);
-      }
+      } else { setCareers([]); }
     } catch (err: any) {
       console.error('Error fetching careers:', err);
     } finally {
@@ -78,7 +59,7 @@ export default function KarirManager() {
       if (error) throw error;
       setCareers(newCareers);
     } catch (error: any) {
-      alert('Gagal menyimpan karir: ' + error.message);
+      showAlert('Gagal menyimpan karir: ' + error.message, 'error');
     } finally {
       setSaving(false);
       setShowModal(false);
@@ -109,9 +90,11 @@ export default function KarirManager() {
   };
 
   const handleDelete = (id: string) => {
-    if (!window.confirm('Hapus profil karir ini?')) return;
-    const updated = careers.filter(c => c.id !== id && c.title !== id);
-    saveToSupabase(updated);
+    showConfirm('Hapus profil karir ini?', () => {
+      const updated = careers.filter(c => c.id !== id && c.title !== id);
+      saveToSupabase(updated);
+      showAlert('Profil karir berhasil dihapus', 'success');
+    });
   };
 
   const handleArrayChange = (field: 'tags' | 'industrialPartners', value: string) => {

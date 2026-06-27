@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp, Sparkles, MessageCircle, ArrowRight } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -11,33 +11,7 @@ interface FAQItem {
 export default function FAQ() {
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const [faqItems, setFaqItems] = useState<FAQItem[]>([
-    {
-      id: 'faq-1',
-      question: 'Apakah lulusan Jurusan Tata Kecantikan & Spa hanya bisa bekerja di salon biasa?',
-      answer: 'Tentu tidak. Lulusan kami memiliki jangkauan karir yang sangat luas dan berkelas. Selain wirausaha mandiri salon, alumni terserap menjadi asisten klinis/terapis dermal di klinik kecantikan medis terakreditasi (bekerja sama dengan dokter spesialis kulit/dermatolog), senior wellness therapis di hotel atau resor bintang 5, penata rias profesional (MUA) bridal/fashion, hingga formulator produk kosmetika.'
-    },
-    {
-      id: 'faq-2',
-      question: 'Apa perbedaan mendasar jurusan ini dengan tata rias artis biasa?',
-      answer: 'Jurusan Tata Kecantikan Kulit & Spa kami berfokus seimbang pada sains kecantikan (anatomi kulit, analisis kecocokan kosmetik harian, kelainan dermatologis ringan), terapi spa tubuh tradisional nusantara (hidroterapi dan sauna uap herbal), penggunaan alat kecantikan kelistrikan modern (High Frequency ozon, galvanic iontophoresis, ultrasound), baru kemudian ditunjang pangkas rambut artistik dan rias pengantin.'
-    },
-    {
-      id: 'faq-3',
-      question: 'Bagaimana siswa melakukan unjuk praktik kerja industri?',
-      answer: 'Siswa kelas XII wajib mengikuti program magang / Praktik Kerja Lapangan (PKL) terstruktur selama beberapa bulan di institusi mitra komersial terpercaya seperti Martha Tilaar Salon & Day Spa, Mustika Ratu, Larissa Aesthetic Center, atau klinik kecantikan medis modern lainnya untuk melatih kesiapan mental kerja riil (hospitality excellence).'
-    },
-    {
-      id: 'faq-4',
-      question: 'Apakah sertifikasi kompetensi BNSP yang diperoleh lulusan resmi?',
-      answer: 'Sangat resmi. Sekolah kami merupakan penyelenggara mandiri berlisensi LSP-P1 resmi dari BNSP (Badan Nasional Sertifikasi Profesi) Indonesia. Ujian kompetensi dinilai langsung oleh tim asesor eksternal bersertifikat. Lulusan akan menerima sertifikat berlambang Garuda Emas yang menjadi bukti keahlian hukum kuat untuk melamar pekerjaan.'
-    },
-    {
-      id: 'faq-5',
-      question: 'Bagaimana sistem Teaching Factory (TEFA) di Eduspa Salon dijalankan?',
-      answer: 'Eduspa Salon merupakan perwujudan Living Lab sekolah. Di sini, siswa diajarkan simulasi operasional bisnis salon kecantikan komersial sesungguhnya. Siswa melayani pelanggan umum Pekalongan (seperti perawatan facial manual, creambath rambut, nail art, manicure-pedicure, lulur rempah) di bawah bimbingan guru ahli pembina sehingga terbentuk jiwa wirausaha mandiri.'
-    }
-  ]);
+  const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
 
   useEffect(() => {
     async function fetchFaqs() {

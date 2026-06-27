@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, HelpCircle, Save } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface FAQ {
   id: string;
@@ -8,27 +9,13 @@ interface FAQ {
   answer: string;
 }
 
-const defaultFaqs: FAQ[] = [
-  {
-    id: "f1",
-    question: "Apakah lulusan SMP tanpa dasar rias bisa masuk jurusan ini?",
-    answer: "Tentu! Kurikulum kami didesain mulai dari nol (dasar). Di kelas X, siswi akan diajarkan teori anatomi dasar hingga cara memegang instrumen kosmetik yang benar secara bertahap."
-  },
-  {
-    id: "f2",
-    question: "Berapa biaya praktik bulanan selain SPP?",
-    answer: "Berkat dukungan dana BOS dan komite, bahan baku praktik mayoritas sudah disubsidi sekolah. Siswi hanya dihimbau memiliki personal tool-kit rias dasar yang sifatnya menjadi hak milik pribadi."
-  },
-  {
-    id: "f3",
-    question: "Apakah ada penyaluran kerja setelah lulus?",
-    answer: "Pasti. Kami memiliki BKK (Bursa Kerja Khusus) yang rutin menggelar rekrutmen langsung dengan mitra industri seperti klinik kecantikan medik dan salon ternama sebelum siswi dinyatakan lulus."
-  }
-];
+
 
 const emptyForm: FAQ = { id: '', question: '', answer: '' };
 
 export default function FAQManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -47,10 +34,7 @@ export default function FAQManager() {
       
       if (data && data.value) {
         setFaqs(data.value as FAQ[]);
-      } else {
-        setFaqs(defaultFaqs);
-        await saveToSupabase(defaultFaqs);
-      }
+      } else { setFaqs([]); }
     } catch (err: any) {
       console.error('Error fetching FAQs:', err);
     } finally {
@@ -71,7 +55,7 @@ export default function FAQManager() {
       if (error) throw error;
       setFaqs(newFaqs);
     } catch (error: any) {
-      alert('Gagal menyimpan FAQ: ' + error.message);
+      showAlert('Gagal menyimpan FAQ: ' + error.message, 'error');
     } finally {
       setSaving(false);
       setShowModal(false);
@@ -102,9 +86,11 @@ export default function FAQManager() {
   };
 
   const handleDelete = (id: string) => {
-    if (!window.confirm('Hapus FAQ ini?')) return;
-    const updated = faqs.filter(f => f.id !== id);
-    saveToSupabase(updated);
+    showConfirm('Hapus FAQ ini?', () => {
+      const updated = faqs.filter(f => f.id !== id);
+      saveToSupabase(updated);
+      showAlert('FAQ berhasil dihapus', 'success');
+    });
   };
 
   return (

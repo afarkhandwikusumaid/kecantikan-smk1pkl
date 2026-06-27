@@ -10,7 +10,7 @@ const defaultProjects: Project[] = [
     studentName: "Fara Adelia Pramesti",
     grade: "Kelas XII - Kecantikan 2",
     category: "makeup",
-    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600",
+    image: "/images/photo-1512290923902-8a9f81dc236c.jpg",
     description: "Mahakarya tata rias pengantin dengan Paes klasik gaya Surakarta Sala Putri, diberi sentuhan modern dewy look di bagian pipi. Dilengkapi hiasan melati ronce cunduk mentul yang presisi.",
     productsUsed: ["Wardah Instaperfect Foundation", "Mustika Ratu Paes Kit", "Make Over Eyeshadow Palette"],
     achievementBadge: "Juara 1 LKS Kota Pekalongan 2025"
@@ -21,7 +21,7 @@ const defaultProjects: Project[] = [
     studentName: "Dian Wahyuni Ningtyas",
     grade: "Kelas XII - Kecantikan 1",
     category: "hair",
-    image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=600",
+    image: "/images/photo-1562322140-8baeececf3df.jpg",
     description: "Desain penataan rambut avant-garde bermotif bunga lotus mekar mandiri di atas sanggul Jawa klasik. Teknik sasak tinggi penahan beban tanpa jepit berlebihan.",
     productsUsed: ["Rudy Hadisuwarno Styling Spray", "Makarizo Professional Hair Wax", "L'Oreal Elnett Satin"],
     achievementBadge: "Juara Harapan 1 LKS Jawa Tengah 2025"
@@ -32,7 +32,7 @@ const defaultProjects: Project[] = [
     studentName: "Amelia Saputri Hermawan",
     grade: "Kelas XII - Kecantikan 2",
     category: "skin",
-    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=600",
+    image: "/images/photo-1522335789203-aabd1fc54bc9.jpg",
     description: "Studi kasus klinis penanganan kulit wajah bersisik ekstrem akibat paparan AC berkepanjangan. Menggunakan elektroterapi Galvanic dan masker alginat peel-off teh hijau.",
     productsUsed: ["Martha Tilaar Professional Serum", "Biokos Aloe Moisture Gel", "Skin Food Alginate Powder"],
   },
@@ -42,7 +42,7 @@ const defaultProjects: Project[] = [
     studentName: "Ratih Sukma Ningrum",
     grade: "Kelas XI - Kecantikan 1",
     category: "spa",
-    image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=600",
+    image: "/images/photo-1608571423902-eed4a5ad8108.jpg",
     description: "Formulasi scrub lulur basah organik menggabungkan rempah kencur Pekalongan, bubuk kopi Robusta, parutan kunyit, dan esens temulawak murni untuk detoksifikasi kulit sel mati.",
     productsUsed: ["Bahan Alami Curcumae Radix", "Minyak Zaitun Mustika Ratu", "Aromaterapi Esensial Serai"],
     achievementBadge: "Proyek Inovasi Ramuan Nusantara Terbaik"
@@ -52,7 +52,7 @@ const defaultProjects: Project[] = [
 export default function Karya() {
   const [filter, setFilter] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [projects, setProjects] = useState<Project[]>(defaultProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
     async function fetchProjects() {
@@ -111,7 +111,7 @@ export default function Karya() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Title Section */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
           <p className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase">
             STUDENT PORTFOLIO EXHIBITION
           </p>
@@ -177,7 +177,7 @@ export default function Karya() {
                 </div>
 
                 {/* Info Text */}
-                <div className="space-y-2.5 px-2">
+                <div className="space-y-4 px-2 pt-2">
                   <div className="flex items-center space-x-2">
                     <User className="w-4 h-4 text-pink-500 shrink-0" />
                     <span className="text-xs font-bold text-gray-700">{project.studentName}</span>
@@ -189,7 +189,7 @@ export default function Karya() {
                     {project.title}
                   </h3>
 
-                  <p className="text-xs text-gray-500 leading-relaxed font-medium">
+                  <p className="text-sm text-gray-500 leading-relaxed font-medium">
                     {project.description}
                   </p>
                 </div>

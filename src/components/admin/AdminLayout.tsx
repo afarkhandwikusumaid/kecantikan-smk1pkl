@@ -119,9 +119,7 @@ export default function AdminLayout({ children, activeTab, setActiveTab, onLogou
     <div className="flex flex-col h-full">
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-900/50 flex-shrink-0">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
+          <img src="/logo-kecantikan.png" alt="Logo" className="w-10 h-10 object-contain bg-white rounded-xl shadow-lg p-1 flex-shrink-0" />
           <div>
             <p className="text-white font-bold text-sm leading-tight">Admin Portal</p>
             <p className="text-pink-300/70 text-sm leading-tight font-medium tracking-wide uppercase">Kecantikan & SPA</p>
@@ -224,9 +222,7 @@ export default function AdminLayout({ children, activeTab, setActiveTab, onLogou
         style={{ background: 'linear-gradient(180deg, #1a0e2e 0%, #16091f 60%, #120818 100%)', boxShadow: '4px 0 24px rgba(0,0,0,0.4)' }}>
         <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-600 flex items-center justify-center shadow-lg">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            <img src="/logo-kecantikan.png" alt="Logo" className="w-10 h-10 object-contain bg-white rounded-xl shadow-lg p-1" />
             <div>
               <p className="text-white font-bold text-sm">Admin Portal</p>
               <p className="text-pink-300/70 text-sm font-medium tracking-wide uppercase">Kecantikan & SPA</p>

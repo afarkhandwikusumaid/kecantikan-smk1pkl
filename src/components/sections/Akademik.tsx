@@ -23,13 +23,9 @@ import { supabase } from '../../lib/supabase';
 
 export default function Akademik() {
   const [selectedClassTab, setSelectedClassTab] = useState<'all' | 'X' | 'XI' | 'XII'>('all');
-  const [visiText, setVisiText] = useState("Menjadi rujukan utama pendidikan vokasi estetika kecantikan kulit dan terapi spa nasional yang berkarakter agung, menguasai ilmu kosmetologi, dan berjiwa industri modern.");
-  const [misiList, setMisiList] = useState<string[]>([
-    "Menyelenggarakan proses pembelajaran berbasis teknologi elektro dermal medik dasar.",
-    "Mengembangkan unit mandiri Teaching Factory (TEFA) sebagai kawah candradimuka wirausaha.",
-    "Membangun lulusan berlisensi kualifikasi nasional (BNSP) untuk langsung bekerja di klinik premium."
-  ]);
-  const [syllabus, setSyllabus] = useState<{ X: any[]; XI: any[]; XII: any[] }>(curriculumSyllabus);
+  const [visiText, setVisiText] = useState("");
+  const [misiList, setMisiList] = useState<string[]>([]);
+  const [syllabus, setSyllabus] = useState<{ X: any[]; XI: any[]; XII: any[] }>({ X: [], XI: [], XII: [] });
   const [careerList, setCareerList] = useState<any[]>([]);
 
   useEffect(() => {
@@ -69,9 +65,9 @@ export default function Akademik() {
 
           currData.forEach((item) => {
             const mapped = {
-              code: `SEM${item.semester}-${item.name.split(' ').map((w: string) => w[0] || '').join('').toUpperCase().substring(0, 3)}`,
+              code: item.code || `SEM${item.semester}-${item.name.split(' ').map((w: string) => w[0] || '').join('').toUpperCase().substring(0, 3)}`,
               name: item.name,
-              hrs: '144 JP',
+              hrs: item.credits || '144 JP',
               desc: item.description,
               skillsAcquired: ['SOP Kerja Vokasi']
             };
@@ -98,7 +94,7 @@ export default function Akademik() {
     <div className="bg-[#fcf8fa] min-h-screen pt-0 pb-16 animate-fade-in font-sans">
       
       {/* Premium Academic Hero Banner */}
-      <div className="bg-gradient-to-r from-pink-700 via-pink-600 to-rose-700 text-white py-16 px-4 relative overflow-hidden mb-12 shadow-sm border-b border-pink-200">
+      <div className="bg-gradient-to-r from-pink-700 via-pink-600 to-rose-700 text-white pt-32 pb-20 px-4 relative overflow-hidden mb-12 shadow-sm border-b border-pink-200">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-pink-100/10 rounded-full blur-2xl pointer-events-none" />
         
@@ -135,13 +131,13 @@ export default function Akademik() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
         
         {/* LANDASAN KURIKULUM */}
-        <section className="bg-white border border-pink-100/70 rounded-[2.5rem] p-6 sm:p-8 shadow-xs space-y-6">
+        <section className="bg-white border border-pink-100/70 rounded-[2.5rem] p-8 sm:p-12 shadow-xs space-y-8">
           <div className="space-y-4">
-            <div className="flex items-center space-x-2 bg-pink-50 text-pink-600 w-fit px-3 py-1 rounded-lg text-sm font-extrabold uppercase tracking-wider">
-              <Target className="w-3.5 h-3.5" />
+            <div className="flex items-center space-x-2 bg-pink-50 text-pink-600 w-fit px-4 py-1.5 rounded-lg text-sm font-extrabold uppercase tracking-wider">
+              <Target className="w-4 h-4" />
               <span>Uraian Filsafat Pendidikan</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-gray-950">
@@ -176,10 +172,10 @@ export default function Akademik() {
         </section>
 
         {/* DASAR HUKUM */}
-        <section className="bg-[#faf5f7]/60 border border-pink-100/80 rounded-[2.5rem] p-6 sm:p-8 space-y-6">
+        <section className="bg-[#faf5f7]/60 border border-pink-100/80 rounded-[2.5rem] p-8 sm:p-12 space-y-8">
           <div className="space-y-4">
-            <div className="flex items-center space-x-2 bg-gray-900 text-white w-fit px-3 py-1 rounded-lg text-sm font-extrabold uppercase tracking-widest font-mono">
-              <Scale className="w-3.5 h-3.5 text-pink-400" />
+            <div className="flex items-center space-x-2 bg-gray-900 text-white w-fit px-4 py-1.5 rounded-lg text-sm font-extrabold uppercase tracking-widest font-mono">
+              <Scale className="w-4 h-4 text-pink-400" />
               <span>LEGALITAS KURIKULUM</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-serif font-bold text-gray-950">

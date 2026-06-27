@@ -205,9 +205,9 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
               { label: 'Tambah Berita', tab: 'berita', icon: FileText, color: 'from-rose-400 to-pink-500' },
               { label: 'Upload Galeri', tab: 'galeri', icon: Image, color: 'from-violet-400 to-purple-500' },
               { label: 'Data Fasilitas', tab: 'fasilitas', icon: Building2, color: 'from-emerald-400 to-teal-500' },
-              { label: 'Kelola Mitra', tab: 'partnership', icon: Handshake, color: 'from-amber-400 to-orange-500' },
+              { label: 'Kelola Mitra', tab: 'mitra', icon: Handshake, color: 'from-amber-400 to-orange-500' },
               { label: 'Data Kurikulum', tab: 'curriculum', icon: BookOpen, color: 'from-blue-400 to-indigo-500' },
-              { label: 'Prestasi Siswa', tab: 'prestasi', icon: Users, color: 'from-pink-400 to-rose-500' },
+              { label: 'Layanan Eduspa', tab: 'eduspa', icon: Sparkles, color: 'from-pink-400 to-rose-500' },
             ].map((action) => (
               <button
                 key={action.tab}

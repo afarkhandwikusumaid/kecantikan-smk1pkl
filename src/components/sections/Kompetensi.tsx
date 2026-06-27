@@ -20,7 +20,7 @@ export default function Kompetensi() {
         "Pembuatan & Pengaplikasi Masker Peel-off & Herbal"
       ],
       duration: "Semester 1 - 4 (Teori & Klinik Praktik)",
-      image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=800",
+      image: "/images/photo-1522335789203-aabd1fc54bc9.jpg",
       tools: ["Wood Lamp Analyzer", "Galvanic & High Frequency Machines", "Ozon Facial Vaporizer", "Aroma Steamer", "Skin Scrubber"]
     },
     {
@@ -37,7 +37,7 @@ export default function Kompetensi() {
         "Terapi Keratin & Spa Kulit Kepala (Hair Spa)"
       ],
       duration: "Semester 2 - 5 (Integrasi Salon Lab)",
-      image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=800",
+      image: "/images/photo-1562322140-8baeececf3df.jpg",
       tools: ["Professional Hair Dryer & Ironer", "Hair Steamer Ozone", "Professional Shears Set", "Mannequin Styling Head", "Color Mixing Scale"]
     },
     {
@@ -54,7 +54,7 @@ export default function Kompetensi() {
         "Manicure, Pedicure & Foot Reflexology"
       ],
       duration: "Semester 3 - 6 (Magang Industri & Uji BNSP)",
-      image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800",
+      image: "/images/photo-1608571423902-eed4a5ad8108.jpg",
       tools: ["Ergonomic Spa Bed", "Hot Stone Warmer", "Therapeutic Essential Oil Diffusers", "Pedicure Tub Bath", "Herbal Steam Cabin"]
     },
     {
@@ -71,7 +71,7 @@ export default function Kompetensi() {
         "Airbrush Makeup Technique & Digital Photo Ready"
       ],
       duration: "Semester 3 - 5 (Portofolio Publik)",
-      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=800",
+      image: "/images/photo-1512290923902-8a9f81dc236c.jpg",
       tools: ["Airbrush Gun & Compressor", "Professional Makeup Ring Light", "Palette Cosmetics Set (120 Colors)", "Special Effects Wax Set", "High Definition Fixer"]
     }
   ];
@@ -83,7 +83,7 @@ export default function Kompetensi() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Title */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
           <p className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase">
             SPEKTRUM KEAHLIAN AKADEMIK
           </p>
@@ -142,8 +142,8 @@ export default function Kompetensi() {
           </div>
 
           {/* Right Block: Structured Details */}
-          <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
+          <div className="lg:col-span-7 flex flex-col justify-between space-y-8">
+            <div className="space-y-5">
               <div className="flex items-center space-x-2">
                 <span className="bg-green-100 text-green-700 text-sm px-2 py-0.5 rounded font-bold uppercase">
                   {activeComp.titleEn}
@@ -154,13 +154,13 @@ export default function Kompetensi() {
                 {activeComp.title}
               </h3>
               
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <p className="text-gray-600 text-base leading-relaxed">
                 {activeComp.description}
               </p>
             </div>
 
             {/* Sub skills achieved */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               <h4 className="text-xs font-bold uppercase tracking-widest text-gray-950 flex items-center space-x-2">
                 <BookOpen className="w-3.5 h-3.5 text-pink-600" />
                 <span>Keterampilan Inti Siswa</span>

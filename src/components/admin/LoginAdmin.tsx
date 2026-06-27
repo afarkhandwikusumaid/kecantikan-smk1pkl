@@ -43,7 +43,7 @@ export default function LoginAdmin({ onLoginSuccess }: LoginAdminProps) {
           Portal Admin
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Akses khusus untuk administrator sistem (Mode FE-Only)
+          Akses khusus Jurusan Kecantikan & Spa SMK Negeri 1 Pekalongan
         </p>
       </div>
 

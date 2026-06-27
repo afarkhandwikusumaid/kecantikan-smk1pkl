@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Building2, Search, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface Facility {
   id: string;
@@ -18,6 +19,8 @@ const emptyForm = {
 };
 
 export default function FacilityManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -85,22 +88,24 @@ export default function FacilityManager() {
       setShowModal(false);
       fetchFacilities();
     } catch (error: any) {
-      alert('Gagal menyimpan fasilitas: ' + error.message);
+      showAlert('Gagal menyimpan fasilitas: ' + error.message, 'error');
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Hapus fasilitas ini?')) return;
-    try {
+  const handleDelete = (id: string) => {
+    showConfirm('Hapus fasilitas ini?', async () => {
+      try {
       const { error } = await supabase
         .from('facilities')
         .delete()
         .eq('id', id);
       if (error) throw error;
       fetchFacilities();
-    } catch (error: any) {
-      alert('Gagal menghapus fasilitas: ' + error.message);
-    }
+            showAlert('Data berhasil dihapus', 'success');
+      } catch (error: any) {
+        showAlert('Gagal menghapus fasilitas: ' + error.message, 'error');
+      }
+    });
   };
 
   const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
@@ -118,7 +123,7 @@ export default function FacilityManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Fasilitas Praktik</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Kelola data fasilitas laboratorium (Data Dinamis FE-Only)</p>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola data fasilitas laboratorium</p>
         </div>
         <button
           onClick={openAdd}

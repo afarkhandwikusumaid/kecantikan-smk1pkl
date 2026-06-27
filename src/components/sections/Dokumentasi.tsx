@@ -22,7 +22,7 @@ export default function Dokumentasi() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [featuredDoc, setFeaturedDoc] = useState<ActivityDoc | null>(null);
-  const [docs, setDocs] = useState<ActivityDoc[]>(activityDocs);
+  const [docs, setDocs] = useState<ActivityDoc[]>([]);
 
   useEffect(() => {
     async function fetchDocs() {

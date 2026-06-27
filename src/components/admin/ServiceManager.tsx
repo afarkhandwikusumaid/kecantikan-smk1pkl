@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Sparkles, Search } from 'lucide-react';
 import { supabase, uploadImage } from '../../lib/supabase';
+import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface ServiceItem {
   id: string;
@@ -17,6 +18,8 @@ const CATEGORIES = ['hair', 'body', 'skin', 'makeup'];
 const emptyForm = { name: '', category: 'hair', description: '', duration: 60, price: 0, features: '', image: '' };
 
 export default function ServiceManager() {
+  const { showConfirm, showAlert } = useAdminFeedback();
+
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -83,7 +86,7 @@ export default function ServiceManager() {
       setUploading(true);
       let finalImageUrl = formData.image;
       if (selectedFile) {
-        finalImageUrl = await uploadImage(selectedFile);
+        finalImageUrl = await uploadImage(selectedFile, 'layanan');
       }
 
       const featuresArray = formData.features.split(',').map((f: string) => f.trim()).filter(Boolean);
@@ -120,24 +123,26 @@ export default function ServiceManager() {
       setSelectedFile(null);
       fetchServices();
     } catch (err: any) {
-      alert('Gagal menyimpan layanan: ' + err.message);
+      showAlert('Gagal menyimpan layanan: ' + err.message, 'error');
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Hapus layanan ini?')) return;
-    try {
+  const handleDelete = (id: string) => {
+    showConfirm('Hapus layanan ini?', async () => {
+      try {
       const { error } = await supabase
         .from('services')
         .delete()
         .eq('id', id);
       if (error) throw error;
       fetchServices();
-    } catch (error: any) {
-      alert('Gagal menghapus layanan: ' + error.message);
-    }
+            showAlert('Data berhasil dihapus', 'success');
+      } catch (error: any) {
+        showAlert('Gagal menghapus layanan: ' + error.message, 'error');
+      }
+    });
   };
 
   const filtered = services.filter((s) =>
@@ -150,7 +155,7 @@ export default function ServiceManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Layanan Eduspa</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Kelola data layanan/treatment di Eduspa Salon (Dinamis Supabase)</p>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola data layanan/treatment di Eduspa Salon</p>
         </div>
         <button onClick={openAdd}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all"
@@ -252,14 +257,17 @@ export default function ServiceManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Durasi (Menit)</label>
-                  <input type="number" required min={1} value={formData.duration}
+                  <input type="number" required min={1} value={formData.duration || ''}
                     onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 0 })}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black" placeholder="60" />
+                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black" placeholder="Misal: 60" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Harga (Rp)</label>
-                  <input type="number" required min={0} value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                  <input type="number" required min={0} value={formData.price === 0 ? '' : formData.price}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData({ ...formData, price: val === '' ? 0 : parseInt(val) });
+                    }}
                     className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black" placeholder="Misal: 35000" />
                 </div>
               </div>
@@ -269,11 +277,11 @@ export default function ServiceManager() {
                   {formData.image && (
                     <img src={formData.image} alt="Preview" className="w-16 h-16 rounded-xl object-cover border border-slate-200" />
                   )}
-                  <input type="file" accept="image/*" required={!formData.image} onChange={(e) => {
+                  <input type="file" accept="image/*" onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
                       if (file.size > 2 * 1024 * 1024) {
-                        alert('Ukuran file maksimal 2MB');
+                        showAlert('Ukuran file maksimal 2MB', 'error');
                         e.target.value = '';
                         return;
                       }

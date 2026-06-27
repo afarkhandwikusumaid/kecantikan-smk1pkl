@@ -6,10 +6,10 @@ interface KaprodiSettings { name: string; photoUrl: string; title: string; greet
 
 export default function Sambutan() {
   const [kaprodi, setKaprodi] = useState<KaprodiSettings>({
-    name: 'Dra. Endang Sulastri, M.Pd.',
-    photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600&h=800',
-    title: 'Ketua Konsentrasi Keahlian (Kakomli)',
-    greetingText: 'Selamat datang di platform digital resmi Konsentrasi Keahlian Kecantikan dan Spa (Eduspa Academy) SMK Negeri 1 Pekalongan. Kami sangat bangga memperkenalkan program vokasi unggulan yang didedikasikan untuk melahirkan talenta profesional masa depan di belantika industri kecantikan, kosmetologi medik dasar, dan manajemen terapis kecantikan tradisional maupun modern.\n\nDunia kecantikan dan wellness saat ini berkembang menjadi industri estetika global berteknologi tinggi yang menjanjikan karir gemilang bagi generasi muda. Oleh karena itu, kurikulum kami diselaraskan secara penuh dengan Standar Industri Vokasi Nasional, bermitra erat dengan merek raksasa seperti Mustika Ratu, Martha Tilaar, dan berbagai klinik kecantikan estetika modern di Indonesia.\n\nMelalui bimbingan para guru profesional tersertifikasi BNSP serta ditunjang oleh sarana Living Lab Eduspa Salon komersial, siswi kami dibentuk tidak hanya memiliki ketangkasan tangan (hard skills) yang presisi, melainkan juga dibekali insting kewirausahaan yang tangguh (entrepreneurship mindset). Terima kasih telah mempercayakan pendidikan vokasi terbaik bersama kami.'
+    name: '',
+    photoUrl: '',
+    title: '',
+    greetingText: ''
   });
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function Sambutan() {
               {/* Portrait Frame */}
               <div className="absolute inset-0 bg-pink-50 border-2 border-pink-100 rounded-[2rem] overflow-hidden flex items-end justify-center shadow-md">
                 <img
-                  src={kaprodi.photoUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600&h=800"}
+                  src={kaprodi.photoUrl || "/images/photo-1573496359142-b8d87734a5a2.jpg"}
                   alt={kaprodi.name}
                   className="w-full h-full object-cover object-top filter contrast-102 saturate-95 pointer-events-none transition-transform duration-500 hover:scale-105"
                   referrerPolicy="no-referrer"
@@ -96,11 +96,11 @@ export default function Sambutan() {
           </div>
 
           {/* Greeting Speech text (7 cols) */}
-          <div className="lg:col-span-7 space-y-6 relative">
+          <div className="lg:col-span-7 space-y-8 relative">
             <Quote className="w-16 h-16 text-pink-100 absolute -top-8 -left-2 opacity-50 -z-10 pointer-events-none" />
             
-            <div className="space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed font-normal">
-              <p className="font-medium text-gray-900 text-lg">
+            <div className="space-y-6 text-base sm:text-lg text-gray-600 leading-relaxed font-normal">
+              <p className="font-medium text-gray-900 text-xl">
                 Assalamu’alaikum Warahmatullahi Wabarakatuh,
               </p>
               {kaprodi.greetingText ? (
@@ -110,7 +110,7 @@ export default function Sambutan() {
               ) : (
                 <p>Selamat datang di platform digital resmi Konsentrasi Keahlian Kecantikan dan Spa SMK Negeri 1 Pekalongan.</p>
               )}
-              <p className="font-medium text-gray-900 pt-2">
+              <p className="font-medium text-gray-900 pt-4">
                 Wassalamu’alaikum Warahmatullahi Wabarakatuh,
               </p>
             </div>

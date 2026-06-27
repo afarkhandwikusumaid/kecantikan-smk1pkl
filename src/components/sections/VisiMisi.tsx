@@ -23,8 +23,8 @@ const defaultMisi = [
 ];
 
 export default function VisiMisi({ onNavigate }: VisiMisiProps) {
-  const [visiText, setVisiText] = useState(defaultVisi);
-  const [misiList, setMisiList] = useState<{ title: string; desc: string }[]>(defaultMisi);
+  const [visiText, setVisiText] = useState("");
+  const [misiList, setMisiList] = useState<{ title: string; desc: string }[]>([]);
 
   useEffect(() => {
     async function fetchVisiMisi() {
@@ -102,14 +102,14 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
             className="lg:col-span-5 bg-gradient-to-tr from-pink-500 via-pink-600 to-pink-500 text-white rounded-[2.5rem] p-10 flex flex-col justify-between shadow-xl shadow-pink-500/20 relative overflow-hidden group"
           >
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none transition-transform duration-700 group-hover:scale-150" />
-            <div className="space-y-6 relative z-10">
+            <div className="space-y-8 relative z-10">
               <span className="text-xs border border-white/30 px-3 py-1 rounded-full uppercase tracking-widest font-semibold inline-block backdrop-blur-sm bg-white/5">
                 VISI UTAMA 2030
               </span>
               <h3 className="text-3xl sm:text-4xl font-serif font-bold text-white leading-tight">
                 Pelopor Tata Kecantikan Vokasi Nasional
               </h3>
-              <p className="text-pink-50 text-sm leading-relaxed italic font-light pt-2">
+              <p className="text-pink-50 text-base leading-relaxed italic font-light pt-4">
                 "{visiText}"
               </p>
             </div>
@@ -129,22 +129,22 @@ export default function VisiMisi({ onNavigate }: VisiMisiProps) {
             transition={{ delay: 0.3 }}
             className="lg:col-span-7 bg-white/60 backdrop-blur-xl border border-pink-100 rounded-[2.5rem] p-8 sm:p-10 flex flex-col justify-between shadow-xl shadow-pink-100/40 relative"
           >
-            <div className="space-y-8">
+            <div className="space-y-10">
               <div className="inline-block">
                 <span className="text-sm tracking-[0.2em] font-extrabold text-pink-600 uppercase bg-pink-50 px-3 py-1 rounded-md">
                   MISI JURUSAN &amp; TUJUAN STRATEGIS
                 </span>
               </div>
 
-              <div className="space-y-6 text-sm text-gray-700">
+              <div className="space-y-8 text-base text-gray-700">
                 {misiList.map((m, idx) => (
-                  <div key={idx} className="flex items-start space-x-4 group">
-                    <div className="w-8 h-8 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-sm shrink-0 border border-pink-100 transition-transform duration-300 group-hover:scale-110 group-hover:bg-pink-100">
+                  <div key={idx} className="flex items-start space-x-5 group">
+                    <div className="w-10 h-10 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-base shrink-0 border border-pink-100 transition-transform duration-300 group-hover:scale-110 group-hover:bg-pink-100">
                       {idx + 1}
                     </div>
-                    <div>
-                      <strong className="text-gray-900 font-bold block text-base group-hover:text-pink-600 transition-colors">{m.title}</strong>
-                      <span className="text-gray-500 text-sm leading-relaxed block mt-1">{m.desc}</span>
+                    <div className="pt-1">
+                      <strong className="text-gray-900 font-bold block text-lg group-hover:text-pink-600 transition-colors">{m.title}</strong>
+                      <span className="text-gray-500 text-sm leading-relaxed block mt-2">{m.desc}</span>
                     </div>
                   </div>
                 ))}

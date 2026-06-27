@@ -37,12 +37,19 @@ const renderContent = (tab: string, userEmail: string | undefined, setActiveTab:
 };
 
 import { supabase } from '../../lib/supabase';
+import { AdminFeedbackProvider } from './AdminFeedbackContext';
 
 export default function AdminApp() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('adminActiveTab') || 'dashboard';
+  });
   const [userEmail, setUserEmail] = useState<string | undefined>("admin@smk1pkl.sch.id");
+
+  useEffect(() => {
+    localStorage.setItem('adminActiveTab', activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -97,13 +104,15 @@ export default function AdminApp() {
   }
 
   return (
-    <AdminLayout
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      onLogout={() => setIsAuthenticated(false)}
-      userEmail={userEmail}
-    >
-      {renderContent(activeTab, userEmail, setActiveTab)}
-    </AdminLayout>
+    <AdminFeedbackProvider>
+      <AdminLayout
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onLogout={() => setIsAuthenticated(false)}
+        userEmail={userEmail}
+      >
+        {renderContent(activeTab, userEmail, setActiveTab)}
+      </AdminLayout>
+    </AdminFeedbackProvider>
   );
 }
