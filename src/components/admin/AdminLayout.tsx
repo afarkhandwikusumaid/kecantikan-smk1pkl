@@ -116,17 +116,19 @@ export default function AdminLayout({ children, activeTab, setActiveTab, onLogou
     setIsMobileMenuOpen(false);
   };
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ showLogo = true }: { showLogo?: boolean }) => (
     <div className="flex flex-col h-full">
-      <div className="px-5 py-5 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <img src="/logo-kecantikan.png" alt="Logo" className="w-10 h-10 object-contain bg-white rounded-xl shadow-lg p-1 flex-shrink-0" />
-          <div>
-            <p className="text-white font-bold text-sm leading-tight">Admin Portal</p>
-            <p className="text-pink-300/70 text-sm leading-tight font-medium tracking-wide uppercase">Kecantikan & SPA</p>
+      {showLogo && (
+        <div className="px-5 py-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <img src="/logo-kecantikan.png" alt="Logo" className="w-10 h-10 object-contain bg-white rounded-xl shadow-lg p-1 flex-shrink-0" />
+            <div>
+              <p className="text-white font-bold text-sm leading-tight">Admin Portal</p>
+              <p className="text-pink-300/70 text-sm leading-tight font-medium tracking-wide uppercase">Kecantikan & SPA</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
         {navItems.map((item) => {
@@ -234,7 +236,7 @@ export default function AdminLayout({ children, activeTab, setActiveTab, onLogou
           </button>
         </div>
         <div className="flex-1 overflow-hidden">
-          <SidebarContent />
+          <SidebarContent showLogo={false} />
         </div>
       </aside>
 
