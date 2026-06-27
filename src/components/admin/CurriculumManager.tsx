@@ -119,6 +119,38 @@ export default function CurriculumManager() {
     }
   };
 
+  const kelasX = curriculums.filter(c => c.semester === 1 || c.semester === 2 || c.semester === 10);
+  const kelasXI = curriculums.filter(c => c.semester === 3 || c.semester === 4 || c.semester === 11);
+  const kelasXII = curriculums.filter(c => c.semester === 5 || c.semester === 6 || c.semester === 12);
+  const otherKelas = curriculums.filter(c => 
+    ![1, 2, 10, 3, 4, 11, 5, 6, 12].includes(c.semester)
+  );
+
+  const renderItem = (curriculum: Curriculum) => (
+    <li key={curriculum.id}>
+      <div className="px-4 py-4 flex items-center sm:px-6">
+        <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
+          <div className="truncate">
+            <div className="flex text-sm items-center">
+              <p className="font-medium text-pink-600 truncate">{curriculum.name}</p>
+              <p className="ml-2 flex-shrink-0 font-normal text-gray-500 text-xs border-l border-gray-300 pl-2">
+                {curriculum.credits || '-'}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="ml-5 flex-shrink-0 flex space-x-2">
+          <button onClick={() => startEdit(curriculum)} className="p-2 text-gray-400 hover:text-blue-600 rounded-full hover:bg-blue-50">
+            <Edit2 className="h-5 w-5" />
+          </button>
+          <button onClick={() => handleDelete(curriculum.id)} className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50">
+            <Trash2 className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+    </li>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -195,38 +227,59 @@ export default function CurriculumManager() {
 
       {loading ? (
         <div className="text-gray-500">Memuat data kurikulum...</div>
+      ) : curriculums.length === 0 ? (
+        <div className="bg-white shadow p-6 rounded-xl border border-gray-200 text-center text-gray-500">
+          Belum ada data mata pelajaran.
+        </div>
       ) : (
-        <div className="bg-white shadow overflow-hidden sm:rounded-md border border-gray-200">
-          <ul className="divide-y divide-gray-200">
-            {curriculums.length === 0 ? (
-              <li className="p-6 text-center text-gray-500">Belum ada data mata pelajaran.</li>
-            ) : (
-              curriculums.map((curriculum) => (
-                <li key={curriculum.id}>
-                  <div className="px-4 py-4 flex items-center sm:px-6">
-                    <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
-                      <div className="truncate">
-                        <div className="flex text-sm items-center">
-                          <p className="font-medium text-pink-600 truncate">{curriculum.name}</p>
-                          <p className="ml-2 flex-shrink-0 font-normal text-gray-500 text-xs border-l border-gray-300 pl-2">
-                            {getKelasLabel(curriculum.semester)} • {curriculum.credits || '-'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-5 flex-shrink-0 flex space-x-2">
-                      <button onClick={() => startEdit(curriculum)} className="p-2 text-gray-400 hover:text-blue-600 rounded-full hover:bg-blue-50">
-                        <Edit2 className="h-5 w-5" />
-                      </button>
-                      <button onClick={() => handleDelete(curriculum.id)} className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50">
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))
-            )}
-          </ul>
+        <div className="space-y-6">
+          {/* Section Kelas X */}
+          {kelasX.length > 0 && (
+            <div className="bg-white shadow overflow-hidden sm:rounded-xl border border-gray-200">
+              <div className="bg-pink-50/40 px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-bold text-pink-700">Kelas X</h3>
+              </div>
+              <ul className="divide-y divide-gray-200">
+                {kelasX.map((curriculum) => renderItem(curriculum))}
+              </ul>
+            </div>
+          )}
+
+          {/* Section Kelas XI */}
+          {kelasXI.length > 0 && (
+            <div className="bg-white shadow overflow-hidden sm:rounded-xl border border-gray-200">
+              <div className="bg-purple-50/20 px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-bold text-purple-700">Kelas XI</h3>
+              </div>
+              <ul className="divide-y divide-gray-200">
+                {kelasXI.map((curriculum) => renderItem(curriculum))}
+              </ul>
+            </div>
+          )}
+
+          {/* Section Kelas XII */}
+          {kelasXII.length > 0 && (
+            <div className="bg-white shadow overflow-hidden sm:rounded-xl border border-gray-200">
+              <div className="bg-orange-50/15 px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-bold text-rose-700">Kelas XII</h3>
+              </div>
+              <ul className="divide-y divide-gray-200">
+                {kelasXII.map((curriculum) => renderItem(curriculum))}
+              </ul>
+            </div>
+          )}
+
+          {/* Section Other/Uncategorized */}
+          {otherKelas.length > 0 && (
+            <div className="bg-white shadow overflow-hidden sm:rounded-xl border border-gray-200">
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-bold text-gray-700">Kelas Lainnya</h3>
+              </div>
+              <ul className="divide-y divide-gray-200">
+                {otherKelas.map((curriculum) => renderItem(curriculum))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>
