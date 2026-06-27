@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, BookOpen } from 'lucide-react';
+import { Plus, Trash2, Edit2, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface Curriculum {
   id: string;
-  code: string;
   name: string;
   credits: string;
-  description: string;
   semester: number;
 }
 
@@ -28,10 +26,8 @@ export default function CurriculumManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    code: '',
     name: '',
     credits: '',
-    description: '',
     semester: 10
   });
 
@@ -62,14 +58,12 @@ export default function CurriculumManager() {
       const { error } = await supabase
         .from('curriculum')
         .insert({
-          code: formData.code,
           name: formData.name,
           credits: formData.credits,
-          description: formData.description,
           semester: formData.semester
         });
       if (error) throw error;
-      setFormData({ code: '', name: '', credits: '', description: '', semester: 10 });
+      setFormData({ name: '', credits: '', semester: 10 });
       setIsAdding(false);
       fetchCurriculum();
     } catch (err: any) {
@@ -96,10 +90,8 @@ export default function CurriculumManager() {
   const startEdit = (curriculum: Curriculum) => {
     setEditingId(curriculum.id);
     setFormData({
-      code: curriculum.code || '',
       name: curriculum.name,
       credits: curriculum.credits || '',
-      description: curriculum.description,
       semester: curriculum.semester
     });
     setIsAdding(true);
@@ -112,16 +104,14 @@ export default function CurriculumManager() {
       const { error } = await supabase
         .from('curriculum')
         .update({
-          code: formData.code,
           name: formData.name,
           credits: formData.credits,
-          description: formData.description,
           semester: formData.semester
         })
         .eq('id', editingId);
       if (error) throw error;
       setEditingId(null);
-      setFormData({ code: '', name: '', credits: '', description: '', semester: 10 });
+      setFormData({ name: '', credits: '', semester: 10 });
       setIsAdding(false);
       fetchCurriculum();
     } catch (err: any) {
@@ -137,7 +127,7 @@ export default function CurriculumManager() {
           onClick={() => {
             setIsAdding(!isAdding);
             setEditingId(null);
-            setFormData({ code: '', name: '', credits: '', description: '', semester: 10 });
+            setFormData({ name: '', credits: '', semester: 10 });
           }}
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700"
         >
@@ -152,29 +142,16 @@ export default function CurriculumManager() {
             {editingId ? 'Edit Mata Pelajaran' : 'Tambah Mata Pelajaran Baru'}
           </h3>
           <form onSubmit={editingId ? handleUpdate : handleAdd} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Kode Mata Pelajaran</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
-                  placeholder="Misal: KEC-101"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Nama Mata Pelajaran</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
-                  placeholder="Misal: Perawatan Kulit Wajah"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nama Mata Pelajaran</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
+                placeholder="Misal: Perawatan Kulit Wajah"
+              />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -204,17 +181,6 @@ export default function CurriculumManager() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Kompetensi Inti &amp; Luaran</label>
-              <textarea
-                required
-                rows={3}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm border p-2 bg-white text-black"
-                placeholder="Deskripsi luaran materi yang diajarkan..."
-              />
-            </div>
             <div className="flex justify-end">
               <button
                 type="submit"
@@ -241,17 +207,10 @@ export default function CurriculumManager() {
                     <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
                       <div className="truncate">
                         <div className="flex text-sm items-center">
-                          <span className="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded mr-2">{curriculum.code || '-'}</span>
                           <p className="font-medium text-pink-600 truncate">{curriculum.name}</p>
                           <p className="ml-2 flex-shrink-0 font-normal text-gray-500 text-xs border-l border-gray-300 pl-2">
                             {getKelasLabel(curriculum.semester)} • {curriculum.credits || '-'}
                           </p>
-                        </div>
-                        <div className="mt-2 flex">
-                          <div className="flex items-center text-sm text-gray-500">
-                            <BookOpen className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-                            <p className="truncate max-w-xl">{curriculum.description}</p>
-                          </div>
                         </div>
                       </div>
                     </div>

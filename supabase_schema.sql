@@ -74,10 +74,8 @@ CREATE TABLE teachers (
 -- 6. TABEL KURIKULUM (curriculum)
 CREATE TABLE curriculum (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  code TEXT,
   name TEXT NOT NULL,
   credits TEXT,
-  description TEXT NOT NULL,
   semester INTEGER NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

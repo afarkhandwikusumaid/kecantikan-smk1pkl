@@ -65,11 +65,8 @@ export default function Akademik() {
 
           currData.forEach((item) => {
             const mapped = {
-              code: item.code || `SEM${item.semester}-${item.name.split(' ').map((w: string) => w[0] || '').join('').toUpperCase().substring(0, 3)}`,
               name: item.name,
               hrs: item.credits || '144 JP',
-              desc: item.description,
-              skillsAcquired: ['SOP Kerja Vokasi']
             };
 
             if (item.semester === 1 || item.semester === 2) {
@@ -312,31 +309,18 @@ export default function Akademik() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-pink-50/40 border-b border-pink-100 text-gray-700 text-sm font-extrabold tracking-wider uppercase">
-                        <th className="px-6 py-3.5">Kode</th>
                         <th className="px-6 py-3.5">Mata Pelajaran</th>
-                        <th className="px-6 py-3.5 text-center">Beban</th>
-                        <th className="px-6 py-3.5">Kompetensi Inti &amp; Luaran</th>
+                        <th className="px-6 py-3.5 text-center"> JP</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
                       {syllabus.X.map((item, idx) => (
                         <tr key={idx} className="hover:bg-pink-50/10 transition-colors">
-                          <td className="px-6 py-4 font-mono font-bold text-pink-600">{item.code}</td>
                           <td className="px-6 py-4">
                             <span className="font-extrabold text-gray-900 block">{item.name}</span>
                             <span className="text-xs bg-pink-100/40 text-pink-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Teori Dasar Kejuruan</span>
                           </td>
                           <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
-                          <td className="px-6 py-4 space-y-1.5">
-                            <p className="text-gray-500 text-base leading-relaxed max-w-2xl">{item.desc}</p>
-                            <div className="flex flex-wrap gap-1">
-                              {item.skillsAcquired.map((skill: string, sIdx: number) => (
-                                <span key={sIdx} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                                  ✓ {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -360,31 +344,18 @@ export default function Akademik() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-purple-50/20 border-b border-pink-100 text-gray-700 text-sm font-extrabold tracking-wider uppercase">
-                        <th className="px-6 py-3.5">Kode</th>
                         <th className="px-6 py-3.5">Mata Pelajaran</th>
-                        <th className="px-6 py-3.5 text-center">Beban</th>
-                        <th className="px-6 py-3.5">Kompetensi Inti &amp; Luaran</th>
+                        <th className="px-6 py-3.5 text-center">JP</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
                       {syllabus.XI.map((item, idx) => (
                         <tr key={idx} className="hover:bg-purple-50/5 transition-colors">
-                          <td className="px-6 py-4 font-mono font-bold text-purple-600">{item.code}</td>
                           <td className="px-6 py-4">
                             <span className="font-extrabold text-gray-900 block">{item.name}</span>
                             <span className="text-xs bg-purple-100/40 text-purple-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Lab Praktikum Menengah</span>
                           </td>
                           <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
-                          <td className="px-6 py-4 space-y-1.5">
-                            <p className="text-gray-500 text-base leading-relaxed max-w-2xl">{item.desc}</p>
-                            <div className="flex flex-wrap gap-1">
-                              {item.skillsAcquired.map((skill: string, sIdx: number) => (
-                                <span key={sIdx} className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">
-                                  ✓ {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -408,31 +379,18 @@ export default function Akademik() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-orange-50/15 border-b border-pink-100 text-gray-700 text-sm font-extrabold tracking-wider uppercase">
-                        <th className="px-6 py-3.5">Kode</th>
                         <th className="px-6 py-3.5">Mata Pelajaran</th>
-                        <th className="px-6 py-3.5 text-center">Beban</th>
-                        <th className="px-6 py-3.5">Kompetensi Inti &amp; Luaran</th>
+                        <th className="px-6 py-3.5 text-center">JP</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
                       {syllabus.XII.map((item, idx) => (
                         <tr key={idx} className="hover:bg-rose-50/10 transition-colors">
-                          <td className="px-6 py-4 font-mono font-bold text-rose-600">{item.code}</td>
                           <td className="px-6 py-4">
                             <span className="font-extrabold text-gray-900 block">{item.name}</span>
                             <span className="text-xs bg-rose-100/40 text-rose-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Ekspertis &amp; Sinkronisasi DUDI</span>
                           </td>
                           <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
-                          <td className="px-6 py-4 space-y-1.5">
-                            <p className="text-gray-500 text-base leading-relaxed max-w-2xl">{item.desc}</p>
-                            <div className="flex flex-wrap gap-1">
-                              {item.skillsAcquired.map((skill: string, sIdx: number) => (
-                                <span key={sIdx} className="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full font-mono">
-                                  * {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
