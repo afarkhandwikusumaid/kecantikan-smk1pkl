@@ -13,6 +13,7 @@ import Dokumentasi from './components/sections/Dokumentasi';
 import Footer from './components/layout/Footer';
 import Highlights from './components/sections/Highlights';
 import VisiMisi from './components/sections/VisiMisi';
+
 import AdminApp from './components/admin/AdminApp';
 import { supabase } from './lib/supabase';
 
@@ -134,6 +135,7 @@ export default function App() {
             </div>
             <Fasilitas />
           </div>
+
         </div>
       )}
 

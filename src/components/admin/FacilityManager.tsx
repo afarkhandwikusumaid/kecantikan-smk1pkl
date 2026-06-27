@@ -9,6 +9,7 @@ interface Facility {
   description: string;
   capacity: string;
   status: 'Aktif' | 'Perbaikan' | 'Tidak Aktif';
+  image_urls: string[];
 }
 
 const emptyForm = {
@@ -16,6 +17,7 @@ const emptyForm = {
   description: '',
   capacity: '',
   status: 'Aktif' as 'Aktif' | 'Perbaikan' | 'Tidak Aktif',
+  image_urls: [] as string[],
 };
 
 export default function FacilityManager() {
@@ -27,6 +29,8 @@ export default function FacilityManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [search, setSearch] = useState('');
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   const fetchFacilities = async () => {
     try {
@@ -51,18 +55,46 @@ export default function FacilityManager() {
   const openAdd = () => {
     setEditingId(null);
     setFormData(emptyForm);
+    setImageFiles([]);
+    setExistingImages([]);
     setShowModal(true);
   };
 
   const openEdit = (item: Facility) => {
     setEditingId(item.id);
-    setFormData({ name: item.name, description: item.description || '', capacity: item.capacity || '', status: item.status });
+    setFormData({ name: item.name, description: item.description || '', capacity: item.capacity || '', status: item.status, image_urls: item.image_urls || [] });
+    setImageFiles([]);
+    setExistingImages(item.image_urls || []);
     setShowModal(true);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setLoading(true);
+      
+      // Upload new images first
+      const uploadedUrls: string[] = [];
+      for (const file of imageFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `facilities/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('asset-saya')
+          .upload(filePath, file);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: publicUrlData } = supabase.storage
+          .from('asset-saya')
+          .getPublicUrl(filePath);
+          
+        uploadedUrls.push(publicUrlData.publicUrl);
+      }
+      
+      const finalImageUrls = [...existingImages, ...uploadedUrls];
+
       if (editingId) {
         const { error } = await supabase
           .from('facilities')
@@ -70,7 +102,8 @@ export default function FacilityManager() {
             name: formData.name,
             description: formData.description,
             capacity: formData.capacity,
-            status: formData.status
+            status: formData.status,
+            image_urls: finalImageUrls
           })
           .eq('id', editingId);
         if (error) throw error;
@@ -81,14 +114,17 @@ export default function FacilityManager() {
             name: formData.name,
             description: formData.description,
             capacity: formData.capacity,
-            status: formData.status
+            status: formData.status,
+            image_urls: finalImageUrls
           });
         if (error) throw error;
       }
       setShowModal(false);
       fetchFacilities();
+      showAlert('Fasilitas berhasil disimpan!', 'success');
     } catch (error: any) {
       showAlert('Gagal menyimpan fasilitas: ' + error.message, 'error');
+      setLoading(false);
     }
   };
 
@@ -238,6 +274,58 @@ export default function FacilityManager() {
                   </select>
                 </div>
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Foto Fasilitas</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setImageFiles(Array.from(e.target.files));
+                    }
+                  }}
+                  className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                />
+                
+                {/* Previews */}
+                {(existingImages.length > 0 || imageFiles.length > 0) && (
+                  <div className="mt-4 grid grid-cols-4 gap-3">
+                    {/* Existing Images */}
+                    {existingImages.map((url, idx) => (
+                      <div key={`existing-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group">
+                        <img src={url} alt="Fasilitas" className="w-full h-full object-cover" />
+                        <button 
+                          type="button" 
+                          onClick={() => setExistingImages(prev => prev.filter((_, i) => i !== idx))}
+                          className="absolute top-1 right-1 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {/* New Uploading Files */}
+                    {imageFiles.map((file, idx) => (
+                      <div key={`new-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border border-green-200 group">
+                        <img src={URL.createObjectURL(file)} alt="Preview Baru" className="w-full h-full object-cover" />
+                        <button 
+                          type="button" 
+                          onClick={() => setImageFiles(prev => prev.filter((_, i) => i !== idx))}
+                          className="absolute top-1 right-1 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        <div className="absolute bottom-0 inset-x-0 bg-green-500/80 text-[10px] text-white text-center font-bold py-0.5">
+                          BARU
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Deskripsi</label>
                 <textarea rows={3} value={formData.description}
@@ -245,13 +333,15 @@ export default function FacilityManager() {
                   className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none bg-white text-black"
                   placeholder="Deskripsi singkat fasilitas..." />
               </div>
+              
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)}
-                  className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50">Batal</button>
-                <button type="submit"
-                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200"
+                  className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  disabled={loading}>Batal</button>
+                <button type="submit" disabled={loading}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
-                  {editingId ? 'Simpan Perubahan' : 'Tambah Fasilitas'}
+                  {loading ? 'Menyimpan...' : (editingId ? 'Simpan Perubahan' : 'Tambah Fasilitas')}
                 </button>
               </div>
             </form>

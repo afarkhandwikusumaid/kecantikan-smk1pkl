@@ -16,6 +16,7 @@ import SettingsManager from './SettingsManager';
 import VisiMisiManager from './VisiMisiManager';
 import ServiceManager from './ServiceManager';
 import SambutanManager from './SambutanManager';
+import CertificateManager from './CertificateManager';
 
 const renderContent = (tab: string, userEmail: string | undefined, setActiveTab: (t: string) => void) => {
   switch (tab) {
@@ -30,6 +31,7 @@ const renderContent = (tab: string, userEmail: string | undefined, setActiveTab:
     case 'eduspa':         return <ServiceManager />;
     case 'berita':         return <NewsManager />;
     case 'galeri':         return <GalleryManager />;
+    case 'sertifikat':     return <CertificateManager />;
     case 'faq':            return <FAQManager />;
     case 'pengaturan':     return <SettingsManager />;
     default:               return <Dashboard userEmail={userEmail} setActiveTab={setActiveTab} />;

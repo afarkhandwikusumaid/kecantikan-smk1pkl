@@ -12,9 +12,12 @@ import {
   CheckCircle,
   HelpCircle,
   Clock,
-  UserCheck
+  UserCheck,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Facility, Teacher } from '../../types';
+import Prestasi from './Prestasi';
 
 const defaultFacilities: Facility[] = [
   {
@@ -114,7 +117,8 @@ export default function Fasilitas() {
             name: f.name,
             description: f.description || '',
             capacity: f.capacity || '',
-            image: f.image_url || defaultFacilities[idx % defaultFacilities.length].image,
+            image: f.image_urls && f.image_urls.length > 0 ? f.image_urls[0] : (f.image_url || defaultFacilities[idx % defaultFacilities.length].image),
+            images: f.image_urls || [],
             equipment: f.tools && f.tools.length > 0 ? f.tools : ['Standard Lab Equipment']
           }));
           setFacilities(mappedFac);
@@ -147,7 +151,28 @@ export default function Fasilitas() {
     fetchFasilitasAndGuru();
   }, []);
 
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+
+  // Reset slider when tab changes
+  useEffect(() => {
+    setCurrentImageIdx(0);
+  }, [activeLabTab]);
+
   const activeLab = facilities.find(f => f.id === activeLabTab) || facilities[0];
+
+  const handlePrevImage = () => {
+    if (!activeLab || !activeLab.images || activeLab.images.length === 0) return;
+    setCurrentImageIdx(prev => (prev === 0 ? activeLab.images.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    if (!activeLab || !activeLab.images || activeLab.images.length === 0) return;
+    setCurrentImageIdx(prev => (prev === activeLab.images.length - 1 ? 0 : prev + 1));
+  };
+  
+  const displayImage = activeLab?.images && activeLab.images.length > 0 
+    ? activeLab.images[currentImageIdx] 
+    : activeLab?.image;
 
 
   return (
@@ -230,136 +255,6 @@ export default function Fasilitas() {
           </div>
         </div>
 
-        {/* =========================================================================
-            SECTION 2: AKREDITASI JURUSAN (OFFICIAL CERTIFICATE)
-            ========================================================================= */}
-        <div className="bg-white rounded-[2.5rem] border border-pink-100/70 p-8 sm:p-12 shadow-[0_10px_40px_rgba(251,207,232,0.1)] mb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            
-            {/* Left Side: Accent info about national standard */}
-            <div className="lg:col-span-4 space-y-5">
-              <span className="text-xs font-extrabold text-pink-600 uppercase tracking-widest bg-pink-50 border border-pink-100 px-3.5 py-1.5 rounded-full inline-block">
-                SISTEM AKREDITASI STANDARDISASI
-              </span>
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900 leading-snug">
-                Terakreditasi <span className="text-pink-600">A (Unggul)</span> Secara Nasional
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                Melalui asesmen ketat sarana prasarana, kompetensi guru pendidik, dan serapan kerja lulusan, Unit Kecantikan Kulit &amp; Rambut SMK Negeri 1 Pekalongan dianugerahi predikat tertinggi yaitu <strong>Akreditasi A / Unggul</strong> oleh Badan Akreditasi Nasional Sekolah/Madrasah (BAN-PDM).
-              </p>
-              <div className="p-4 bg-pink-50/20 border border-pink-100 rounded-2xl flex items-center space-x-3.5">
-                <ShieldCheck className="w-8 h-8 text-pink-500 shrink-0" />
-                <p className="text-sm text-gray-500 leading-normal font-medium">
-                  Sertifikat Akreditasi ini merupakan penjaminan mutu mutu pendidikan, validitas fasilitas praktik, dan kualifikasi kelulusan terpercaya.
-                </p>
-              </div>
-            </div>
-
-            {/* Right Side: EXQUISITE DETAILED CSS CUSTOM CERTIFICATE MOCKUP */}
-            <div className="lg:col-span-8 flex justify-center">
-              <div 
-                id="certificate-frame" 
-                className="w-full max-w-2xl bg-[#fffdfa] border-[12px] border-[#da9f5d] rounded-2xl p-6 sm:p-10 relative overflow-hidden shadow-2xl flex flex-col justify-between"
-                style={{ backgroundImage: 'radial-gradient(#fcfbf6 20%, transparent 20%), radial-gradient(#fcfbf6 20%, transparent 20%)', backgroundSize: '16px 16px', backgroundPosition: '0 0, 8px 8px' }}
-              >
-                {/* Thin inner gold border lines */}
-                <div className="absolute inset-2 border border-[#da9f5d]/50 pointer-events-none rounded-sm" />
-                <div className="absolute inset-3 border-2 border-dashed border-[#e6b37a]/30 pointer-events-none rounded-sm" />
-
-                {/* Certificate Background watermark (Gold Flower) */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-[6px] border-[#da9f5d]/5 rounded-full flex items-center justify-center opacity-10 pointer-events-none">
-                  <Award className="w-16 h-16 text-[#da9f5d]" style={{ transform: 'scale(2.5)' }} />
-                </div>
-
-                {/* Certificate Heading */}
-                <div className="text-center relative z-10 space-y-1.5 pb-4 border-b border-[#da9f5d]/20">
-                  <h4 className="text-sm font-extrabold uppercase text-[#73521d] tracking-[0.2em] font-sans">
-                    REPUBLIK INDONESIA
-                  </h4>
-                  <h3 className="text-xs sm:text-sm font-bold uppercase text-[#8c672b] tracking-wider">
-                    BADAN AKREDITASI NASIONAL PENDIDIKAN (BAN-PDM)
-                  </h3>
-                  <div className="text-xs text-[#73521d]/80 font-mono">
-                    Keputusan Ketua Badan Akreditasi Nasional No. 134/BAN-PDM/SK/2025
-                  </div>
-                </div>
-
-                {/* Certificate Body */}
-                <div className="text-center relative z-10 py-6 space-y-3.5">
-                  <p className="font-serif italic text-[#7a643f] text-xs sm:text-sm">
-                    Dengan ini menyatakan dan menyertifikasi bahwa Kompetensi Keahlian:
-                  </p>
-                  
-                  <div>
-                    <h2 className="font-serif text-lg sm:text-2xl font-black text-[#5c3e0b] tracking-wide uppercase">
-                      TATA KECANTIKAN KULIT &amp; RAMBUT
-                    </h2>
-                    <p className="text-xs font-bold text-gray-700 tracking-wide mt-1">
-                      SMK NEGERI 1 PEKALONGAN
-                    </p>
-                    <p className="text-sm text-gray-400 font-mono">
-                      NPSN: 20328981 | Jl. Landungsari No. 2, Kota Pekalongan, Jawa Tengah
-                    </p>
-                  </div>
-
-                  <p className="font-serif italic text-[#7a643f] text-xs">
-                    telah resmi dilakukan verifikasi mutu berkelanjutan dan ditetapkan mendapat predikat:
-                  </p>
-
-                  {/* Rating Grade A Ribbon */}
-                  <div className="inline-flex flex-col items-center justify-center bg-gradient-to-b from-[#fbf5e7] to-[#f5e4c6] border border-[#d2ab6c] px-8 py-2.5 rounded-xl shadow-sm relative overflow-hidden">
-                    <span className="text-sm font-extrabold uppercase tracking-widest text-[#73521d] leading-none">
-                      TERAKREDITASI
-                    </span>
-                    <span className="text-2xl sm:text-3xl font-serif font-black text-[#8c672b] leading-tight">
-                      A (SANGAT BAIK)
-                    </span>
-                  </div>
-                </div>
-
-                {/* Footer of Certificate: QR, Seals, Signatures */}
-                <div className="relative z-10 pt-4 border-t border-[#da9f5d]/20 grid grid-cols-3 gap-2 items-end">
-                  
-                  {/* Left Column: QR Code verification */}
-                  <div className="flex flex-col items-center space-y-1">
-                    <div className="bg-white p-1 border border-[#da9f5d]/30 rounded shadow-xs">
-                      <QrCode className="w-10 h-10 text-[#5c3e0b]" />
-                    </div>
-                    <span className="text-[7px] text-[#8c672b] font-mono tracking-widest uppercase">VERIFIED WEB</span>
-                  </div>
-
-                  {/* Center Column: Golden Seal Ribbon */}
-                  <div className="flex flex-col items-center relative -bottom-1">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#dfa95c] to-[#fce4a3] border-4 border-white flex items-center justify-center shadow-lg relative shrink-0 z-10">
-                      <Award className="w-6 h-6 text-[#73521d]" />
-                      {/* Left Ribbon tail */}
-                      <div className="absolute top-10 -left-1.5 w-4 h-8 bg-[#dfa95c] rounded-b-sm transform rotate-12 -z-1 border-r border-white/50" />
-                      {/* Right Ribbon tail */}
-                      <div className="absolute top-10 -right-1.5 w-4 h-8 bg-[#dfa95c] rounded-b-sm transform -rotate-12 -z-1 border-l border-white/50" />
-                    </div>
-                  </div>
-
-                  {/* Right Column: Signature Seal */}
-                  <div className="text-center flex flex-col items-center justify-center">
-                    <span className="text-sm text-[#73521d] font-bold block leading-none uppercase">Ketua Komite Akreditasi,</span>
-                    
-                    {/* Simulated elegant signature lines */}
-                    <div className="w-20 h-8 border-b border-[#73521d]/30 relative my-1">
-                      <p className="font-serif italic text-base text-[#da9f5d]/80 absolute left-1/2 -translate-x-1/2 top-1 tracking-widest select-none font-bold">
-                        Sudibyo.M
-                      </p>
-                    </div>
-                    
-                    <span className="text-[7px] text-[#73521d]/80 font-mono leading-none block">NIP. 19740321 200312 1 002</span>
-                  </div>
-
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-        </div>
 
         {/* =========================================================================
             SECTION 3: FASILITAS STUDIO & LAB TOUR (EXISTING)
@@ -441,17 +336,47 @@ export default function Fasilitas() {
                 )}
               </div>
 
-              {/* Photo Showcase */}
+              {/* Photo Showcase (Slider) */}
               {activeLab && (
-                <div className="relative rounded-2xl overflow-hidden h-[260px] md:h-full min-h-[250px] shadow-sm border border-pink-100 bg-white">
+                <div className="relative rounded-2xl overflow-hidden h-[260px] md:h-full min-h-[250px] shadow-sm border border-pink-100 bg-white group">
                   <img
-                    src={activeLab.image}
+                    src={displayImage}
                     alt={activeLab.name}
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-950/40 via-transparent to-transparent pointer-none" />
-                  <span className="absolute bottom-4 left-4 text-xs font-extrabold uppercase tracking-widest text-white bg-pink-500 px-3 py-1.5 rounded-full shadow-sm">
+                  
+                  {/* Slider Controls */}
+                  {activeLab.images && activeLab.images.length > 1 && (
+                    <>
+                      <button 
+                        onClick={handlePrevImage}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/30 backdrop-blur-md text-white hover:bg-white/50 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={handleNextImage}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/30 backdrop-blur-md text-white hover:bg-white/50 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                      
+                      {/* Dots */}
+                      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex space-x-1.5 z-10">
+                        {activeLab.images.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCurrentImageIdx(idx)}
+                            className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentImageIdx ? 'bg-white w-3' : 'bg-white/50'}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  <span className="absolute bottom-4 left-4 text-xs font-extrabold uppercase tracking-widest text-white bg-pink-500 px-3 py-1.5 rounded-full shadow-sm z-10">
                     Standar Industri Vokasi
                   </span>
                 </div>
@@ -459,6 +384,13 @@ export default function Fasilitas() {
             </div>
 
           </div>
+        </div>
+
+        {/* =========================================================================
+            SECTION 3.5: SERTIFIKAT & PRESTASI
+            ========================================================================= */}
+        <div className="mb-16">
+          <Prestasi />
         </div>
 
         {/* =========================================================================

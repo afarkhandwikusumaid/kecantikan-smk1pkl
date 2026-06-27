@@ -187,13 +187,7 @@ export default function Footer({ onNavigate }: FooterProps) {
         {/* Closing Footnote info */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
           <p>© {currentYear} Jurusan Kecantikan dan Spa — SMK Negeri 1 Pekalongan. All Rights Reserved.</p>
-          <div className="flex items-center space-x-1.5 font-medium text-gray-400">
-            <span>Didesain khusus selaras standar</span>
-            <Heart className="w-3 h-3 text-pink-500 fill-pink-500" />
-            <span>Pendidikan Hebat Jawa Tengah</span>
-          </div>
         </div>
-
       </div>
     </footer>
   );

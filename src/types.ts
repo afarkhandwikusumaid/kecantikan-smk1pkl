@@ -39,6 +39,7 @@ export interface Facility {
   description: string;
   capacity: string;
   image: string;
+  images?: string[];
   equipment: string[];
 }
 

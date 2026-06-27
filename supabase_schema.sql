@@ -51,6 +51,8 @@ CREATE TABLE facilities (
   description TEXT,
   capacity TEXT,
   tools TEXT[],
+  -- image_urls: Menyimpan banyak link gambar sekaligus (Array of String) untuk fitur Slider Foto Lab
+  image_urls TEXT[],
   status TEXT NOT NULL DEFAULT 'Aktif',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -92,6 +94,17 @@ CREATE TABLE services (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 8. TABEL SERTIFIKAT & PENGHARGAAN (certificates)
+CREATE TABLE certificates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  issuer TEXT NOT NULL,
+  date DATE NOT NULL,
+  image_url TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ==========================================
 -- PENGATURAN STORAGE & KEAMANAN
 -- ==========================================
@@ -123,3 +136,4 @@ ALTER TABLE teachers DISABLE ROW LEVEL SECURITY;
 ALTER TABLE curriculum DISABLE ROW LEVEL SECURITY;
 ALTER TABLE services DISABLE ROW LEVEL SECURITY;
 ALTER TABLE site_settings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE certificates DISABLE ROW LEVEL SECURITY;
