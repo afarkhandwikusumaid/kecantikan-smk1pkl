@@ -69,11 +69,11 @@ export default function Akademik() {
               hrs: item.credits || '144 JP',
             };
 
-            if (item.semester === 1 || item.semester === 2) {
+            if (item.semester === 1 || item.semester === 2 || item.semester === 10) {
               X.push(mapped);
-            } else if (item.semester === 3 || item.semester === 4) {
+            } else if (item.semester === 3 || item.semester === 4 || item.semester === 11) {
               XI.push(mapped);
-            } else if (item.semester === 5 || item.semester === 6) {
+            } else if (item.semester === 5 || item.semester === 6 || item.semester === 12) {
               XII.push(mapped);
             }
           });
