@@ -67,6 +67,7 @@ export default function Akademik() {
             const mapped = {
               name: item.name,
               hrs: item.credits || '144 JP',
+              type: item.type || 'Umum',
             };
 
             if (item.semester === 1 || item.semester === 2 || item.semester === 10) {
@@ -314,15 +315,43 @@ export default function Akademik() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
-                      {syllabus.X.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-pink-50/10 transition-colors">
-                          <td className="px-6 py-4">
-                            <span className="font-extrabold text-gray-900 block">{item.name}</span>
-                            <span className="text-xs bg-pink-100/40 text-pink-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Teori Dasar Kejuruan</span>
-                          </td>
-                          <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                      {/* Mata Pelajaran Umum */}
+                      <tr className="bg-pink-50/20">
+                        <td colSpan={2} className="px-6 py-2.5 font-bold text-pink-700 uppercase tracking-wide bg-pink-50/10">
+                          A. Mata Pelajaran Umum
+                        </td>
+                      </tr>
+                      {syllabus.X.filter(item => item.type === 'Umum').length === 0 ? (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-4 text-center text-gray-400 italic">Belum ada mata pelajaran umum</td>
                         </tr>
-                      ))}
+                      ) : (
+                        syllabus.X.filter(item => item.type === 'Umum').map((item, idx) => (
+                          <tr key={`umum-${idx}`} className="hover:bg-pink-50/10 transition-colors">
+                            <td className="px-6 py-4 font-semibold text-gray-900">{item.name}</td>
+                            <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                          </tr>
+                        ))
+                      )}
+
+                      {/* Mata Pelajaran Kejuruan */}
+                      <tr className="bg-pink-50/20">
+                        <td colSpan={2} className="px-6 py-2.5 font-bold text-pink-700 uppercase tracking-wide bg-pink-50/10">
+                          B. Mata Pelajaran Kejuruan
+                        </td>
+                      </tr>
+                      {syllabus.X.filter(item => item.type === 'Kejuruan').length === 0 ? (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-4 text-center text-gray-400 italic">Belum ada mata pelajaran kejuruan</td>
+                        </tr>
+                      ) : (
+                        syllabus.X.filter(item => item.type === 'Kejuruan').map((item, idx) => (
+                          <tr key={`kejuruan-${idx}`} className="hover:bg-pink-50/10 transition-colors">
+                            <td className="px-6 py-4 font-semibold text-gray-900">{item.name}</td>
+                            <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -349,15 +378,43 @@ export default function Akademik() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
-                      {syllabus.XI.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-purple-50/5 transition-colors">
-                          <td className="px-6 py-4">
-                            <span className="font-extrabold text-gray-900 block">{item.name}</span>
-                            <span className="text-xs bg-purple-100/40 text-purple-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Lab Praktikum Menengah</span>
-                          </td>
-                          <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                      {/* Mata Pelajaran Umum */}
+                      <tr className="bg-purple-50/10">
+                        <td colSpan={2} className="px-6 py-2.5 font-bold text-purple-700 uppercase tracking-wide bg-purple-50/5">
+                          A. Mata Pelajaran Umum
+                        </td>
+                      </tr>
+                      {syllabus.XI.filter(item => item.type === 'Umum').length === 0 ? (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-4 text-center text-gray-400 italic">Belum ada mata pelajaran umum</td>
                         </tr>
-                      ))}
+                      ) : (
+                        syllabus.XI.filter(item => item.type === 'Umum').map((item, idx) => (
+                          <tr key={`umum-${idx}`} className="hover:bg-purple-50/5 transition-colors">
+                            <td className="px-6 py-4 font-semibold text-gray-900">{item.name}</td>
+                            <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                          </tr>
+                        ))
+                      )}
+
+                      {/* Mata Pelajaran Kejuruan */}
+                      <tr className="bg-purple-50/10">
+                        <td colSpan={2} className="px-6 py-2.5 font-bold text-purple-700 uppercase tracking-wide bg-purple-50/5">
+                          B. Mata Pelajaran Kejuruan
+                        </td>
+                      </tr>
+                      {syllabus.XI.filter(item => item.type === 'Kejuruan').length === 0 ? (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-4 text-center text-gray-400 italic">Belum ada mata pelajaran kejuruan</td>
+                        </tr>
+                      ) : (
+                        syllabus.XI.filter(item => item.type === 'Kejuruan').map((item, idx) => (
+                          <tr key={`kejuruan-${idx}`} className="hover:bg-purple-50/5 transition-colors">
+                            <td className="px-6 py-4 font-semibold text-gray-900">{item.name}</td>
+                            <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -384,15 +441,43 @@ export default function Akademik() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-pink-50 text-xs text-gray-700 font-medium">
-                      {syllabus.XII.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-rose-50/10 transition-colors">
-                          <td className="px-6 py-4">
-                            <span className="font-extrabold text-gray-900 block">{item.name}</span>
-                            <span className="text-xs bg-rose-100/40 text-rose-600 px-1.5 py-0.5 rounded w-fit inline-block mt-1 font-mono uppercase">Ekspertis &amp; Sinkronisasi DUDI</span>
-                          </td>
-                          <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                      {/* Mata Pelajaran Umum */}
+                      <tr className="bg-orange-50/10">
+                        <td colSpan={2} className="px-6 py-2.5 font-bold text-rose-700 uppercase tracking-wide bg-orange-50/5">
+                          A. Mata Pelajaran Umum
+                        </td>
+                      </tr>
+                      {syllabus.XII.filter(item => item.type === 'Umum').length === 0 ? (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-4 text-center text-gray-400 italic">Belum ada mata pelajaran umum</td>
                         </tr>
-                      ))}
+                      ) : (
+                        syllabus.XII.filter(item => item.type === 'Umum').map((item, idx) => (
+                          <tr key={`umum-${idx}`} className="hover:bg-rose-50/10 transition-colors">
+                            <td className="px-6 py-4 font-semibold text-gray-900">{item.name}</td>
+                            <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                          </tr>
+                        ))
+                      )}
+
+                      {/* Mata Pelajaran Kejuruan */}
+                      <tr className="bg-orange-50/10">
+                        <td colSpan={2} className="px-6 py-2.5 font-bold text-rose-700 uppercase tracking-wide bg-orange-50/5">
+                          B. Mata Pelajaran Kejuruan
+                        </td>
+                      </tr>
+                      {syllabus.XII.filter(item => item.type === 'Kejuruan').length === 0 ? (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-4 text-center text-gray-400 italic">Belum ada mata pelajaran kejuruan</td>
+                        </tr>
+                      ) : (
+                        syllabus.XII.filter(item => item.type === 'Kejuruan').map((item, idx) => (
+                          <tr key={`kejuruan-${idx}`} className="hover:bg-rose-50/10 transition-colors">
+                            <td className="px-6 py-4 font-semibold text-gray-900">{item.name}</td>
+                            <td className="px-6 py-4 text-center font-bold text-gray-500 whitespace-nowrap">{item.hrs}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
