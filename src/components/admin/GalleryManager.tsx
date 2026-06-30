@@ -4,10 +4,23 @@ import { supabase, uploadImage } from '../../lib/supabase';
 import { useAdminFeedback } from './AdminFeedbackContext';
 
 interface GalleryItem { id: string; title: string; imageUrl: string; category: string; date: string; }
-const CATEGORIES = ['Kegiatan', 'Praktik', 'Prestasi', 'Fasilitas', 'Wisuda'];
-const emptyForm = { title: '', imageUrl: '', category: 'Kegiatan', date: new Date().toISOString().split('T')[0] };
 
-export default function GalleryManager() {
+interface GalleryManagerProps {
+  mode?: 'karya' | 'dokumentasi';
+}
+
+export default function GalleryManager({ mode = 'karya' }: GalleryManagerProps) {
+  const categories = mode === 'karya'
+    ? ['Praktik', 'Prestasi', 'Wisuda']
+    : ['Kegiatan', 'Fasilitas'];
+
+  const getEmptyForm = () => ({
+    title: '',
+    imageUrl: '',
+    category: mode === 'karya' ? 'Praktik' : 'Kegiatan',
+    date: new Date().toISOString().split('T')[0]
+  });
+
   const { showConfirm, showAlert } = useAdminFeedback();
 
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -15,17 +28,20 @@ export default function GalleryManager() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [formData, setFormData] = useState(emptyForm);
+  const [formData, setFormData] = useState(getEmptyForm());
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const fetchGallery = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('galleries')
-        .select('*')
-        .order('date', { ascending: false });
+      const query = supabase.from('galleries').select('*');
+      if (mode === 'karya') {
+        query.in('category', ['Praktik', 'Prestasi', 'Wisuda']);
+      } else {
+        query.in('category', ['Kegiatan', 'Fasilitas']);
+      }
+      const { data, error } = await query.order('date', { ascending: false });
       if (error) throw error;
       setItems((data || []).map((item: any) => ({
         id: item.id,
@@ -43,10 +59,21 @@ export default function GalleryManager() {
 
   useEffect(() => {
     fetchGallery();
-  }, []);
+  }, [mode]);
 
-  const openAdd = () => { setEditingId(null); setFormData(emptyForm); setSelectedFile(null); setShowModal(true); };
-  const openEdit = (item: GalleryItem) => { setEditingId(item.id); setFormData({ title: item.title, imageUrl: item.imageUrl, category: item.category, date: item.date }); setSelectedFile(null); setShowModal(true); };
+  const openAdd = () => { 
+    setEditingId(null); 
+    setFormData(getEmptyForm()); 
+    setSelectedFile(null); 
+    setShowModal(true); 
+  };
+  
+  const openEdit = (item: GalleryItem) => { 
+    setEditingId(item.id); 
+    setFormData({ title: item.title, imageUrl: item.imageUrl, category: item.category, date: item.date }); 
+    setSelectedFile(null); 
+    setShowModal(true); 
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,31 +84,34 @@ export default function GalleryManager() {
         finalImageUrl = await uploadImage(selectedFile, 'dokumentasi');
       }
 
+      if (!finalImageUrl) {
+        showAlert('Wajib mengunggah foto', 'error');
+        return;
+      }
+
+      const payload = {
+        title: formData.title,
+        image_url: finalImageUrl,
+        category: formData.category,
+        date: formData.date
+      };
+
       if (editingId) {
         const { error } = await supabase
           .from('galleries')
-          .update({
-            title: formData.title,
-            image_url: finalImageUrl,
-            category: formData.category,
-            date: formData.date
-          })
+          .update(payload)
           .eq('id', editingId);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('galleries')
-          .insert({
-            title: formData.title,
-            image_url: finalImageUrl,
-            category: formData.category,
-            date: formData.date
-          });
+          .insert(payload);
         if (error) throw error;
       }
       setShowModal(false);
       setSelectedFile(null);
       fetchGallery();
+      showAlert(editingId ? 'Foto berhasil diperbarui' : 'Foto berhasil ditambahkan', 'success');
     } catch (err: any) {
       showAlert('Gagal menyimpan foto: ' + err.message, 'error');
     } finally {
@@ -92,13 +122,13 @@ export default function GalleryManager() {
   const handleDelete = (id: string) => {
     showConfirm('Hapus foto ini?', async () => {
       try {
-      const { error } = await supabase
-        .from('galleries')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-      fetchGallery();
-            showAlert('Data berhasil dihapus', 'success');
+        const { error } = await supabase
+          .from('galleries')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+        fetchGallery();
+        showAlert('Data berhasil dihapus', 'success');
       } catch (error: any) {
         showAlert('Gagal menghapus foto: ' + error.message, 'error');
       }
@@ -110,12 +140,22 @@ export default function GalleryManager() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div><h1 className="text-2xl font-bold text-slate-800">Galeri Foto</h1><p className="text-sm text-slate-500 mt-0.5">Kelola foto kegiatan dan karya siswa</p></div>
-        <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}><Plus className="w-4 h-4" /> Tambah Foto</button>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">
+            {mode === 'karya' ? 'Karya Siswa (Portofolio)' : 'Dokumentasi Kegiatan & Lab'}
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            {mode === 'karya' ? 'Kelola portofolio praktik, prestasi, dan kelulusan siswa' : 'Kelola dokumentasi kegiatan sekolah dan fasilitas praktik'}
+          </p>
+        </div>
+        <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
+          <Plus className="w-4 h-4" /> 
+          {mode === 'karya' ? 'Tambah Karya' : 'Tambah Dokumentasi'}
+        </button>
       </div>
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-4 border-b border-slate-100">
-          <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input type="text" placeholder="Cari foto atau kategori..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-slate-50 text-black" /></div>
+          <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input type="text" placeholder={`Cari foto ${mode === 'karya' ? 'karya' : 'kegiatan'}...`} value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-slate-50 text-black" /></div>
         </div>
         <div className="p-5">
           {loading ? (
@@ -148,7 +188,15 @@ export default function GalleryManager() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100"><h3 className="font-bold text-slate-800">{editingId ? 'Edit Foto' : 'Tambah Foto Baru'}</h3><button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-5 h-5" /></button></div>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <h3 className="font-bold text-slate-800">
+                {editingId 
+                  ? (mode === 'karya' ? 'Edit Karya Siswa' : 'Edit Dokumentasi') 
+                  : (mode === 'karya' ? 'Tambah Karya Baru' : 'Tambah Dokumentasi Baru')
+                }
+              </h3>
+              <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-5 h-5" /></button>
+            </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Judul Foto</label><input type="text" required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black" placeholder="Judul deskriptif foto..." /></div>
               <div>
@@ -176,12 +224,19 @@ export default function GalleryManager() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Kategori</label><select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black">{CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Kategori</label>
+                  <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black">
+                    {categories.map(c => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
                 <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Tanggal</label><input type="date" required value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white text-black" /></div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50">Batal</button>
-                <button type="submit" disabled={uploading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 disabled:opacity-55" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>{editingId ? 'Simpan Perubahan' : 'Tambah Foto'}</button>
+                <button type="submit" disabled={uploading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 disabled:opacity-55" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
+                  {editingId ? 'Simpan Perubahan' : (mode === 'karya' ? 'Simpan Karya' : 'Simpan Dokumentasi')}
+                </button>
               </div>
             </form>
           </div>

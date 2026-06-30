@@ -11,32 +11,41 @@ interface NewsItem {
   date: string;
 }
 
-const CATEGORIES = ['Akademik', 'Prestasi', 'Kegiatan', 'Pengumuman', 'Informasi'];
+interface NewsManagerProps {
+  mode?: 'all' | 'berita' | 'pengumuman';
+}
 
-const emptyForm = {
-  title: '',
-  desc: '',
-  category: 'Akademik',
-  date: new Date().toISOString().split('T')[0],
-};
+export default function NewsManager({ mode = 'all' }: NewsManagerProps) {
+  const categories = mode === 'pengumuman'
+    ? ['Pengumuman']
+    : ['Akademik', 'Prestasi', 'Kegiatan', 'Pengumuman', 'Informasi'];
 
-export default function NewsManager() {
+  const getEmptyForm = () => ({
+    title: '',
+    desc: '',
+    category: mode === 'pengumuman' ? 'Pengumuman' : 'Akademik',
+    date: new Date().toISOString().split('T')[0],
+  });
+
   const { showConfirm, showAlert } = useAdminFeedback();
 
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [formData, setFormData] = useState(getEmptyForm());
   const [search, setSearch] = useState('');
 
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .order('date', { ascending: false });
+      const query = supabase.from('news').select('*');
+      if (mode === 'pengumuman') {
+        query.eq('category', 'Pengumuman');
+      } else if (mode === 'berita') {
+        query.neq('category', 'Pengumuman');
+      }
+      const { data, error } = await query.order('date', { ascending: false });
       if (error) throw error;
       setNews((data || []).map((n: any) => ({
         id: n.id,
@@ -54,11 +63,11 @@ export default function NewsManager() {
 
   useEffect(() => {
     fetchNews();
-  }, []);
+  }, [mode]);
 
   const openAdd = () => {
     setEditingId(null);
-    setFormData(emptyForm);
+    setFormData(getEmptyForm());
     setShowModal(true);
   };
 
@@ -96,22 +105,23 @@ export default function NewsManager() {
       setShowModal(false);
       fetchNews();
     } catch (error: any) {
-      showAlert('Gagal menyimpan berita: ' + error.message, 'error');
+      showAlert('Gagal menyimpan data: ' + error.message, 'error');
     }
   };
 
   const handleDelete = (id: string) => {
-    showConfirm('Hapus berita ini?', async () => {
+    const itemLabel = mode === 'berita' ? 'berita' : 'pengumuman';
+    showConfirm(`Hapus ${itemLabel} ini?`, async () => {
       try {
-      const { error } = await supabase
-        .from('news')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-      fetchNews();
-            showAlert('Data berhasil dihapus', 'success');
+        const { error } = await supabase
+          .from('news')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+        fetchNews();
+        showAlert('Data berhasil dihapus', 'success');
       } catch (error: any) {
-        showAlert('Gagal menghapus berita: ' + error.message, 'error');
+        showAlert('Gagal menghapus data: ' + error.message, 'error');
       }
     });
   };
@@ -135,8 +145,12 @@ export default function NewsManager() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Berita & Kegiatan</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Kelola artikel berita dan pengumuman</p>
+          <h1 className="text-2xl font-bold text-slate-800">
+            {mode === 'berita' ? 'Berita & Kegiatan' : 'Pengumuman Resmi'}
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            {mode === 'berita' ? 'Kelola artikel berita dan informasi umum' : 'Kelola rilis pengumuman, berita, dan agenda sekolah'}
+          </p>
         </div>
         <button
           onClick={openAdd}
@@ -144,7 +158,7 @@ export default function NewsManager() {
           style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
         >
           <Plus className="w-4 h-4" />
-          Tambah Berita
+          {mode === 'berita' ? 'Tambah Berita' : 'Tambah Pengumuman'}
         </button>
       </div>
 
@@ -155,7 +169,7 @@ export default function NewsManager() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Cari judul atau kategori..."
+              placeholder={`Cari judul atau isi ${mode === 'berita' ? 'berita' : 'pengumuman'}...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-slate-50 text-black"
@@ -172,8 +186,12 @@ export default function NewsManager() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-slate-50 text-left">
-                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Judul Berita</th>
-                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Kategori</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    {mode === 'berita' ? 'Judul Berita' : 'Judul Pengumuman'}
+                  </th>
+                  {mode !== 'pengumuman' && (
+                    <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Kategori</th>
+                  )}
                   <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Tanggal</th>
                   <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide text-right">Aksi</th>
                 </tr>
@@ -181,9 +199,9 @@ export default function NewsManager() {
               <tbody className="divide-y divide-slate-100">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-5 py-12 text-center text-slate-400">
+                    <td colSpan={mode === 'pengumuman' ? 3 : 4} className="px-5 py-12 text-center text-slate-400">
                       <Newspaper className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                      <p>Belum ada berita.</p>
+                      <p>Belum ada data.</p>
                     </td>
                   </tr>
                 ) : (
@@ -193,12 +211,14 @@ export default function NewsManager() {
                         <p className="font-semibold text-slate-800 line-clamp-1">{item.title}</p>
                         <p className="text-slate-400 text-xs line-clamp-1 mt-0.5">{item.desc}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${categoryColor[item.category] || 'bg-slate-100 text-slate-600'}`}>
-                          <Tag className="w-3 h-3" />
-                          {item.category}
-                        </span>
-                      </td>
+                      {mode !== 'pengumuman' && (
+                        <td className="px-5 py-4">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${categoryColor[item.category] || 'bg-slate-100 text-slate-600'}`}>
+                            <Tag className="w-3 h-3" />
+                            {item.category}
+                          </span>
+                        </td>
+                      )}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 text-slate-500">
                           <Calendar className="w-3.5 h-3.5" />
@@ -225,7 +245,7 @@ export default function NewsManager() {
 
         {filtered.length > 0 && (
           <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 text-xs text-slate-400">
-            Menampilkan {filtered.length} dari {news.length} berita
+            Menampilkan {filtered.length} dari {news.length} item
           </div>
         )}
       </div>
@@ -235,32 +255,49 @@ export default function NewsManager() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-800">{editingId ? 'Edit Berita' : 'Tambah Berita Baru'}</h3>
+              <h3 className="font-bold text-slate-800">
+                {editingId 
+                  ? (mode === 'berita' ? 'Edit Berita' : 'Edit Pengumuman') 
+                  : (mode === 'berita' ? 'Tambah Berita Baru' : 'Tambah Pengumuman Baru')
+                }
+              </h3>
               <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Judul Berita</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  {mode === 'berita' ? 'Judul Berita' : 'Judul Pengumuman'}
+                </label>
                 <input
                   type="text" required value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-white text-black"
-                  placeholder="Masukkan judul berita..."
+                  placeholder={`Masukkan judul ${mode === 'berita' ? 'berita' : 'pengumuman'}...`}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Kategori</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-white text-black"
-                  >
-                    {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                  </select>
-                </div>
+                {mode === 'pengumuman' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Kategori</label>
+                    <input
+                      type="text" disabled value="Pengumuman"
+                      className="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50 text-slate-500 cursor-not-allowed"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Kategori</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 bg-white text-black"
+                    >
+                      {categories.map((c) => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Tanggal</label>
                   <input
@@ -276,7 +313,7 @@ export default function NewsManager() {
                   required rows={4} value={formData.desc}
                   onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
                   className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 resize-none bg-white text-black"
-                  placeholder="Tulis ringkasan berita..."
+                  placeholder={`Tulis isi ${mode === 'berita' ? 'berita' : 'pengumuman'}...`}
                 />
               </div>
               <div className="flex justify-end gap-3 pt-2">
@@ -287,7 +324,7 @@ export default function NewsManager() {
                 <button type="submit"
                   className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 transition-all hover:shadow-pink-300"
                   style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
-                  {editingId ? 'Simpan Perubahan' : 'Simpan Berita'}
+                  {editingId ? 'Simpan Perubahan' : (mode === 'berita' ? 'Simpan Berita' : 'Simpan Pengumuman')}
                 </button>
               </div>
             </form>

@@ -53,8 +53,9 @@ const navItems: NavItem[] = [
   {
     id: 'konten', label: 'Informasi & Galeri', icon: Newspaper,
     children: [
-      { id: 'berita', label: 'Berita & Pengumuman' },
-      { id: 'galeri', label: 'Karya & Dokumentasi' },
+      { id: 'pengumuman-admin', label: 'Pengumuman' },
+      { id: 'karya-admin', label: 'Karya Siswa' },
+      { id: 'dokumentasi-admin', label: 'Dokumentasi' },
       { id: 'sertifikat', label: 'Sertifikat & Prestasi' },
       { id: 'faq', label: 'Tanya Jawab (FAQ)' },
     ],

@@ -23,8 +23,8 @@ const defaultMisi = [
 ];
 
 export default function VisiMisi({ onNavigate }: VisiMisiProps) {
-  const [visiText, setVisiText] = useState("");
-  const [misiList, setMisiList] = useState<{ title: string; desc: string }[]>([]);
+  const [visiText, setVisiText] = useState(defaultVisi);
+  const [misiList, setMisiList] = useState<{ title: string; desc: string }[]>(defaultMisi);
 
   useEffect(() => {
     async function fetchVisiMisi() {

@@ -95,7 +95,7 @@ export default function Dokumentasi() {
   });
 
   return (
-    <div className="bg-[#fcf8fa] min-h-screen pt-24 pb-20 font-sans">
+    <div className="bg-[#fcf8fa] min-h-screen pt-8 pb-20 font-sans">
       
       {/* Page Header */}
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-16 px-4 mb-12 relative overflow-hidden">

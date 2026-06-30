@@ -29,8 +29,9 @@ const renderContent = (tab: string, userEmail: string | undefined, setActiveTab:
     case 'curriculum':     return <CurriculumManager />;
     case 'karir':          return <KarirManager />;
     case 'eduspa':         return <ServiceManager />;
-    case 'berita':         return <NewsManager />;
-    case 'galeri':         return <GalleryManager />;
+    case 'pengumuman-admin': return <NewsManager mode="all" />;
+    case 'karya-admin':    return <GalleryManager mode="karya" />;
+    case 'dokumentasi-admin': return <GalleryManager mode="dokumentasi" />;
     case 'sertifikat':     return <CertificateManager />;
     case 'faq':            return <FAQManager />;
     case 'pengaturan':     return <SettingsManager />;
