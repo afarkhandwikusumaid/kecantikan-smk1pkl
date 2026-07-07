@@ -162,6 +162,7 @@ export default function Karya() {
                     src={project.image}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
                   />
                   
                   {project.achievementBadge && (
@@ -255,6 +256,7 @@ export default function Karya() {
                   src={selectedProject.image}
                   alt=""
                   className="rounded-2xl h-52 w-full object-cover border border-pink-50"
+                  loading="lazy"
                 />
 
                 <div className="space-y-4 text-xs">

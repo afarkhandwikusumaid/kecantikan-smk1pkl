@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Compass, 
-  Briefcase, 
-  GraduationCap, 
-  CheckCircle2, 
-  Award, 
+import {
+  Compass,
+  Briefcase,
+  GraduationCap,
+  CheckCircle2,
+  Award,
   Building,
   FileSpreadsheet,
   Scale,
@@ -14,10 +14,10 @@ import {
   ArrowRight,
   ExternalLink
 } from 'lucide-react';
-import { 
-  curriculumFoundations, 
-  legalBases, 
-  curriculumSyllabus 
+import {
+  curriculumFoundations,
+  legalBases,
+  curriculumSyllabus
 } from '../../data';
 import { supabase } from '../../lib/supabase';
 
@@ -57,7 +57,7 @@ export default function Akademik() {
           .select('*')
           .order('semester', { ascending: true })
           .order('name', { ascending: true });
-        
+
         if (currData && currData.length > 0) {
           const X: any[] = [];
           const XI: any[] = [];
@@ -90,22 +90,22 @@ export default function Akademik() {
 
   return (
     <div className="bg-[#fcf8fa] min-h-screen pt-0 pb-16 animate-fade-in font-sans">
-      
+
       {/* Premium Academic Hero Banner */}
       <div className="bg-gradient-to-r from-pink-700 via-pink-600 to-rose-700 text-white pt-32 pb-20 px-4 relative overflow-hidden mb-12 shadow-sm border-b border-pink-200">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-pink-100/10 rounded-full blur-2xl pointer-events-none" />
-        
+
         <div className="max-w-7xl mx-auto text-center relative z-10 space-y-4">
           <div className="inline-flex items-center space-x-2 bg-white/20 text-white text-sm font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest border border-white/10">
             <GraduationCap className="w-4 h-4 text-pink-100 animate-pulse" />
             <span>PORTAL AKADEMIK RESMI</span>
           </div>
-          
+
           <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight">
             Struktur Kurikulum &amp; Landasan Pendidikan
           </h1>
-          
+
           <p className="max-w-3xl mx-auto text-sm sm:text-base text-pink-50 leading-relaxed font-light">
             Sistem Informasi Layanan Kurikulum Kompetensi Keahlian Tata Kecantikan Kulit dan Spa SMK Negeri 1 Pekalongan. Diselaraskan secara utuh dengan Standar Industri Vokasi Nasional (DUDI) &amp; BNSP.
           </p>
@@ -130,7 +130,7 @@ export default function Akademik() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
-        
+
         {/* LANDASAN KURIKULUM */}
         <section className="bg-white border border-pink-100/70 rounded-[2.5rem] p-8 sm:p-12 shadow-xs space-y-8">
           <div className="space-y-4">
@@ -208,14 +208,14 @@ export default function Akademik() {
 
         {/* VISI MISI & KREDENSIAL MUTU ROW */}
         <section className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
-          
+
           {/* Visi Misi Card */}
           <div className="md:col-span-8 bg-white rounded-[2rem] border border-pink-100 p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center space-x-3 text-pink-600 pb-3 border-b border-pink-50">
               <Compass className="w-5 h-5 shrink-0" />
               <h3 className="font-serif text-lg font-bold text-gray-900">Visi &amp; Misi</h3>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <h4 className="text-sm font-extrabold text-pink-600 uppercase tracking-widest font-mono">VISI JURUSAN</h4>
@@ -242,7 +242,7 @@ export default function Akademik() {
               <Award className="w-5 h-5 text-pink-400 animate-pulse" />
               <span>Kredensial Mutu</span>
             </h3>
-            
+
             <div className="space-y-3 text-xs font-normal text-pink-100/95">
               <div className="p-3.5 bg-white/5 rounded-2xl border border-white/10 flex items-center space-x-4">
                 <div className="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center font-bold text-white shadow-xs shrink-0 text-sm">A</div>
@@ -266,25 +266,24 @@ export default function Akademik() {
 
         {/* CURRICULUM TABLES AND CONTROLS */}
         <section className="space-y-8">
-          
+
           {/* Filter Swiper */}
           <div className="bg-white border border-pink-100 p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
             <span className="text-xs font-extrabold text-gray-900 uppercase tracking-wider flex items-center space-x-2 pl-2">
               <FileSpreadsheet className="w-4 h-4 text-pink-500" />
               <span>Daftar Mata Pelajaran Keahlian</span>
             </span>
-            
+
             <div className="flex flex-wrap gap-1">
               {(['all', 'X', 'XI', 'XII'] as const).map((lvl) => (
                 <button
                   key={lvl}
                   id={`table-filter-${lvl}`}
                   onClick={() => setSelectedClassTab(lvl)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    selectedClassTab === lvl
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${selectedClassTab === lvl
                       ? 'bg-pink-600 text-white shadow-xs'
                       : 'bg-transparent text-gray-600 hover:bg-pink-50/40 hover:text-pink-600'
-                  }`}
+                    }`}
                 >
                   {lvl === 'all' ? 'Semua Tingkat' : `Kelas ${lvl}`}
                 </button>
@@ -294,7 +293,7 @@ export default function Akademik() {
 
           {/* TABLES GRID LIST */}
           <div className="space-y-10">
-            
+
             {/* Table X */}
             {(selectedClassTab === 'all' || selectedClassTab === 'X') && (
               <div className="bg-white rounded-3xl border border-pink-100 shadow-xs overflow-hidden animate-fade-in">
@@ -500,7 +499,7 @@ export default function Akademik() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {careerList.map((car, idx) => (
-              <div 
+              <div
                 key={idx}
                 className="bg-[#faf6f8]/70 border border-pink-100 p-5 rounded-2xl space-y-3 hover:border-pink-300 hover:shadow-xs transition-all duration-300 flex flex-col justify-between"
               >

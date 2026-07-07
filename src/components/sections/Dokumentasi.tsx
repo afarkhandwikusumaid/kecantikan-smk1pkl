@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Calendar, 
-  MapPin, 
-  User, 
-  Tag, 
-  BookOpen, 
-  Search, 
-  Award, 
-  ChevronRight, 
+import {
+  Calendar,
+  MapPin,
+  User,
+  Tag,
+  BookOpen,
+  Search,
+  Award,
+  ChevronRight,
   FileText,
   Clock,
   Camera,
@@ -31,9 +31,9 @@ export default function Dokumentasi() {
           .from('galleries')
           .select('*')
           .order('date', { ascending: false });
-        
+
         if (data && data.length > 0) {
-          const activityItems = data.filter((item: any) => 
+          const activityItems = data.filter((item: any) =>
             ['Kegiatan', 'Fasilitas'].includes(item.category)
           );
 
@@ -88,15 +88,15 @@ export default function Dokumentasi() {
   // Filter docs
   const filteredDocs = docs.filter((doc) => {
     const matchesCategory = selectedCategory === 'Semua' || doc.category === selectedCategory;
-    const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          doc.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          doc.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
   return (
     <div className="bg-[#fcf8fa] min-h-screen pt-8 pb-20 font-sans">
-      
+
       {/* Page Header */}
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-16 px-4 mb-12 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -119,11 +119,11 @@ export default function Dokumentasi() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        
+
         {/* Search & Filter bar inspired by sti.dinus.id portal */}
         <div className="bg-white border border-pink-100 rounded-3xl p-6 shadow-xs space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            
+
             {/* Search Input */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -135,7 +135,7 @@ export default function Dokumentasi() {
                 className="w-full bg-gray-50 border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 rounded-2xl pl-10 pr-4 py-2.5 text-xs font-medium text-gray-900 placeholder:text-gray-400 transition-all outline-none"
               />
             </div>
-            
+
             {/* Stat Counter */}
             <div className="text-xs text-gray-500 font-semibold font-mono text-left md:text-right">
               Menampilkan <span className="text-pink-600 font-bold">{filteredDocs.length}</span> dari {docs.length} arsip kegiatan
@@ -149,11 +149,10 @@ export default function Dokumentasi() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedCategory === cat
-                    ? 'bg-pink-600 text-white shadow-xs'
-                    : 'bg-gray-50 text-gray-600 hover:bg-pink-50 hover:text-pink-600 border border-transparent'
-                }`}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${selectedCategory === cat
+                  ? 'bg-pink-600 text-white shadow-xs'
+                  : 'bg-gray-50 text-gray-600 hover:bg-pink-50 hover:text-pink-600 border border-transparent'
+                  }`}
               >
                 {cat}
               </button>
@@ -183,7 +182,7 @@ export default function Dokumentasi() {
         {/* Rich Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredDocs.map((doc) => (
-            <div 
+            <div
               key={doc.id}
               onClick={() => setFeaturedDoc(doc)}
               className="bg-white border border-pink-100/70 rounded-[2rem] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
@@ -191,11 +190,12 @@ export default function Dokumentasi() {
               <div>
                 {/* Visual Thumbnail */}
                 <div className="h-48 overflow-hidden relative bg-gray-100">
-                  <img 
-                    src={doc.imageUrl} 
+                  <img
+                    src={doc.imageUrl}
                     referrerPolicy="no-referrer"
                     alt={doc.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
                   />
                   <span className="absolute top-4 left-4 bg-gray-900/90 backdrop-blur-xs text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
                     {doc.category}
@@ -235,7 +235,7 @@ export default function Dokumentasi() {
                     </span>
                   ))}
                 </div>
-                
+
                 <span className="text-sm font-bold text-pink-600 flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
                   <span>Lihat Rincian</span>
                   <ChevronRight className="w-3 h-3" />
@@ -250,8 +250,8 @@ export default function Dokumentasi() {
       {/* DETAILED DIALOG MODAL Overlay */}
       {featuredDoc && (
         <div id="doc-modal-container" className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-gray-950/70 backdrop-blur-xs">
-          <div 
-            onClick={(e) => e.stopPropagation()} 
+          <div
+            onClick={(e) => e.stopPropagation()}
             className="bg-white w-full max-w-3xl rounded-[2.5rem] overflow-hidden shadow-2xl relative border border-pink-100 flex flex-col max-h-[90vh] animate-scale-up"
           >
             {/* Modal Header bar */}
@@ -267,14 +267,15 @@ export default function Dokumentasi() {
             <div className="overflow-y-auto p-0">
               {/* Image Hero Banner */}
               <div className="h-64 sm:h-80 relative bg-gray-100">
-                <img 
-                  src={featuredDoc.imageUrl} 
+                <img
+                  src={featuredDoc.imageUrl}
                   referrerPolicy="no-referrer"
                   alt={featuredDoc.title}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                
+
                 <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
                   <span className="bg-pink-600 text-sm font-extrabold px-3 py-1 rounded-full uppercase tracking-widest border border-pink-400">
                     {featuredDoc.category}
@@ -314,12 +315,12 @@ export default function Dokumentasi() {
 
               {/* Main Content Body */}
               <div className="px-6 sm:px-8 py-6 space-y-6">
-                
+
                 <div className="space-y-4">
                   <p className="font-serif text-sm sm:text-base text-gray-900 leading-relaxed font-semibold italic border-l-4 border-pink-500 pl-4 py-1">
                     "{featuredDoc.summary}"
                   </p>
-                  
+
                   <div className="text-xs sm:text-sm text-gray-700 leading-relaxed font-sans space-y-4 font-normal">
                     {featuredDoc.description.split('\n\n').map((paragraph, pIdx) => (
                       <p key={pIdx}>{paragraph}</p>
