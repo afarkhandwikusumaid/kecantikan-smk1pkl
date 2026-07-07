@@ -104,8 +104,8 @@ export default function Header({ activeSection, setActiveSection }: HeaderProps)
               target="_blank"
               rel="noreferrer"
               className={`font-medium text-sm px-6 py-2.5 rounded-full shadow-sm hover:shadow transition-all duration-300 flex items-center space-x-1 ${isDarkHeader
-                  ? 'bg-white text-pink-800 hover:bg-pink-50 hover:text-pink-900 shadow-white/10'
-                  : 'bg-pink-800 text-white hover:bg-pink-900'
+                ? 'bg-white text-pink-800 hover:bg-pink-50 hover:text-pink-900 shadow-white/10'
+                : 'bg-pink-800 text-white hover:bg-pink-900'
                 }`}
             >
               <span>Daftar / Konsultasi</span>
@@ -118,8 +118,8 @@ export default function Header({ activeSection, setActiveSection }: HeaderProps)
               id="btn-mobile-menu"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`p-2 rounded-lg focus:outline-none transition-all duration-300 ${isDarkHeader
-                  ? 'text-white hover:bg-white/10'
-                  : 'text-gray-600 hover:text-pink-800 hover:bg-pink-50'
+                ? 'text-white hover:bg-white/10'
+                : 'text-gray-600 hover:text-pink-800 hover:bg-pink-50'
                 }`}
               aria-label="Toggle menu"
             >
