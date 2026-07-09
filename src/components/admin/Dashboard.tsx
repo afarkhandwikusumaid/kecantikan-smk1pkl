@@ -151,7 +151,7 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
               <h2 className="font-bold text-slate-800 text-sm">Berita Terbaru</h2>
             </div>
             {setActiveTab && (
-              <button onClick={() => setActiveTab('berita')} className="text-xs text-pink-500 hover:text-pink-700 font-medium flex items-center gap-1 transition-colors">
+              <button onClick={() => setActiveTab('pengumuman-admin')} className="text-xs text-pink-500 hover:text-pink-700 font-medium flex items-center gap-1 transition-colors">
                 Lihat semua <ArrowRight className="w-3 h-3" />
               </button>
             )}
@@ -162,7 +162,7 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
                 <FileText className="w-8 h-8 mx-auto mb-2 opacity-30" />
                 <p className="text-sm">Belum ada berita yang dipublikasikan.</p>
                 {setActiveTab && (
-                  <button onClick={() => setActiveTab('berita')}
+                  <button onClick={() => setActiveTab('pengumuman-admin')}
                     className="mt-3 text-xs font-semibold text-pink-500 hover:underline">
                     + Tambah Berita Pertama
                   </button>
@@ -195,8 +195,8 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
           </div>
           <div className="p-4 grid grid-cols-2 gap-3">
             {[
-              { label: 'Tambah Berita', tab: 'berita', icon: FileText, color: 'from-rose-400 to-pink-500' },
-              { label: 'Upload Galeri', tab: 'galeri', icon: Image, color: 'from-violet-400 to-purple-500' },
+              { label: 'Tambah Berita', tab: 'pengumuman-admin', icon: FileText, color: 'from-rose-400 to-pink-500' },
+              { label: 'Upload Galeri', tab: 'karya-admin', icon: Image, color: 'from-violet-400 to-purple-500' },
               { label: 'Data Fasilitas', tab: 'fasilitas', icon: Building2, color: 'from-emerald-400 to-teal-500' },
               { label: 'Kelola Mitra', tab: 'mitra', icon: Handshake, color: 'from-amber-400 to-orange-500' },
               { label: 'Data Kurikulum', tab: 'curriculum', icon: BookOpen, color: 'from-blue-400 to-indigo-500' },

@@ -35,7 +35,7 @@ export default function Header({ activeSection, setActiveSection }: HeaderProps)
     { id: 'pengumuman', label: 'Pengumuman' },
   ];
 
-  const isDarkHeader = activeSection === 'akademik' && !isScrolled;
+  const isDarkHeader = false;
 
   return (
     <header

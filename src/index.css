@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-sans: "Poppins", system-ui, sans-serif;
   
   /* Overriding pink with Plum/Purple from the logo */
   --color-pink-50: #f9f4f7;
@@ -34,6 +34,10 @@
   --color-rose-700: var(--color-pink-700);
   --color-rose-800: var(--color-pink-800);
   --color-rose-900: var(--color-pink-900);
+
+  /* Animation keyframes */
+  --animate-fade-in: fade-in 0.4s ease-out forwards;
+  --animate-scale-up: scale-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 html {
@@ -46,18 +50,80 @@ html {
   font-family: var(--font-serif);
 }
 
-/* Scrollbar customizations */
+/* ========================================
+   CUSTOM ANIMATION DEFINITIONS
+   ======================================== */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-up {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-scale-up {
+  animation: scale-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2.5s ease-in-out infinite;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #fdf2f8;
+  background: #f9f4f7;
 }
 ::-webkit-scrollbar-thumb {
-  background: #f9a8d4;
+  background: #c588b3;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ec4899;
+  background: #96427d;
+}
+
+/* ========================================
+   TYPOGRAPHY IMPROVEMENTS
+   ======================================== */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Better text rendering for headings */
+h1, h2, h3, h4, h5, h6 {
+  text-rendering: optimizeLegibility;
+}
+
+/* Smooth image transitions */
+img {
+  transition: opacity 0.3s ease;
 }

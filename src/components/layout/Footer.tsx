@@ -114,10 +114,10 @@ export default function Footer({ onNavigate }: FooterProps) {
                 { id: 'beranda', label: 'Halaman Beranda' },
                 { id: 'kompetensi', label: 'Kompetensi Keahlian' },
                 { id: 'akademik', label: 'Portal Akademik & Kurikulum' },
+                { id: 'pengumuman', label: 'Pengumuman & Berita' },
                 { id: 'dokumentasi', label: 'Dokumentasi Kegiatan' },
-                { id: 'konsultasi', label: 'Uji Diagnosis Kulit' },
-                { id: 'karya', label: 'Portofolio Mahakarya' },
-                { id: 'fasilitas', label: 'Fasilitas Lab Vokasi' }
+                { id: 'unggulan', label: 'Program Unggulan & EduSpa' },
+                { id: 'profil', label: 'Profil & Fasilitas' },
               ].map((link) => (
                 <li key={link.id}>
                   <button

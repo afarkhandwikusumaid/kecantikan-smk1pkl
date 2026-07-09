@@ -92,37 +92,37 @@ export default function Akademik() {
     <div className="bg-[#fcf8fa] min-h-screen pt-0 pb-16 animate-fade-in font-sans">
 
       {/* Premium Academic Hero Banner */}
-      <div className="bg-gradient-to-r from-pink-700 via-pink-600 to-rose-700 text-white pt-32 pb-20 px-4 relative overflow-hidden mb-12 shadow-sm border-b border-pink-200">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-pink-100/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="bg-gradient-to-b from-pink-50 to-white text-gray-900 pt-32 pb-20 px-4 relative overflow-hidden mb-12 shadow-sm border-b border-pink-100">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-pink-200/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-pink-300/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto text-center relative z-10 space-y-4">
-          <div className="inline-flex items-center space-x-2 bg-white/20 text-white text-sm font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest border border-white/10">
-            <GraduationCap className="w-4 h-4 text-pink-100 animate-pulse" />
+          <div className="inline-flex items-center space-x-2 bg-pink-100 text-pink-700 text-sm font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest border border-pink-200">
+            <GraduationCap className="w-4 h-4 text-pink-600 animate-pulse" />
             <span>PORTAL AKADEMIK RESMI</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight text-gray-900">
             Struktur Kurikulum &amp; Landasan Pendidikan
           </h1>
 
-          <p className="max-w-3xl mx-auto text-sm sm:text-base text-pink-50 leading-relaxed font-light">
+          <p className="max-w-3xl mx-auto text-sm sm:text-base text-gray-600 leading-relaxed font-light">
             Sistem Informasi Layanan Kurikulum Kompetensi Keahlian Tata Kecantikan Kulit dan Spa SMK Negeri 1 Pekalongan. Diselaraskan secara utuh dengan Standar Industri Vokasi Nasional (DUDI) &amp; BNSP.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold pt-2 text-pink-100">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold pt-2 text-gray-500">
             <span className="flex items-center space-x-1.5">
-              <CheckCircle2 className="w-4 h-4 text-white" />
+              <CheckCircle2 className="w-4 h-4 text-pink-500" />
               <span>Sistem SKS Kurikulum Merdeka</span>
             </span>
-            <span className="text-white/40">•</span>
+            <span className="text-gray-300">•</span>
             <span className="flex items-center space-x-1.5">
-              <Award className="w-4 h-4 text-white" />
+              <Award className="w-4 h-4 text-pink-500" />
               <span>Terakreditasi A (Unggul)</span>
             </span>
-            <span className="text-white/40">•</span>
+            <span className="text-gray-300">•</span>
             <span className="flex items-center space-x-1.5">
-              <Building className="w-4 h-4 text-white" />
+              <Building className="w-4 h-4 text-pink-500" />
               <span>Kurikulum Selaras Industri (DUDI)</span>
             </span>
           </div>

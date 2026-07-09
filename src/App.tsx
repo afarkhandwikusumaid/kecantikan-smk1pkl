@@ -28,17 +28,11 @@ function LoadingFallback() {
 }
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState<string>(() => {
-    return localStorage.getItem('publicActiveSection') || 'beranda';
-  });
+  const [activeSection, setActiveSection] = useState<string>('beranda');
   const [isAdminRoute, setIsAdminRoute] = useState(false);
   const [dynamicNews, setDynamicNews] = useState<any[]>([]);
   const [selectedNews, setSelectedNews] = useState<any | null>(null);
   const [activePengumumanTab, setActivePengumumanTab] = useState<'berita' | 'dokumentasi'>('berita');
-
-  useEffect(() => {
-    localStorage.setItem('publicActiveSection', activeSection);
-  }, [activeSection]);
 
   useEffect(() => {
     if (activeSection === 'dokumentasi') {
@@ -132,6 +126,15 @@ export default function App() {
                 </div>
               </div>
             </section>
+          </div>
+        )}
+
+        {/* KOMPETENSI */}
+        {activeSection === 'kompetensi' && (
+          <div className="animate-fade-in bg-white">
+            <div className="pt-20">
+              <Kompetensi />
+            </div>
           </div>
         )}
 
