@@ -2,19 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginAdmin from '../../components/admin/auth/LoginAdmin';
 import AdminLayout from '../../components/admin/layout/AdminLayout';
-// Import components for new routing
+// Admin routing and page components
 import Dashboard from './dashboard/Dashboard';
 import VisiMisiManager from './profil/VisiMisiManager';
 import TeacherManager from './profil/TeacherManager';
 import SejarahManager from './profil/SejarahManager';
 import AkreditasiManager from './profil/AkreditasiManager';
 
-import SambutanManager from './profil/SambutanManager'; // We'll move it later or just leave it in profil folder
+import SambutanManager from './profil/SambutanManager';
 import MitraManager from './profil/MitraManager';
 import FAQManager from './konten/FAQManager';
 
 import KurikulumTextManager from './akademik/KurikulumTextManager';
-import CurriculumManager from './akademik/CurriculumManager'; // Now used for Mata Pelajaran
+import CurriculumManager from './akademik/CurriculumManager';
 
 import FacilityManager from './profil/FacilityManager';
 import GalleryManager from './konten/GalleryManager';
@@ -110,7 +110,7 @@ export default function AdminApp() {
             
             {/* Fasilitas & Galeri */}
             <Route path="fasilitas" element={<FacilityManager />} />
-            <Route path="galeri" element={<GalleryManager mode="all" />} />
+            <Route path="galeri" element={<GalleryManager />} />
             
             {/* Pengaturan */}
             <Route path="pengaturan" element={<SettingsManager />} />

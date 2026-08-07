@@ -6,18 +6,20 @@ import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbac
 interface GalleryItem { id: string; title: string; imageUrl: string; category: string; date: string; }
 
 interface GalleryManagerProps {
-  mode?: 'karya' | 'dokumentasi';
+  mode?: 'karya' | 'dokumentasi' | 'all';
 }
 
-export default function GalleryManager({ mode = 'karya' }: GalleryManagerProps) {
+export default function GalleryManager({ mode = 'all' }: GalleryManagerProps) {
   const categories = mode === 'karya'
     ? ['Praktik', 'Prestasi', 'Wisuda']
-    : ['Kegiatan', 'Fasilitas'];
+    : mode === 'dokumentasi'
+    ? ['Kegiatan', 'Fasilitas']
+    : ['Praktik', 'Prestasi', 'Wisuda', 'Kegiatan', 'Fasilitas'];
 
   const getEmptyForm = () => ({
     title: '',
     imageUrl: '',
-    category: mode === 'karya' ? 'Praktik' : 'Kegiatan',
+    category: categories[0],
     date: new Date().toISOString().split('T')[0]
   });
 
