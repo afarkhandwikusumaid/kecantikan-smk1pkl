@@ -52,18 +52,18 @@ export default function Sambutan() {
 
         {/* Text Column */}
         <div className="w-full md:w-2/3 md:pl-8 mt-4 md:mt-0">
-          <div className="mb-8">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="w-1 h-6 bg-secondary"></div>
-              <span className="text-secondary font-bold tracking-widest uppercase text-sm">Sambutan Ketua Jurusan</span>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-1 h-5 sm:h-6 bg-secondary"></div>
+              <span className="text-secondary font-bold tracking-widest uppercase text-xs sm:text-sm">Sambutan Ketua Jurusan</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 leading-tight">
-              Mewujudkan Generasi Emas <br/>
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-serif font-bold text-slate-900 leading-tight">
+              Mewujudkan Generasi Emas <br className="hidden sm:inline" />
               <span className="text-secondary">SMK Negeri 1 Pekalongan</span>
             </h2>
           </div>
           
-          <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-justify">
+          <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-left sm:text-justify text-sm sm:text-base">
             {kaprodi.greetingText ? (
               kaprodi.greetingText.split('\n').map((para, i) => (
                 <p key={i} className="mb-4">{para}</p>

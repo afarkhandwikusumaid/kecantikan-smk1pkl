@@ -49,33 +49,33 @@ export default function StrukturGuruPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-5 sm:p-8 md:p-12 rounded-2xl border border-slate-200 shadow-sm">
           
           {teachers.length === 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 opacity-50">
-              {[1, 2, 3, 4, 5, 6].map((item) => (
-                <div key={item} className="border border-slate-100 rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-                  <div className="w-24 h-24 bg-slate-200 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
-                    <Users className="w-10 h-10 text-slate-400" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 opacity-50">
+              {[1, 2, 3, 4].map((item) => (
+                <div key={item} className="border border-slate-100 rounded-xl p-4 sm:p-6 text-center hover:shadow-md transition-shadow">
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 bg-slate-200 rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
+                    <Users className="w-8 h-8 sm:w-10 sm:h-10 text-slate-400" />
                   </div>
-                  <h4 className="font-bold text-slate-900 text-lg">Nama Guru {item}</h4>
-                  <p className="text-sm text-slate-500 mt-1">Pengampu Produktif Kecantikan</p>
+                  <h4 className="font-bold text-slate-900 text-sm sm:text-lg">Nama Guru {item}</h4>
+                  <p className="text-xs text-slate-500 mt-1">Pengampu Produktif</p>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {teachers.map((teacher) => (
-                <div key={teacher.id} className="border border-slate-100 rounded-lg p-6 text-center hover:shadow-md transition-shadow flex flex-col items-center">
-                  <div className="w-24 h-24 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden border border-slate-200">
+                <div key={teacher.id} className="border border-slate-100 rounded-xl p-4 sm:p-6 text-center hover:shadow-md transition-shadow flex flex-col items-center">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center overflow-hidden border border-slate-200 shadow-sm">
                     {teacher.image_url ? (
                       <img src={teacher.image_url} alt={teacher.name} className="w-full h-full object-cover" />
                     ) : (
-                      <Users className="w-10 h-10 text-slate-300" />
+                      <Users className="w-8 h-8 sm:w-10 sm:h-10 text-slate-300" />
                     )}
                   </div>
-                  <h4 className="font-bold text-slate-900 text-sm md:text-base">{teacher.name}</h4>
-                  <p className="text-xs text-slate-500 mt-1">{teacher.position}</p>
+                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm md:text-base leading-snug line-clamp-2">{teacher.name}</h4>
+                  <p className="text-[11px] sm:text-xs text-slate-500 mt-1 line-clamp-2">{teacher.position}</p>
                 </div>
               ))}
             </div>

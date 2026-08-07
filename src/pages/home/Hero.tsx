@@ -35,7 +35,7 @@ export default function Hero() {
   const prevSlide = () => setActiveSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <section className="relative w-full h-[calc(100vh-80px)] bg-slate-900 overflow-hidden">
+    <section className="relative w-full min-h-[520px] sm:min-h-[600px] h-[calc(100vh-64px)] sm:h-[calc(100vh-80px)] bg-slate-900 overflow-hidden">
       <div className="relative w-full h-full">
         <AnimatePresence mode="wait">
           <motion.img
@@ -51,11 +51,11 @@ export default function Hero() {
         </AnimatePresence>
         
         {/* Dark overlay to make text readable */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-transparent" />
-        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/60 to-slate-900/40" />
+        <div className="absolute inset-0 bg-black/20" />
 
         <div className="absolute inset-0 flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8">
             <div className="max-w-3xl">
               <motion.div
                 key={`text-${activeSlide}`}
@@ -63,29 +63,29 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-12 h-1 bg-accent"></div>
-                  <span className="text-accent font-bold tracking-widest uppercase text-sm">SMK Negeri 1 Pekalongan</span>
+                <div className="flex items-center space-x-3 sm:space-x-4 mb-3 sm:mb-4">
+                  <div className="w-8 sm:w-12 h-1 bg-accent"></div>
+                  <span className="text-accent font-bold tracking-widest uppercase text-xs sm:text-sm">SMK Negeri 1 Pekalongan</span>
                 </div>
                 
-                <h1 className="text-4xl md:text-5xl lg:text-7xl font-sans font-black text-white leading-tight mb-6">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-sans font-black text-white leading-tight mb-4 sm:mb-6 tracking-tight">
                   {slides[activeSlide].title}
                 </h1>
                 
-                <p className="text-lg md:text-xl text-slate-200 mb-10 font-medium">
+                <p className="text-sm sm:text-base md:text-xl text-slate-200 mb-6 sm:mb-10 font-medium leading-relaxed max-w-2xl">
                   {slides[activeSlide].subtitle}
                 </p>
 
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <Link
                     to="/pendaftaran"
-                    className="inline-block bg-accent hover:brightness-90 text-white font-bold px-8 py-4 rounded transition-all shadow-lg uppercase tracking-wider text-sm"
+                    className="w-full sm:w-auto text-center bg-accent hover:brightness-90 text-white font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-all shadow-lg uppercase tracking-wider text-xs sm:text-sm"
                   >
                     Informasi Pendaftaran
                   </Link>
                   <Link
                     to="/profil"
-                    className="inline-block bg-transparent hover:bg-white/10 text-white border-2 border-white font-bold px-8 py-4 rounded transition-colors uppercase tracking-wider text-sm"
+                    className="w-full sm:w-auto text-center bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/40 font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-colors uppercase tracking-wider text-xs sm:text-sm"
                   >
                     Profil Jurusan
                   </Link>
@@ -95,22 +95,22 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Navigation Arrows */}
+        {/* Navigation Arrows (Hidden on very small screens to avoid obstructing text) */}
         <button
           onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm transition-all"
+          className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 items-center justify-center rounded-full bg-black/30 hover:bg-black/60 text-white backdrop-blur-sm transition-all"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
         <button
           onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm transition-all"
+          className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 items-center justify-center rounded-full bg-black/30 hover:bg-black/60 text-white backdrop-blur-sm transition-all"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
         {/* Slide Indicators */}
-        <div className="absolute bottom-8 left-1/2 -translate-y-1/2 flex gap-3">
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3">
           {slides.map((_, idx) => (
             <button
               key={idx}
