@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { supabase, uploadImage } from '../../../lib/supabase';
 import { Save, Award, Loader2, Image as ImageIcon } from 'lucide-react';
 import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 
@@ -87,19 +87,7 @@ export default function AkreditasiManager() {
       }
 
       setUploading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `akreditasi/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath);
+      const publicUrl = await uploadImage(file, 'akreditasi');
 
       setContent(prev => ({ ...prev, sertifikatUrl: publicUrl }));
       showSuccess('Sertifikat berhasil diunggah');
