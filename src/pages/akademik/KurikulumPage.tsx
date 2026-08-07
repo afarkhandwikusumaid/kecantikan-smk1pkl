@@ -1,9 +1,59 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
+
+interface KurikulumContent {
+  paragraphs: string[];
+  focusPoints: string[];
+}
 
 export default function KurikulumPage() {
+  const [content, setContent] = useState<KurikulumContent>({
+    paragraphs: [
+      'Kurikulum Operasional Satuan Pendidikan (KOSP) pada Program Keahlian Tata Kecantikan & Spa merupakan pola dan susunan mata pelajaran yang harus ditempuh oleh peserta didik dalam kegiatan pembelajaran. Kedalaman muatan kurikulum pada setiap mata pelajaran pada setiap satuan pendidikan dituangkan dalam kompetensi yang harus dikuasai peserta didik sesuai dengan beban belajar yang tercantum dalam struktur kurikulum.',
+      'Pengembangan kurikulum di program keahlian ini selalu diselaraskan dengan kebutuhan Dunia Usaha dan Dunia Industri (DUDI), khususnya di bidang estetika, tata rias, dan spa. Dinamika ini terjadi untuk menyesuaikan arah pendidikan dengan kebutuhan zaman, kemajuan teknologi alat kecantikan, dan tuntutan pelayanan jasa global.'
+    ],
+    focusPoints: [
+      '**Pendidikan Karakter & Etika Profesi :** Mengembangkan sikap (attitude) pelayanan pelanggan (hospitality) yang merupakan standar utama di industri jasa kecantikan.',
+      '**Keterampilan Praktik (Hard Skills) :** Proporsi pembelajaran praktik mencapai lebih dari 60%, dilakukan di laboratorium dan Teaching Factory (Eduspa Klinik) yang sesuai dengan standar industri.',
+      '**Sertifikasi Kompetensi :** Kurikulum dirancang agar di akhir masa studi, siswa siap mengikuti uji kompetensi oleh LSP (Lembaga Sertifikasi Profesi) P1 berlisensi BNSP.'
+    ]
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'kurikulum_text')
+        .single();
+
+      if (!error && data && data.value) {
+        let parsed = data.value;
+        if (typeof parsed === 'string') {
+          parsed = JSON.parse(parsed);
+        }
+        setContent(parsed as KurikulumContent);
+      }
+    } catch (err) {
+      console.error('Error fetching kurikulum text:', err);
+    }
+  };
+
+  const renderFocusPoint = (text: string) => {
+    // Basic markdown parsing for bold "**text**"
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
@@ -25,24 +75,19 @@ export default function KurikulumPage() {
         <div className="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm">
           
           <div className="prose prose-slate max-w-none text-slate-600 text-justify">
-            <p>
-              Kurikulum Operasional Satuan Pendidikan (KOSP) pada Program Keahlian Tata Kecantikan & Spa merupakan pola dan susunan mata pelajaran yang harus ditempuh oleh peserta didik dalam kegiatan pembelajaran. Kedalaman muatan kurikulum pada setiap mata pelajaran pada setiap satuan pendidikan dituangkan dalam kompetensi yang harus dikuasai peserta didik sesuai dengan beban belajar yang tercantum dalam struktur kurikulum.
-            </p>
-            <p className="mt-4">
-              Pengembangan kurikulum di program keahlian ini selalu diselaraskan dengan kebutuhan Dunia Usaha dan Dunia Industri (DUDI), khususnya di bidang estetika, tata rias, dan spa. Dinamika ini terjadi untuk menyesuaikan arah pendidikan dengan kebutuhan zaman, kemajuan teknologi alat kecantikan, dan tuntutan pelayanan jasa global.
-            </p>
+            {content.paragraphs.map((p, idx) => (
+              <p key={idx} className={idx > 0 ? "mt-4" : ""}>
+                {p}
+              </p>
+            ))}
 
             <h3 className="text-lg font-bold text-slate-900 mt-8 mb-4">Fokus Pembelajaran Vokasi</h3>
             <ul className="list-decimal pl-5 space-y-3">
-              <li>
-                <strong>Pendidikan Karakter & Etika Profesi :</strong> Mengembangkan sikap (attitude) pelayanan pelanggan (hospitality) yang merupakan standar utama di industri jasa kecantikan.
-              </li>
-              <li>
-                <strong>Keterampilan Praktik (Hard Skills) :</strong> Proporsi pembelajaran praktik mencapai lebih dari 60%, dilakukan di laboratorium dan Teaching Factory (Eduspa Klinik) yang sesuai dengan standar industri.
-              </li>
-              <li>
-                <strong>Sertifikasi Kompetensi :</strong> Kurikulum dirancang agar di akhir masa studi, siswa siap mengikuti uji kompetensi oleh LSP (Lembaga Sertifikasi Profesi) P1 berlisensi BNSP.
-              </li>
+              {content.focusPoints.map((point, idx) => (
+                <li key={idx}>
+                  {renderFocusPoint(point)}
+                </li>
+              ))}
             </ul>
           </div>
         </div>

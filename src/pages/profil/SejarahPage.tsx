@@ -1,9 +1,42 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
+
+interface SejarahContent {
+  paragraphs: string[];
+}
 
 export default function SejarahPage() {
+  const [content, setContent] = useState<SejarahContent>({
+    paragraphs: [
+      'SMK Negeri 1 Pekalongan merupakan salah satu sekolah vokasi unggulan di Kota Pekalongan yang berdedikasi tinggi dalam mencetak lulusan kompeten. Sejak didirikan, sekolah ini terus berkembang dalam menyediakan fasilitas pendidikan terbaik untuk mendukung kompetensi keahlian siswanya.',
+      'Program Keahlian Tata Kecantikan & Spa menjadi salah satu pilar utama yang telah terakreditasi dan memiliki Teaching Factory (Eduspa Salon) yang berstandar industri, memberikan pengalaman praktik nyata bagi siswa. Seiring berkembangnya industri kecantikan, jurusan ini selalu menyesuaikan kurikulumnya agar relevan dengan tuntutan zaman.'
+    ]
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'sejarah')
+        .single();
+
+      if (!error && data && data.value) {
+        let parsed = data.value;
+        if (typeof parsed === 'string') {
+          parsed = JSON.parse(parsed);
+        }
+        setContent(parsed as SejarahContent);
+      }
+    } catch (err) {
+      console.error('Error fetching sejarah:', err);
+    }
+  };
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
@@ -24,12 +57,11 @@ export default function SejarahPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm">
           <div className="prose prose-slate max-w-none text-slate-600">
-            <p>
-              SMK Negeri 1 Pekalongan merupakan salah satu sekolah vokasi unggulan di Kota Pekalongan yang berdedikasi tinggi dalam mencetak lulusan kompeten. Sejak didirikan, sekolah ini terus berkembang dalam menyediakan fasilitas pendidikan terbaik untuk mendukung kompetensi keahlian siswanya.
-            </p>
-            <p className="mt-4">
-              Program Keahlian Tata Kecantikan & Spa menjadi salah satu pilar utama yang telah terakreditasi dan memiliki Teaching Factory (Eduspa Salon) yang berstandar industri, memberikan pengalaman praktik nyata bagi siswa. Seiring berkembangnya industri kecantikan, jurusan ini selalu menyesuaikan kurikulumnya agar relevan dengan tuntutan zaman.
-            </p>
+            {content.paragraphs.map((p, idx) => (
+              <p key={idx} className={idx > 0 ? "mt-4" : ""}>
+                {p}
+              </p>
+            ))}
           </div>
         </div>
       </div>

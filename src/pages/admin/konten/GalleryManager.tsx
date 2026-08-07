@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon, Search } from 'lucide-react';
-import { supabase, uploadImage } from '../../lib/supabase';
-import { useAdminFeedback } from './AdminFeedbackContext';
+import { supabase, uploadImage } from '../../../lib/supabase';
+import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 
 interface GalleryItem { id: string; title: string; imageUrl: string; category: string; date: string; }
 

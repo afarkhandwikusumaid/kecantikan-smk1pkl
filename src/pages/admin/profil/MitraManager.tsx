@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Briefcase, Save } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAdminFeedback } from './AdminFeedbackContext';
+import { supabase } from '../../../lib/supabase';
+import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 
 interface Partner {
   id: string;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Phone, Mail, MapPin, Instagram, Facebook, Youtube, Globe } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAdminFeedback } from './AdminFeedbackContext';
+import { supabase } from '../../../lib/supabase';
+import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 
 interface ContactSettings { address: string; phone: string; email: string; mapsUrl: string; }
 interface SocialSettings { instagram: string; facebook: string; youtube: string; tiktok: string; website: string; }

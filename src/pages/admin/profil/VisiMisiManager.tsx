@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Eye, FileText } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAdminFeedback } from './AdminFeedbackContext';
+import { supabase } from '../../../lib/supabase';
+import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 
 export default function VisiMisiManager() {
   const { showConfirm, showAlert } = useAdminFeedback();

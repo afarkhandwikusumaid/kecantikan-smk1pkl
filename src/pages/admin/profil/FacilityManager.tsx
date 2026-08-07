@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Building2, Search, CheckCircle, AlertCircle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAdminFeedback } from './AdminFeedbackContext';
+import { supabase } from '../../../lib/supabase';
+import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 
 interface Facility {
   id: string;
@@ -202,7 +202,57 @@ export default function FacilityManager() {
                   <tr>
                     <td colSpan={4} className="px-5 py-12 text-center text-slate-400">
                       <Building2 className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                      <p>Belum ada data fasilitas.</p>
+                      <p className="mb-4">Belum ada data fasilitas.</p>
+                      {search === '' && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              setLoading(true);
+                              const defaultFacilities = [
+                                {
+                                  name: "Studio Tata Rias & Kosmetika",
+                                  description: "Dilengkapi dengan meja rias profesional, cermin besar berlampu (vanity mirror), kosmetik standar industri, serta kursi rias hidrolik untuk praktik makeup panggung, pengantin, dan karakter.",
+                                  capacity: "20 Orang",
+                                  status: "Aktif",
+                                  image_urls: ["https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=800"]
+                                },
+                                {
+                                  name: "Salon Tata Kecantikan Rambut",
+                                  description: "Menyediakan peralatan lengkap seperti hair dryer, catokan, pengeriting rambut, area pencucian rambut (shampoo basin), manekin praktik, serta obat penataan rambut untuk belajar hair styling, cutting, maupun coloring.",
+                                  capacity: "20 Orang",
+                                  status: "Aktif",
+                                  image_urls: ["https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=800"]
+                                },
+                                {
+                                  name: "Ruang Praktik Perawatan Kulit (Skin Care Clinic)",
+                                  description: "Area khusus bernuansa klinis yang dilengkapi tempat tidur perawatan (facial bed), alat uap wajah (facial steamer), serta perangkat perawatan wajah modern lainnya.",
+                                  capacity: "20 Orang",
+                                  status: "Aktif",
+                                  image_urls: ["https://images.unsplash.com/photo-1521590832167-7bcbfeac2531?q=80&w=800"]
+                                },
+                                {
+                                  name: "Studio Perawatan Spa (Spa Room)",
+                                  description: "Dilengkapi kasur spa, aromaterapi, perlengkapan lulur/pijat tradisional, hingga area khusus untuk praktik tren perawatan terbaru seperti Mom and Baby Treatment.",
+                                  capacity: "20 Orang",
+                                  status: "Aktif",
+                                  image_urls: ["https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800"]
+                                }
+                              ];
+                              const { error } = await supabase.from('facilities').insert(defaultFacilities);
+                              if (error) throw error;
+                              showAlert('Fasilitas bawaan berhasil dimuat!', 'success');
+                              fetchFacilities();
+                            } catch (err: any) {
+                              setLoading(false);
+                              showAlert('Gagal memuat: ' + err.message, 'error');
+                            }
+                          }}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-pink-600 bg-pink-50 hover:bg-pink-100 transition-colors"
+                        >
+                          <Building2 className="w-4 h-4" />
+                          Muat Data Fasilitas Bawaan (Default)
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ) : (

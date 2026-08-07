@@ -1,27 +1,55 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+
+interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+}
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-
-  const faqs = [
+  const [faqs, setFaqs] = useState<FAQItem[]>([
     {
+      id: "1",
       question: "Apakah lulusan tata kecantikan & spa dijamin mendapatkan pekerjaan?",
       answer: "Lulusan kami sangat diminati oleh industri salon, spa, dan klinik kecantikan (DUDI). Melalui Bursa Kerja Khusus (BKK) SMK Negeri 1 Pekalongan, kami secara rutin menyalurkan lulusan terbaik ke berbagai mitra industri. Selain itu, kurikulum kewirausahaan kami juga membekali siswa untuk mandiri."
     },
     {
+      id: "2",
       question: "Sertifikasi kompetensi apa saja yang akan didapatkan siswa?",
       answer: "Selain ijazah resmi, lulusan akan mendapatkan Sertifikat Kompetensi dari BNSP melalui Lembaga Sertifikasi Profesi (LSP-P1) pihak pertama yang ada di sekolah, yang diakui secara nasional oleh industri kecantikan."
     },
     {
+      id: "3",
       question: "Fasilitas praktik apa saja yang tersedia di jurusan ini?",
       answer: "Kami memiliki fasilitas Teaching Factory bernama Eduspa Klinik yang didesain berstandar industri. Fasilitas ini mencakup ruang perawatan wajah (facial), perawatan rambut (hair dressing), perawatan badan (body spa), dan alat kosmetologi modern."
     },
     {
+      id: "4",
       question: "Apakah jurusan kecantikan hanya untuk siswa perempuan?",
       answer: "Tidak. Jurusan tata kecantikan terbuka untuk siswa laki-laki maupun perempuan. Industri kecantikan, MUA, dan hair styling profesional saat ini banyak membutuhkan tenaga ahli dari berbagai latar belakang."
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    async function fetchFaqs() {
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'faqs')
+          .single();
+        if (data && data.value) {
+          setFaqs(data.value as FAQItem[]);
+        }
+      } catch (err) {
+        console.error('Error fetching FAQs:', err);
+      }
+    }
+    fetchFaqs();
+  }, []);
 
   return (
     <section className="py-16 bg-slate-50 border-t border-slate-200">

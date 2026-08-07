@@ -1,9 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+
+interface Teacher {
+  id: string;
+  name: string;
+  position: string;
+  image_url: string;
+}
 
 export default function StrukturGuruPage() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    async function fetchTeachers() {
+      try {
+        const { data } = await supabase
+          .from('teachers')
+          .select('*')
+          .order('name', { ascending: true });
+        
+        if (data) {
+          setTeachers(data);
+        }
+      } catch (err) {
+        console.error('Error fetching teachers:', err);
+      }
+    }
+    fetchTeachers();
   }, []);
 
   return (
@@ -25,17 +51,35 @@ export default function StrukturGuruPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="border border-slate-100 rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-                <div className="w-24 h-24 bg-slate-200 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
-                  <Users className="w-10 h-10 text-slate-400" />
+          {teachers.length === 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 opacity-50">
+              {[1, 2, 3, 4, 5, 6].map((item) => (
+                <div key={item} className="border border-slate-100 rounded-lg p-6 text-center hover:shadow-md transition-shadow">
+                  <div className="w-24 h-24 bg-slate-200 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
+                    <Users className="w-10 h-10 text-slate-400" />
+                  </div>
+                  <h4 className="font-bold text-slate-900 text-lg">Nama Guru {item}</h4>
+                  <p className="text-sm text-slate-500 mt-1">Pengampu Produktif Kecantikan</p>
                 </div>
-                <h4 className="font-bold text-slate-900 text-lg">Nama Guru {item}</h4>
-                <p className="text-sm text-slate-500 mt-1">Pengampu Produktif Kecantikan</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 md:grid-cols-4 gap-6">
+              {teachers.map((teacher) => (
+                <div key={teacher.id} className="border border-slate-100 rounded-lg p-6 text-center hover:shadow-md transition-shadow flex flex-col items-center">
+                  <div className="w-24 h-24 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden border border-slate-200">
+                    {teacher.image_url ? (
+                      <img src={teacher.image_url} alt={teacher.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Users className="w-10 h-10 text-slate-300" />
+                    )}
+                  </div>
+                  <h4 className="font-bold text-slate-900 text-sm md:text-base">{teacher.name}</h4>
+                  <p className="text-xs text-slate-500 mt-1">{teacher.position}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

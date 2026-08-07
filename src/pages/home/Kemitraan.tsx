@@ -1,13 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
+
+interface Partner {
+  id: string;
+  name: string;
+  subtitle: string;
+  isPink: boolean;
+}
 
 export default function Kemitraan() {
-  const partners = [
-    { name: 'Kementerian Pendidikan', initial: 'K' },
-    { name: 'Industri Kosmetik Nasional', initial: 'I' },
-    { name: 'Asosiasi Spa Indonesia', initial: 'A' },
-    { name: 'LSP Kecantikan', initial: 'L' },
-    { name: 'Dinas Pariwisata', initial: 'D' },
-  ];
+  const [partners, setPartners] = useState<Partner[]>([
+    { id: '1', name: 'Kementerian Pendidikan', subtitle: '', isPink: false },
+    { id: '2', name: 'Industri Kosmetik Nasional', subtitle: '', isPink: true },
+    { id: '3', name: 'Asosiasi Spa Indonesia', subtitle: '', isPink: false },
+    { id: '4', name: 'LSP Kecantikan', subtitle: '', isPink: true },
+    { id: '5', name: 'Dinas Pariwisata', subtitle: '', isPink: false },
+  ]);
+
+  useEffect(() => {
+    async function fetchPartners() {
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'mitra_industri')
+          .single();
+        if (data && data.value) {
+          setPartners(data.value as Partner[]);
+        }
+      } catch (err) {
+        console.error('Error fetching partners:', err);
+      }
+    }
+    fetchPartners();
+  }, []);
 
   return (
     <section className="py-20 bg-slate-50 border-t border-slate-100">
@@ -30,11 +56,16 @@ export default function Kemitraan() {
         {/* Partners Grid */}
         <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center opacity-70">
           {partners.map((partner, index) => (
-            <div key={index} className="flex flex-col items-center space-y-3 grayscale hover:grayscale-0 transition-all duration-300">
-              <div className="w-16 h-16 bg-white shadow-sm border border-slate-200 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold text-slate-400">{partner.initial}</span>
+            <div key={partner.id || index} className="flex flex-col items-center space-y-3 grayscale hover:grayscale-0 transition-all duration-300">
+              <div className={`w-16 h-16 bg-white shadow-sm border ${partner.isPink ? 'border-pink-200' : 'border-slate-200'} rounded-full flex items-center justify-center`}>
+                <span className={`text-2xl font-bold ${partner.isPink ? 'text-pink-400' : 'text-slate-400'}`}>
+                  {partner.name.charAt(0).toUpperCase()}
+                </span>
               </div>
-              <span className="text-sm font-medium text-slate-500">{partner.name}</span>
+              <div className="text-center">
+                <span className="text-sm font-medium text-slate-500 block">{partner.name}</span>
+                {partner.subtitle && <span className="text-xs text-slate-400">{partner.subtitle}</span>}
+              </div>
             </div>
           ))}
         </div>

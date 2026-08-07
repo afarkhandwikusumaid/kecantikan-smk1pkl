@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, UserCheck } from 'lucide-react';
-import { supabase, uploadImage } from '../../lib/supabase';
-import { useAdminFeedback } from './AdminFeedbackContext';
+import { supabase, uploadImage } from '../../../lib/supabase';
+import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 
 interface KaprodiSettings { name: string; photoUrl: string; title: string; greetingText: string; }
 

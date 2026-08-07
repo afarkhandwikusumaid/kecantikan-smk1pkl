@@ -1,10 +1,44 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Award, CheckCircle } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+
+interface AkreditasiContent {
+  akreditasiText: string;
+  lisensiText: string;
+  sertifikatUrl: string;
+}
 
 export default function AkreditasiPage() {
+  const [content, setContent] = useState<AkreditasiContent>({
+    akreditasiText: 'Program keahlian Tata Kecantikan Kulit dan Rambut telah meraih akreditasi A (Unggul) dari BAN-SM, menunjukkan kualitas standar pelayanan pendidikan yang sangat baik.',
+    lisensiText: 'Sekolah kami merupakan Lembaga Sertifikasi Profesi (LSP P1) yang terlisensi oleh BNSP untuk menguji dan menerbitkan sertifikat kompetensi nasional bagi lulusan.',
+    sertifikatUrl: ''
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'akreditasi')
+        .single();
+
+      if (!error && data && data.value) {
+        let parsed = data.value;
+        if (typeof parsed === 'string') {
+          parsed = JSON.parse(parsed);
+        }
+        setContent(parsed as AkreditasiContent);
+      }
+    } catch (err) {
+      console.error('Error fetching akreditasi:', err);
+    }
+  };
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
@@ -33,7 +67,7 @@ export default function AkreditasiPage() {
               <div>
                 <h3 className="font-bold text-lg text-slate-900">Akreditasi A (Unggul)</h3>
                 <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-                  Program keahlian Tata Kecantikan Kulit dan Rambut telah meraih akreditasi A (Unggul) dari BAN-SM, menunjukkan kualitas standar pelayanan pendidikan yang sangat baik.
+                  {content.akreditasiText}
                 </p>
               </div>
             </div>
@@ -45,7 +79,7 @@ export default function AkreditasiPage() {
               <div>
                 <h3 className="font-bold text-lg text-slate-900">Lisensi BNSP</h3>
                 <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-                  Sekolah kami merupakan Lembaga Sertifikasi Profesi (LSP P1) yang terlisensi oleh BNSP untuk menguji dan menerbitkan sertifikat kompetensi nasional bagi lulusan.
+                  {content.lisensiText}
                 </p>
               </div>
             </div>
@@ -54,12 +88,15 @@ export default function AkreditasiPage() {
           <div className="border-t border-slate-200 pt-8 mt-8">
             <h3 className="text-xl font-serif font-bold text-slate-900 mb-6 text-center">Sertifikat Akreditasi</h3>
             <div className="max-w-2xl mx-auto border-4 border-slate-200 rounded p-2 bg-slate-100">
-              {/* The user requested to "up gambar sertifikasi" here */}
-              <div className="aspect-[4/3] bg-slate-300 flex flex-col items-center justify-center text-slate-500 rounded">
-                <Award className="w-16 h-16 mb-4 text-slate-400" />
-                <p className="font-medium">Gambar Sertifikat Akreditasi</p>
-                <p className="text-sm">(Menunggu unggahan dari admin)</p>
-              </div>
+              {content.sertifikatUrl ? (
+                <img src={content.sertifikatUrl} alt="Sertifikat Akreditasi" className="w-full h-auto rounded" />
+              ) : (
+                <div className="aspect-[4/3] bg-slate-300 flex flex-col items-center justify-center text-slate-500 rounded">
+                  <Award className="w-16 h-16 mb-4 text-slate-400" />
+                  <p className="font-medium">Gambar Sertifikat Akreditasi</p>
+                  <p className="text-sm">(Menunggu unggahan dari admin)</p>
+                </div>
+              )}
             </div>
           </div>
 

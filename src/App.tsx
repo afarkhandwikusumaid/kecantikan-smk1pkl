@@ -12,7 +12,7 @@ const KurikulumPage = lazy(() => import('./pages/akademik/KurikulumPage'));
 const PembelajaranPage = lazy(() => import('./pages/akademik/PembelajaranPage'));
 const FasilitasPage = lazy(() => import('./pages/fasilitas/FasilitasPage'));
 const GaleriPage = lazy(() => import('./pages/GaleriPage'));
-const AdminApp = lazy(() => import('./components/admin/AdminApp'));
+const AdminApp = lazy(() => import('./pages/admin/AdminApp'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();

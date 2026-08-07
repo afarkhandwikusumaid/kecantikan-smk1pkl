@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 interface LoginAdminProps {
   onLoginSuccess: () => void;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAdminFeedback } from './AdminFeedbackContext';
+import { supabase } from '../../../lib/supabase';
+import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 
 interface Curriculum {
   id: string;
@@ -166,7 +166,7 @@ export default function CurriculumManager() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 font-serif">Manajemen Kurikulum</h1>
+        <h1 className="text-2xl font-bold text-gray-900 font-serif">Manajemen Mata Pelajaran</h1>
         <button
           onClick={() => {
             setIsAdding(!isAdding);

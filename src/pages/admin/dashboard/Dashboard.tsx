@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 import {
   FileText, Building2, BookOpen, Handshake, Users,
   Image, TrendingUp, ArrowRight, Sparkles, Star
@@ -23,10 +24,10 @@ interface RecentNews {
 
 interface DashboardProps {
   userEmail?: string;
-  setActiveTab?: (tab: string) => void;
 }
 
-export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
+export default function Dashboard({ userEmail }: DashboardProps) {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     news: 0, gallery: 0, curriculum: 0, partnerships: 5, facilities: 0,
   });
@@ -52,21 +53,21 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
           facilities: facRes.count || 0,
         });
 
-        // Recent news
-        const { data: newsData, error: newsError } = await supabase
-          .from('news')
-          .select('id, title, category, date')
+        // Recent news -> now mapped to galleries
+        const { data: galleryData, error: galleryError } = await supabase
+          .from('galleries')
+          .select('id, title, date, image_url')
           .order('date', { ascending: false })
           .limit(5);
 
-        if (newsError) throw newsError;
+        if (galleryError) throw galleryError;
 
-        if (newsData) {
-          setRecentNews(newsData.map((n: any) => ({
+        if (galleryData) {
+          setRecentNews(galleryData.map((n: any) => ({
             id: n.id,
             title: n.title,
-            category: n.category,
-            date: n.date
+            category: 'Galeri',
+            date: new Date(n.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })
           })));
         }
       } catch (e) {
@@ -143,30 +144,26 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent News */}
+        {/* Recent Galleries */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-pink-500" />
-              <h2 className="font-bold text-slate-800 text-sm">Berita Terbaru</h2>
+              <Image className="w-4 h-4 text-pink-500" />
+              <h2 className="font-bold text-slate-800 text-sm">Galeri Terbaru</h2>
             </div>
-            {setActiveTab && (
-              <button onClick={() => setActiveTab('pengumuman-admin')} className="text-xs text-pink-500 hover:text-pink-700 font-medium flex items-center gap-1 transition-colors">
-                Lihat semua <ArrowRight className="w-3 h-3" />
-              </button>
-            )}
+            <button onClick={() => navigate('/admin/galeri')} className="text-xs text-pink-500 hover:text-pink-700 font-medium flex items-center gap-1 transition-colors">
+              Lihat semua <ArrowRight className="w-3 h-3" />
+            </button>
           </div>
           <div className="divide-y divide-slate-50">
             {recentNews.length === 0 ? (
               <div className="p-8 text-center text-slate-400">
-                <FileText className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p className="text-sm">Belum ada berita yang dipublikasikan.</p>
-                {setActiveTab && (
-                  <button onClick={() => setActiveTab('pengumuman-admin')}
-                    className="mt-3 text-xs font-semibold text-pink-500 hover:underline">
-                    + Tambah Berita Pertama
-                  </button>
-                )}
+                <Image className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Belum ada foto yang diunggah.</p>
+                <button onClick={() => navigate('/admin/galeri')}
+                  className="mt-3 text-xs font-semibold text-pink-500 hover:underline">
+                  + Unggah Foto Pertama
+                </button>
               </div>
             ) : (
               recentNews.map((item) => (
@@ -176,11 +173,6 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
                     <p className="text-sm font-medium text-slate-700 truncate">{item.title}</p>
                     <p className="text-xs text-slate-400">{item.date}</p>
                   </div>
-                  {item.category && (
-                    <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-sm font-semibold ${categoryColor[item.category] || 'bg-slate-100 text-slate-500'}`}>
-                      {item.category}
-                    </span>
-                  )}
                 </div>
               ))
             )}
@@ -195,16 +187,16 @@ export default function Dashboard({ userEmail, setActiveTab }: DashboardProps) {
           </div>
           <div className="p-4 grid grid-cols-2 gap-3">
             {[
-              { label: 'Tambah Berita', tab: 'pengumuman-admin', icon: FileText, color: 'from-rose-400 to-pink-500' },
-              { label: 'Upload Galeri', tab: 'karya-admin', icon: Image, color: 'from-violet-400 to-purple-500' },
-              { label: 'Data Fasilitas', tab: 'fasilitas', icon: Building2, color: 'from-emerald-400 to-teal-500' },
-              { label: 'Kelola Mitra', tab: 'mitra', icon: Handshake, color: 'from-amber-400 to-orange-500' },
-              { label: 'Data Kurikulum', tab: 'curriculum', icon: BookOpen, color: 'from-blue-400 to-indigo-500' },
-              { label: 'Layanan Eduspa', tab: 'eduspa', icon: Sparkles, color: 'from-pink-400 to-rose-500' },
+              { label: 'Sambutan', path: '/admin/beranda/sambutan', icon: FileText, color: 'from-rose-400 to-pink-500' },
+              { label: 'Upload Galeri', path: '/admin/galeri', icon: Image, color: 'from-violet-400 to-purple-500' },
+              { label: 'Data Fasilitas', path: '/admin/fasilitas', icon: Building2, color: 'from-emerald-400 to-teal-500' },
+              { label: 'Kelola Mitra', path: '/admin/beranda/kemitraan', icon: Handshake, color: 'from-amber-400 to-orange-500' },
+              { label: 'Data Pembelajaran', path: '/admin/akademik/pembelajaran', icon: BookOpen, color: 'from-blue-400 to-indigo-500' },
+              { label: 'Sejarah Singkat', path: '/admin/profil/sejarah', icon: Sparkles, color: 'from-pink-400 to-rose-500' },
             ].map((action) => (
               <button
-                key={action.tab}
-                onClick={() => setActiveTab && setActiveTab(action.tab)}
+                key={action.path}
+                onClick={() => navigate(action.path)}
                 className={`flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-br ${action.color} text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left group`}
               >
                 <action.icon className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />

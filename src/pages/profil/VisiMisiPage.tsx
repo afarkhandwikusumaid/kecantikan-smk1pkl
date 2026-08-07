@@ -1,8 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
 
 export default function VisiMisiPage() {
+  const [visi, setVisi] = useState<string>("Unggul dalam IPTEK, Mantap dalam IMTAQ, Berbudaya Lingkungan dan Berjiwa Wirausaha.");
+  const [misi, setMisi] = useState<string[]>([
+    "Mewujudkan kurikulum yang berwawasan IPTEK, IMTAQ, Budaya Lingkungan dan Wirausaha.",
+    "Mewujudkan pembelajaran yang kreatif, inovatif, dan inspiratif.",
+    "Mewujudkan Sumber Daya Guru yang berkualitas dibidang kecantikan.",
+    "Mewujudkan lulusan yang berdaya saing tinggi dan siap kerja di industri.",
+    "Menyediakan sarana dan prasarana praktik yang setara dengan industri salon dan spa."
+  ]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    async function fetchVisiMisi() {
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'visi_misi')
+          .single();
+        if (data && data.value) {
+          if (data.value.visi) setVisi(data.value.visi);
+          if (data.value.misi && data.value.misi.length > 0) setMisi(data.value.misi);
+        }
+      } catch (err) {
+        console.error('Error fetching Visi & Misi:', err);
+      }
+    }
+    fetchVisiMisi();
   }, []);
 
   return (
@@ -27,19 +54,15 @@ export default function VisiMisiPage() {
           <div className="max-w-3xl mx-auto space-y-8 text-slate-700">
             <div>
               <h3 className="text-lg font-bold text-slate-900 mb-3">Visi :</h3>
-              <p className="text-base leading-relaxed">
-                Unggul dalam IPTEK, Mantap dalam IMTAQ, Berbudaya Lingkungan dan Berjiwa Wirausaha.
-              </p>
+              <p className="text-base leading-relaxed">{visi}</p>
             </div>
             
             <div>
               <h3 className="text-lg font-bold text-slate-900 mb-3">Misi :</h3>
               <ol className="list-decimal pl-5 space-y-3 text-base leading-relaxed">
-                <li>Mewujudkan kurikulum yang berwawasan IPTEK, IMTAQ, Budaya Lingkungan dan Wirausaha.</li>
-                <li>Mewujudkan pembelajaran yang kreatif, inovatif, dan inspiratif.</li>
-                <li>Mewujudkan Sumber Daya Guru yang berkualitas dibidang kecantikan.</li>
-                <li>Mewujudkan lulusan yang berdaya saing tinggi dan siap kerja di industri.</li>
-                <li>Menyediakan sarana dan prasarana praktik yang setara dengan industri salon dan spa.</li>
+                {misi.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
               </ol>
             </div>
           </div>
