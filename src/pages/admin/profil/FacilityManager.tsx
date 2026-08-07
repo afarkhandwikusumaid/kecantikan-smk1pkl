@@ -333,8 +333,10 @@ export default function FacilityManager() {
                   multiple
                   onChange={(e) => {
                     if (e.target.files) {
-                      setImageFiles(Array.from(e.target.files));
+                      const newFiles = Array.from(e.target.files);
+                      setImageFiles(prev => [...prev, ...newFiles]);
                     }
+                    e.target.value = ''; // Reset input to allow selecting the same file again if removed
                   }}
                   className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                 />
