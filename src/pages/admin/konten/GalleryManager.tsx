@@ -37,12 +37,13 @@ export default function GalleryManager({ mode = 'all' }: GalleryManagerProps) {
   const fetchGallery = async () => {
     try {
       setLoading(true);
-      const query = supabase.from('galleries').select('*');
+      let query = supabase.from('galleries').select('*');
       if (mode === 'karya') {
-        query.in('category', ['Praktik', 'Prestasi', 'Wisuda']);
-      } else {
-        query.in('category', ['Kegiatan', 'Fasilitas']);
+        query = query.in('category', ['Praktik', 'Prestasi', 'Wisuda']);
+      } else if (mode === 'dokumentasi') {
+        query = query.in('category', ['Kegiatan', 'Fasilitas']);
       }
+      // mode === 'all' → no category filter, ambil semua data
       const { data, error } = await query.order('date', { ascending: false });
       if (error) throw error;
       setItems((data || []).map((item: any) => ({
@@ -144,10 +145,10 @@ export default function GalleryManager({ mode = 'all' }: GalleryManagerProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            {mode === 'karya' ? 'Karya Siswa (Portofolio)' : 'Dokumentasi Kegiatan & Lab'}
+            {mode === 'karya' ? 'Karya Siswa (Portofolio)' : mode === 'dokumentasi' ? 'Dokumentasi Kegiatan & Lab' : 'Galeri & Dokumentasi'}
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            {mode === 'karya' ? 'Kelola portofolio praktik, prestasi, dan kelulusan siswa' : 'Kelola dokumentasi kegiatan sekolah dan fasilitas praktik'}
+            {mode === 'karya' ? 'Kelola portofolio praktik, prestasi, dan kelulusan siswa' : mode === 'dokumentasi' ? 'Kelola dokumentasi kegiatan sekolah dan fasilitas praktik' : 'Kelola semua foto galeri dan dokumentasi kegiatan'}
           </p>
         </div>
         <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
