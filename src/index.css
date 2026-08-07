@@ -1,39 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Poppins", system-ui, sans-serif;
+  --font-serif: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
   
-  /* Overriding pink with Plum/Purple from the logo */
-  --color-pink-50: #f9f4f7;
-  --color-pink-100: #f5e8f0;
-  --color-pink-200: #ead0e1;
-  --color-pink-300: #deb8d1;
-  --color-pink-400: #c588b3;
-  --color-pink-500: #ab5994;
-  --color-pink-600: #96427d;
-  --color-pink-700: #7d3768;
-  --color-pink-800: #642c53;
-  --color-pink-900: #522444;
+  /* Primary: Soft Rose (matches Logo) */
+  --color-primary-50: #fbf5f7;
+  --color-primary-100: #f7eaf0;
+  --color-primary-200: #f1d7e2;
+  --color-primary-300: #e8b9cd;
+  --color-primary-400: #d97793;
+  --color-primary-500: #d26a88;
+  --color-primary-600: #bd4c6d;
+  --color-primary-700: #9e3957;
+  --color-primary-800: #84324a;
+  --color-primary-900: #712d42;
+  --color-primary: #d97793;
 
-  /* Adjusting gold palette to match logo's text */
-  --color-gold-300: #e5cca0;
-  --color-gold-400: #debd86;
-  --color-gold-500: #d2a762;
-  --color-gold-600: #c08d46;
+  /* Secondary & Accent: Deep Burgundy (Elegant contrast) */
+  --color-secondary-50: #fdf5f7;
+  --color-secondary-100: #fae8eb;
+  --color-secondary-200: #f4d0d8;
+  --color-secondary-300: #ebadbc;
+  --color-secondary-400: #df8198;
+  --color-secondary-500: #d05877;
+  --color-secondary-600: #b93b5a;
+  --color-secondary-700: #9c2b46;
+  --color-secondary-800: #83273d;
+  --color-secondary-900: #702537;
+  --color-secondary: #9c2b46;
 
-  /* Overriding rose to use the same plum palette as pink */
-  --color-rose-50: var(--color-pink-50);
-  --color-rose-100: var(--color-pink-100);
-  --color-rose-200: var(--color-pink-200);
-  --color-rose-300: var(--color-pink-300);
-  --color-rose-400: var(--color-pink-400);
-  --color-rose-500: var(--color-pink-500);
-  --color-rose-600: var(--color-pink-600);
-  --color-rose-700: var(--color-pink-700);
-  --color-rose-800: var(--color-pink-800);
-  --color-rose-900: var(--color-pink-900);
+  /* Accent: Mapped to Secondary for a strict 2-color theme */
+  --color-accent-500: #9c2b46;
+  --color-accent: #9c2b46;
+
+  /* Background & Text overrides */
+  --color-slate-50: #f8fafc;
+  --color-slate-500: #64748b;
+  --color-slate-800: #1e293b;
+
+  /* Overriding old pink variables so existing components don't completely break before refactoring */
+  --color-pink-50: var(--color-slate-50);
+  --color-pink-100: var(--color-secondary-100);
+  --color-pink-200: var(--color-secondary-200);
+  --color-pink-500: var(--color-primary-500);
+  --color-pink-600: var(--color-primary-600);
+  --color-pink-700: var(--color-primary-700);
+  --color-pink-800: var(--color-primary-800);
+  --color-pink-900: var(--color-primary-900);
 
   /* Animation keyframes */
   --animate-fade-in: fade-in 0.4s ease-out forwards;
