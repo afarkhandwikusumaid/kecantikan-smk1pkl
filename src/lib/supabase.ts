@@ -7,7 +7,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase Environment Variables');
 }
 
-export const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder');
+// Custom sessionStorage adapter: session is per-tab, not shared across new tabs
+const sessionStorageAdapter = {
+  getItem: (key: string) => sessionStorage.getItem(key),
+  setItem: (key: string, value: string) => sessionStorage.setItem(key, value),
+  removeItem: (key: string) => sessionStorage.removeItem(key),
+};
+
+export const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder', {
+  auth: {
+    storage: sessionStorageAdapter, // Use sessionStorage so new tabs require re-login
+    autoRefreshToken: true,
+    persistSession: true,
+  }
+});
 
 /**
  * Uploads a file to the 'asset-saya' bucket and returns its public URL.
