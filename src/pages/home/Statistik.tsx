@@ -43,7 +43,8 @@ export default function Statistik() {
 
       try {
         const today = new Date();
-        const currentDate = today.toISOString().split('T')[0]; // YYYY-MM-DD
+        // Use local timezone (Asia/Jakarta) so it resets exactly at 00:00 WIB
+        const currentDate = today.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // YYYY-MM-DD
         const currentMonth = currentDate.substring(0, 7); // YYYY-MM
         const currentYear = currentDate.substring(0, 4); // YYYY
 
