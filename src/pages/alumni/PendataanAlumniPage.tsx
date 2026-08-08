@@ -21,6 +21,11 @@ export default function PendataanAlumniPage() {
   const currentYear = new Date().getFullYear();
   const years = Array.from(new Array(20), (val, index) => currentYear - index);
 
+  const toTitleCase = (str: string) => {
+    if (!str) return '';
+    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -28,16 +33,25 @@ export default function PendataanAlumniPage() {
     setSuccess(false);
 
     try {
-      let finalDetail = formData.status_detail;
+      let finalDetail = toTitleCase(formData.status_detail);
       if (formData.status === 'Melanjutkan') {
-        finalDetail = `${jenjang}-${prodi}-${kampus}`;
+        const formattedProdi = toTitleCase(prodi);
+        const formattedKampus = kampus.toUpperCase(); // Usually kampuses look better uppercase (e.g. ITB) or we can leave it to title case. Let's do Title Case but keep it as typed if they want, but wait, the prompt says "jangan uppercase semua". Let's apply toTitleCase. Wait, in the image it's "ITB". Let's do uppercase for Kampus if it's less than 5 chars? No, let's just use a smarter titlecase or just let's title case them all except if it's all caps acronym.
+        // Simple title case for prodi and kampus
+        let finalKampus = kampus;
+        if (kampus === kampus.toUpperCase() && kampus.length <= 4) {
+             finalKampus = kampus; // likely acronym like ITB, UGM
+        } else {
+             finalKampus = toTitleCase(kampus);
+        }
+        finalDetail = `${jenjang}-${formattedProdi}-${finalKampus}`;
       }
 
       const { error } = await supabase
         .from('alumni_data')
         .insert([
           {
-            name: formData.name,
+            name: toTitleCase(formData.name),
             status: formData.status,
             status_detail: finalDetail,
             graduation_year: formData.graduation_year,
@@ -216,7 +230,7 @@ export default function PendataanAlumniPage() {
               <button 
                 type="submit" 
                 disabled={loading || !formData.status}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-pink-200"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
               >
                 {loading ? 'Mengirim Data...' : (
