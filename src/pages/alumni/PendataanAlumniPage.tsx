@@ -133,7 +133,7 @@ export default function PendataanAlumniPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
                   placeholder="Masukkan nama lengkap Anda"
                 />
               </div>
@@ -143,7 +143,7 @@ export default function PendataanAlumniPage() {
                 <select 
                   value={formData.graduation_year}
                   onChange={(e) => setFormData({...formData, graduation_year: parseInt(e.target.value)})}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
                 >
                   {years.map(year => (
                     <option key={year} value={year}>{year}</option>
@@ -157,7 +157,7 @@ export default function PendataanAlumniPage() {
                   required
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value, status_detail: ''})}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
                 >
                   <option value="" disabled>-- Pilih Status --</option>
                   <option value="Bekerja">Bekerja</option>
@@ -175,7 +175,7 @@ export default function PendataanAlumniPage() {
                       required
                       value={kampus}
                       onChange={(e) => setKampus(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
                       placeholder="Contoh: Universitas Negeri Semarang"
                     />
                   </div>
@@ -187,7 +187,7 @@ export default function PendataanAlumniPage() {
                         required
                         value={prodi}
                         onChange={(e) => setProdi(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                        className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
                         placeholder="Contoh: Pendidikan Tata Kecantikan"
                       />
                     </div>
@@ -197,7 +197,7 @@ export default function PendataanAlumniPage() {
                         required
                         value={jenjang}
                         onChange={(e) => setJenjang(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                        className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
                       >
                         <option value="" disabled>-- Pilih Jenjang --</option>
                         <option value="D1">D1</option>
@@ -219,7 +219,7 @@ export default function PendataanAlumniPage() {
                     required
                     value={formData.status_detail}
                     onChange={(e) => setFormData({...formData, status_detail: e.target.value})}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                    className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
                     placeholder={`Contoh: ${
                       formData.status === 'Bekerja' ? 'PT. Mustika Ratu / Salon ABC' : 'Klinik Kecantikan Mandiri'
                     }`}
@@ -230,8 +230,7 @@ export default function PendataanAlumniPage() {
               <button 
                 type="submit" 
                 disabled={loading || !formData.status}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed bg-secondary"
               >
                 {loading ? 'Mengirim Data...' : (
                   <>
