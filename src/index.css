@@ -114,14 +114,14 @@ html {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f9f4f7;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c588b3;
+  background: rgba(148, 163, 184, 0.5);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #96427d;
+  background: rgba(100, 116, 139, 0.8);
 }
 
 /* ========================================

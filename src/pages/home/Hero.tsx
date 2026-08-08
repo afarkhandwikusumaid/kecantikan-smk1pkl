@@ -78,10 +78,10 @@ export default function Hero() {
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <Link
-                    to="/profil"
+                    to="/alumni/statistik"
                     className="w-full sm:w-auto text-center bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/40 font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-colors uppercase tracking-wider text-xs sm:text-sm"
                   >
-                    Profil Jurusan
+                    Statistik Alumni
                   </Link>
                 </div>
               </motion.div>

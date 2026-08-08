@@ -66,11 +66,6 @@ export default function SebaranAlumniPreview() {
             transition={{ duration: 0.6 }}
             className="space-y-6"
           >
-            <div className="inline-flex items-center space-x-2 bg-white/10 px-3 py-1 rounded-full border border-white/20">
-              <TrendingUp className="w-4 h-4 text-pink-400" />
-              <span className="text-xs font-bold text-pink-300 tracking-wider uppercase">Jejak Lulusan</span>
-            </div>
-            
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight">
               Lulusan Siap Kerja & <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">Berdaya Saing</span>
             </h2>
@@ -82,9 +77,9 @@ export default function SebaranAlumniPreview() {
             <div className="pt-4 flex flex-col sm:flex-row gap-4">
               <Link 
                 to="/alumni/statistik"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-pink-500/30"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all active:scale-95"
               >
-                Lihat Detail Statistik <ArrowRight className="w-4 h-4" />
+                Lihat Detail Statistik
               </Link>
               <Link 
                 to="/alumni/pendataan"
@@ -122,15 +117,12 @@ export default function SebaranAlumniPreview() {
             </div>
 
             {/* Card 3: Wirausaha (Spans 2 columns) */}
-            <div className="sm:col-span-2 bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-lg border border-pink-500/30 p-6 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-white/15 transition-all relative overflow-hidden group">
-              <div className="w-12 h-12 bg-pink-500/30 rounded-full flex items-center justify-center text-pink-200 mb-3 border border-pink-500/40 relative z-10 group-hover:scale-110 transition-transform">
+            <div className="sm:col-span-2 bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-white/15 transition-all">
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-300 mb-3 border border-yellow-500/30">
                 <Store className="w-5 h-5" />
               </div>
-              <h3 className="text-4xl font-black text-white mb-1 relative z-10">{getPercentage(stats.Wirausaha)}%</h3>
-              <p className="font-bold text-pink-200 text-sm relative z-10">Wirausaha / Membuka Klinik & Salon</p>
-              
-              {/* Decorative background circle */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl group-hover:bg-pink-500/20 transition-all"></div>
+              <h3 className="text-4xl font-black text-white mb-1">{getPercentage(stats.Wirausaha)}%</h3>
+              <p className="font-bold text-slate-300 text-sm">Wirausaha</p>
             </div>
 
           </motion.div>
