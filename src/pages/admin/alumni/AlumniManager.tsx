@@ -181,14 +181,13 @@ export default function AlumniManager() {
                   <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Tahun Lulus</th>
                   <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status Karir</th>
                   <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Detail Informasi</th>
-                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Tanggal Input</th>
                   <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-slate-400">
+                    <td colSpan={5} className="px-5 py-12 text-center text-slate-400">
                       <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-30" />
                       <p>Belum ada data alumni.</p>
                     </td>
@@ -211,11 +210,8 @@ export default function AlumniManager() {
                           {item.status}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-slate-600 max-w-[200px] truncate" title={item.status_detail}>
+                      <td className="px-5 py-4 text-slate-600">
                         {item.status_detail}
-                      </td>
-                      <td className="px-5 py-4 text-slate-500 text-xs">
-                        {new Date(item.created_at).toLocaleDateString('id-ID')}
                       </td>
                       <td className="px-5 py-4 text-right">
                         <button onClick={() => handleDelete(item.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors">
