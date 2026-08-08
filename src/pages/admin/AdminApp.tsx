@@ -17,6 +17,7 @@ import KurikulumTextManager from './akademik/KurikulumTextManager';
 import CurriculumManager from './akademik/CurriculumManager';
 
 import FacilityManager from './profil/FacilityManager';
+import AlumniManager from './alumni/AlumniManager';
 import GalleryManager from './konten/GalleryManager';
 import SettingsManager from './pengaturan/SettingsManager';
 
@@ -111,6 +112,7 @@ export default function AdminApp() {
             {/* Fasilitas & Galeri */}
             <Route path="fasilitas" element={<FacilityManager />} />
             <Route path="galeri" element={<GalleryManager />} />
+            <Route path="alumni" element={<AlumniManager />} />
             
             {/* Pengaturan */}
             <Route path="pengaturan" element={<SettingsManager />} />

@@ -205,13 +205,13 @@ export default function FacilityManager() {
       {/* Main Description Section */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden p-6">
         <h2 className="font-bold text-slate-800 mb-2">Deskripsi Utama Halaman Fasilitas</h2>
-        <p className="text-sm text-slate-500 mb-4">Teks ini akan ditampilkan di bagian atas halaman Sarana & Prasarana publik.</p>
+        <p className="text-sm text-slate-500 mb-4">Teks ini akan ditampilkan di bagian atas halaman Fasilitas publik.</p>
         <textarea
           rows={4}
           value={mainDescription}
           onChange={(e) => setMainDescription(e.target.value)}
           className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none bg-slate-50 text-black mb-3"
-          placeholder="Tulis deskripsi halaman sarana dan prasarana di sini..."
+          placeholder="Tulis deskripsi halaman fasilitas di sini..."
         />
         <div className="flex justify-end">
           <button

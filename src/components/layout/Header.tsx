@@ -51,8 +51,16 @@ export default function Header() {
         { path: '/akademik/pembelajaran', label: 'Mata Pelajaran' }
       ]
     },
-    { path: '/fasilitas', label: 'Sarana & Prasarana' },
+    { path: '/fasilitas', label: 'Fasilitas' },
     { path: '/galeri', label: 'Dokumentasi' },
+    { 
+      label: 'Alumni', 
+      path: '/alumni',
+      dropdown: [
+        { path: '/alumni/pendataan', label: 'Pendataan Alumni' },
+        { path: '/alumni/statistik', label: 'Statistik Alumni' }
+      ]
+    },
   ];
 
   return (

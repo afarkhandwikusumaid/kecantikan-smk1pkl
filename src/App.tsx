@@ -12,6 +12,8 @@ const KurikulumPage = lazy(() => import('./pages/akademik/KurikulumPage'));
 const PembelajaranPage = lazy(() => import('./pages/akademik/PembelajaranPage'));
 const FasilitasPage = lazy(() => import('./pages/fasilitas/FasilitasPage'));
 const GaleriPage = lazy(() => import('./pages/GaleriPage'));
+const PendataanAlumniPage = lazy(() => import('./pages/alumni/PendataanAlumniPage'));
+const StatistikAlumniPage = lazy(() => import('./pages/alumni/StatistikAlumniPage'));
 const AdminApp = lazy(() => import('./pages/admin/AdminApp'));
 
 function ScrollToTop() {
@@ -63,6 +65,9 @@ export default function App() {
               <Route path="/akademik/pembelajaran" element={<PembelajaranPage />} />
               <Route path="/fasilitas" element={<FasilitasPage />} />
               <Route path="/galeri" element={<GaleriPage />} />
+              <Route path="/alumni" element={<Navigate to="/alumni/pendataan" replace />} />
+              <Route path="/alumni/pendataan" element={<PendataanAlumniPage />} />
+              <Route path="/alumni/statistik" element={<StatistikAlumniPage />} />
               {/* Catch all route - can redirect to home or a 404 page */}
               <Route path="*" element={<HomePage />} />
             </Routes>

@@ -45,8 +45,9 @@ export const navItems: NavItem[] = [
       { path: '/admin/akademik/pembelajaran', label: 'Mata Pelajaran' },
     ],
   },
-  { id: 'fasilitas', label: 'Sarana & Prasarana', icon: Building2, path: '/admin/fasilitas' },
+  { id: 'fasilitas', label: 'Fasilitas', icon: Building2, path: '/admin/fasilitas' },
   { id: 'galeri', label: 'Dokumentasi', icon: Image, path: '/admin/galeri' },
+  { id: 'alumni', label: 'Data Alumni', icon: GraduationCap, path: '/admin/alumni' },
   {
     id: 'settings', label: 'Pengaturan', icon: Settings,
     children: [{ path: '/admin/pengaturan', label: 'Pengaturan Umum' }],

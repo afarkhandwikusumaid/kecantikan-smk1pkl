@@ -78,12 +78,6 @@ export default function Hero() {
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <Link
-                    to="/pendaftaran"
-                    className="w-full sm:w-auto text-center bg-accent hover:brightness-90 text-white font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-all shadow-lg uppercase tracking-wider text-xs sm:text-sm"
-                  >
-                    Informasi Pendaftaran
-                  </Link>
-                  <Link
                     to="/profil"
                     className="w-full sm:w-auto text-center bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/40 font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-colors uppercase tracking-wider text-xs sm:text-sm"
                   >

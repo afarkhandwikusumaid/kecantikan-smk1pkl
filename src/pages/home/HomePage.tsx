@@ -5,6 +5,7 @@ import AktivitasSiswa from './AktivitasSiswa';
 import FAQ from './FAQ';
 import Statistik from './Statistik';
 import Kemitraan from './Kemitraan';
+import SebaranAlumniPreview from './SebaranAlumniPreview';
 
 export default function HomePage() {
 
@@ -16,6 +17,9 @@ export default function HomePage() {
       <section className="py-16 bg-white">
         <Sambutan />
       </section>
+
+      {/* Preview Sebaran Alumni */}
+      <SebaranAlumniPreview />
       
       {/* Aktivitas Siswa / Dokumentasi */}
       <AktivitasSiswa />

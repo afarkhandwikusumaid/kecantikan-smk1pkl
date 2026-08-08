@@ -177,7 +177,7 @@ export default function FasilitasPage() {
           <span className="w-8 h-px bg-secondary/50"></span>
         </div>
         <h2 className="text-3xl md:text-4xl font-sans font-black text-slate-900 mt-3 tracking-tight">
-          SARANA DAN PRASARANA
+          FASILITAS
         </h2>
         <div className="w-20 h-1.5 bg-secondary mx-auto mt-4 mb-4 rounded-full"></div>
         <p className="text-slate-600 text-sm md:text-base">
