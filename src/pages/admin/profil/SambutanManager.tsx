@@ -142,7 +142,7 @@ export default function SambutanManager() {
           
           <div className="flex justify-end pt-2">
             <button type="submit" disabled={uploading}
-              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg transition-all ${savedKaprodi ? 'bg-green-500 shadow-green-200' : 'shadow-pink-200 hover:scale-105 active:scale-95'} disabled:opacity-55`}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all ${savedKaprodi ? 'bg-green-500' : 'hover:scale-105 active:scale-95'} disabled:opacity-55`}
               style={!savedKaprodi ? { background: 'linear-gradient(135deg, #ec4899, #be185d)' } : {}}>
               <Save className="w-4 h-4" />
               {savedKaprodi ? 'Tersimpan!' : 'Simpan Sambutan'}

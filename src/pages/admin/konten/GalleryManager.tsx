@@ -151,7 +151,7 @@ export default function GalleryManager({ mode = 'all' }: GalleryManagerProps) {
             {mode === 'karya' ? 'Kelola portofolio praktik, prestasi, dan kelulusan siswa' : mode === 'dokumentasi' ? 'Kelola dokumentasi kegiatan sekolah dan fasilitas praktik' : 'Kelola semua foto galeri dan dokumentasi kegiatan'}
           </p>
         </div>
-        <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
+        <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:scale-105 active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
           <Plus className="w-4 h-4" /> 
           {mode === 'karya' ? 'Tambah Karya' : 'Tambah Dokumentasi'}
         </button>
@@ -237,7 +237,7 @@ export default function GalleryManager({ mode = 'all' }: GalleryManagerProps) {
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50">Batal</button>
-                <button type="submit" disabled={uploading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 disabled:opacity-55" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
+                <button type="submit" disabled={uploading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-55" style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
                   {editingId ? 'Simpan Perubahan' : (mode === 'karya' ? 'Simpan Karya' : 'Simpan Dokumentasi')}
                 </button>
               </div>

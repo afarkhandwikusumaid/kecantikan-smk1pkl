@@ -14,7 +14,7 @@ export default function PembelajaranPage() {
           .from('curriculum')
           .select('*')
           .order('semester', { ascending: true })
-          .order('name', { ascending: true });
+          .order('created_at', { ascending: true });
 
         if (currData && currData.length > 0) {
           const X: any[] = [];

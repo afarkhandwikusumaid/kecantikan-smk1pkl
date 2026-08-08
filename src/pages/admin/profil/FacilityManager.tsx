@@ -195,7 +195,7 @@ export default function FacilityManager() {
         </div>
         <button
           onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 transition-all hover:shadow-pink-300 hover:scale-105 active:scale-95"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:hover:scale-105 active:scale-95"
           style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
         >
           <Plus className="w-4 h-4" /> Tambah Fasilitas
@@ -217,7 +217,7 @@ export default function FacilityManager() {
           <button
             onClick={handleSaveDescription}
             disabled={savingDesc || loading}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
           >
             {savingDesc ? 'Menyimpan...' : 'Simpan Deskripsi'}
@@ -265,31 +265,31 @@ export default function FacilityManager() {
                               setLoading(true);
                               const defaultFacilities = [
                                 {
-                                  name: "Studio Tata Rias & Kosmetika",
-                                  description: "Dilengkapi dengan meja rias profesional, cermin besar berlampu (vanity mirror), kosmetik standar industri, serta kursi rias hidrolik untuk praktik makeup panggung, pengantin, dan karakter.",
-                                  capacity: "20 Orang",
-                                  status: "Aktif",
+                                  name:"Studio Tata Rias & Kosmetika",
+                                  description:"Dilengkapi dengan meja rias profesional, cermin besar berlampu (vanity mirror), kosmetik standar industri, serta kursi rias hidrolik untuk praktik makeup panggung, pengantin, dan karakter.",
+                                  capacity:"20 Orang",
+                                  status:"Aktif",
                                   image_urls: ["https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=800"]
                                 },
                                 {
-                                  name: "Salon Tata Kecantikan Rambut",
-                                  description: "Menyediakan peralatan lengkap seperti hair dryer, catokan, pengeriting rambut, area pencucian rambut (shampoo basin), manekin praktik, serta obat penataan rambut untuk belajar hair styling, cutting, maupun coloring.",
-                                  capacity: "20 Orang",
-                                  status: "Aktif",
+                                  name:"Salon Tata Kecantikan Rambut",
+                                  description:"Menyediakan peralatan lengkap seperti hair dryer, catokan, pengeriting rambut, area pencucian rambut (shampoo basin), manekin praktik, serta obat penataan rambut untuk belajar hair styling, cutting, maupun coloring.",
+                                  capacity:"20 Orang",
+                                  status:"Aktif",
                                   image_urls: ["https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=800"]
                                 },
                                 {
-                                  name: "Ruang Praktik Perawatan Kulit (Skin Care Clinic)",
-                                  description: "Area khusus bernuansa klinis yang dilengkapi tempat tidur perawatan (facial bed), alat uap wajah (facial steamer), serta perangkat perawatan wajah modern lainnya.",
-                                  capacity: "20 Orang",
-                                  status: "Aktif",
+                                  name:"Ruang Praktik Perawatan Kulit (Skin Care Clinic)",
+                                  description:"Area khusus bernuansa klinis yang dilengkapi tempat tidur perawatan (facial bed), alat uap wajah (facial steamer), serta perangkat perawatan wajah modern lainnya.",
+                                  capacity:"20 Orang",
+                                  status:"Aktif",
                                   image_urls: ["https://images.unsplash.com/photo-1521590832167-7bcbfeac2531?q=80&w=800"]
                                 },
                                 {
-                                  name: "Studio Perawatan Spa (Spa Room)",
-                                  description: "Dilengkapi kasur spa, aromaterapi, perlengkapan lulur/pijat tradisional, hingga area khusus untuk praktik tren perawatan terbaru seperti Mom and Baby Treatment.",
-                                  capacity: "20 Orang",
-                                  status: "Aktif",
+                                  name:"Studio Perawatan Spa (Spa Room)",
+                                  description:"Dilengkapi kasur spa, aromaterapi, perlengkapan lulur/pijat tradisional, hingga area khusus untuk praktik tren perawatan terbaru seperti Mom and Baby Treatment.",
+                                  capacity:"20 Orang",
+                                  status:"Aktif",
                                   image_urls: ["https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800"]
                                 }
                               ];
@@ -446,7 +446,7 @@ export default function FacilityManager() {
                   className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50"
                   disabled={loading}>Batal</button>
                 <button type="submit" disabled={loading}
-                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
                   {loading ? 'Menyimpan...' : (editingId ? 'Simpan Perubahan' : 'Tambah Fasilitas')}
                 </button>

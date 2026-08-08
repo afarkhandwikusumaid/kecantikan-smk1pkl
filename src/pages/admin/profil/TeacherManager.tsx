@@ -148,7 +148,7 @@ export default function TeacherManager() {
           <p className="text-sm text-slate-500 mt-0.5">Data pengajar jurusan Kecantikan & SPA</p>
         </div>
         <button onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:scale-105 active:scale-95 transition-all"
           style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
           <Plus className="w-4 h-4" /> Tambah Guru
         </button>
@@ -287,7 +287,7 @@ export default function TeacherManager() {
 
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50">Batal</button>
-                <button type="submit" disabled={uploading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 disabled:opacity-50"
+                <button type="submit" disabled={uploading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
                   style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
                   {editingId ? 'Simpan Perubahan' : 'Tambah Guru'}
                 </button>

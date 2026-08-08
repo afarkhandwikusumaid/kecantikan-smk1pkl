@@ -101,7 +101,7 @@ export default function FAQManager() {
           <p className="text-sm text-slate-500 mt-0.5">Kelola pertanyaan sering ditanyakan di halaman Beranda</p>
         </div>
         <button onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:scale-105 active:scale-95 transition-all"
           style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
           <Plus className="w-4 h-4" /> Tambah FAQ
         </button>
@@ -164,7 +164,7 @@ export default function FAQManager() {
               
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50">Batal</button>
-                <button type="submit" disabled={saving} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-pink-200 disabled:opacity-50 flex items-center gap-2"
+                <button type="submit" disabled={saving} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50 flex items-center gap-2"
                   style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}>
                   <Save className="w-4 h-4" /> {editingId ? 'Simpan Perubahan' : 'Tambah FAQ'}
                 </button>

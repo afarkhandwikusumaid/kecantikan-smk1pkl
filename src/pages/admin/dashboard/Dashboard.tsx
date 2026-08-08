@@ -132,7 +132,7 @@ export default function Dashboard({ userEmail }: DashboardProps) {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {statCards.map((card) => (
-            <div key={card.label} className="bg-white rounded-2xl p-5 border border-slate-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group cursor-default">
+            <div key={card.label} className="bg-white rounded-2xl p-5 border border-slate-100 hover:-translate-y-0.5 transition-all duration-200 group cursor-default">
               <div className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
                 <card.icon className={`w-5 h-5 ${card.iconColor}`} />
               </div>
@@ -197,7 +197,7 @@ export default function Dashboard({ userEmail }: DashboardProps) {
               <button
                 key={action.path}
                 onClick={() => navigate(action.path)}
-                className={`flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-br ${action.color} text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left group`}
+                className={`flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-br ${action.color} text-white hover:-translate-y-0.5 transition-all duration-200 text-left group`}
               >
                 <action.icon className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-semibold leading-tight">{action.label}</span>

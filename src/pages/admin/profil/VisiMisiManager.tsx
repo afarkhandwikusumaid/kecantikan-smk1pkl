@@ -81,7 +81,7 @@ export default function VisiMisiManager() {
             <Eye className="w-4 h-4" /> {preview ? 'Edit' : 'Preview'}
           </button>
           <button onClick={handleSave}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg transition-all ${saved ? 'bg-green-500 shadow-green-200' : 'shadow-pink-200 hover:scale-105 active:scale-95'}`}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all ${saved ? 'bg-green-500' : 'hover:scale-105 active:scale-95'}`}
             style={!saved ? { background: 'linear-gradient(135deg, #ec4899, #be185d)' } : {}}>
             <Save className="w-4 h-4" /> {saved ? 'Tersimpan!' : 'Simpan'}
           </button>

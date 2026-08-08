@@ -143,7 +143,7 @@ export default function SettingsManager() {
             </div>
             <div className="flex justify-end">
               <button type="submit"
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg transition-all ${savedContact ? 'bg-green-500 shadow-green-200' : 'shadow-pink-200 hover:scale-105 active:scale-95'}`}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all ${savedContact ? 'bg-green-500' : 'hover:scale-105 active:scale-95'}`}
                 style={!savedContact ? { background: 'linear-gradient(135deg, #ec4899, #be185d)' } : {}}>
                 <Save className="w-4 h-4" />
                 {savedContact ? 'Tersimpan!' : 'Simpan Kontak'}
@@ -208,7 +208,7 @@ export default function SettingsManager() {
             </div>
             <div className="flex justify-end">
               <button type="submit"
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg transition-all ${savedSocial ? 'bg-green-500 shadow-green-200' : 'shadow-pink-200 hover:scale-105 active:scale-95'}`}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all ${savedSocial ? 'bg-green-500' : 'hover:scale-105 active:scale-95'}`}
                 style={!savedSocial ? { background: 'linear-gradient(135deg, #ec4899, #be185d)' } : {}}>
                 <Save className="w-4 h-4" />
                 {savedSocial ? 'Tersimpan!' : 'Simpan Sosmed'}

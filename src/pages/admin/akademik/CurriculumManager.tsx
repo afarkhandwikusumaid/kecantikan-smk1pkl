@@ -40,7 +40,7 @@ export default function CurriculumManager() {
         .from('curriculum')
         .select('*')
         .order('semester', { ascending: true })
-        .order('name', { ascending: true });
+        .order('created_at', { ascending: true });
       if (error) throw error;
       setCurriculums(data || []);
     } catch (err: any) {
@@ -242,7 +242,7 @@ export default function CurriculumManager() {
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-pink-600 hover:bg-pink-700"
               >
                 {editingId ? 'Simpan Perubahan' : 'Simpan'}
               </button>
