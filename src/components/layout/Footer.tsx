@@ -123,12 +123,8 @@ export default function Footer() {
         </div>
 
         {/* Closing Footnote info */}
-        <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-primary-200">
-          <p>© {currentYear} SMK Negeri 1 Pekalongan. All Rights Reserved.</p>
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-accent">Privacy Policy</a>
-            <a href="#" className="hover:text-accent">Terms of Service</a>
-          </div>
+        <div className="mt-8 flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-primary-200">
+          <p>© {currentYear} Jurusan Kecantikan SMKN 1 Pekalongan. | Tim IT Kecantikan SMKN 1 Pekalongan</p>
         </div>
       </div>
     </footer>

@@ -31,6 +31,8 @@ export default function FacilityManager() {
   const [search, setSearch] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [mainDescription, setMainDescription] = useState('');
+  const [savingDesc, setSavingDesc] = useState(false);
 
   const fetchFacilities = async () => {
     try {
@@ -41,6 +43,18 @@ export default function FacilityManager() {
         .order('created_at', { ascending: false });
       if (error) throw error;
       setFacilities(data || []);
+
+      const { data: descData } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'fasilitas_description')
+        .maybeSingle();
+        
+      if (descData && descData.value && typeof descData.value === 'object' && descData.value.text) {
+        setMainDescription(descData.value.text);
+      } else {
+        setMainDescription("Fasilitas Kecantikan di SMK Negeri 1 Pekalongan dirancang khusus untuk mendukung Program Keahlian Tata Kecantikan Kulit dan Rambut serta Layanan Spa. Sebagai salah satu SMK Pusat Keunggulan (PK), sekolah ini menyediakan ruang praktik modern yang menyerupai standar industri kecantikan profesional. Berikut adalah rincian fasilitas utama yang tersedia pada jurusan kecantikan di SMK Negeri 1 Pekalongan:");
+      }
     } catch (err: any) {
       console.error('Error fetching facilities:', err);
     } finally {
@@ -144,6 +158,24 @@ export default function FacilityManager() {
     });
   };
 
+  const handleSaveDescription = async () => {
+    try {
+      setSavingDesc(true);
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({
+          key: 'fasilitas_description',
+          value: { text: mainDescription }
+        });
+      if (error) throw error;
+      showAlert('Deskripsi utama berhasil disimpan!', 'success');
+    } catch (error: any) {
+      showAlert('Gagal menyimpan deskripsi: ' + error.message, 'error');
+    } finally {
+      setSavingDesc(false);
+    }
+  };
+
   const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
     'Aktif': { color: 'bg-green-100 text-green-700', icon: <CheckCircle className="w-3 h-3" /> },
     'Perbaikan': { color: 'bg-yellow-100 text-yellow-700', icon: <AlertCircle className="w-3 h-3" /> },
@@ -168,6 +200,29 @@ export default function FacilityManager() {
         >
           <Plus className="w-4 h-4" /> Tambah Fasilitas
         </button>
+      </div>
+
+      {/* Main Description Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden p-6">
+        <h2 className="font-bold text-slate-800 mb-2">Deskripsi Utama Halaman Fasilitas</h2>
+        <p className="text-sm text-slate-500 mb-4">Teks ini akan ditampilkan di bagian atas halaman Sarana & Prasarana publik.</p>
+        <textarea
+          rows={4}
+          value={mainDescription}
+          onChange={(e) => setMainDescription(e.target.value)}
+          className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none bg-slate-50 text-black mb-3"
+          placeholder="Tulis deskripsi halaman sarana dan prasarana di sini..."
+        />
+        <div className="flex justify-end">
+          <button
+            onClick={handleSaveDescription}
+            disabled={savingDesc || loading}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
+          >
+            {savingDesc ? 'Menyimpan...' : 'Simpan Deskripsi'}
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">

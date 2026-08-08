@@ -74,7 +74,7 @@ export default function StrukturGuruPage() {
                       <Users className="w-8 h-8 sm:w-10 sm:h-10 text-slate-300" />
                     )}
                   </div>
-                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm md:text-base leading-snug line-clamp-2">{teacher.name}</h4>
+                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm md:text-base leading-snug break-words hyphens-auto w-full">{teacher.name}</h4>
                   <p className="text-[11px] sm:text-xs text-slate-500 mt-1 line-clamp-2">{teacher.position}</p>
                 </div>
               ))}

@@ -8,7 +8,7 @@ export default function Hero() {
 
   const slides = [
     {
-      img: "/images/photo-1540555700478-4be289fbecef.jpg",
+      img: "/images/sanggar.jpeg",
       title: "Pendidikan Vokasi Kecantikan & Spa",
       subtitle: "Membentuk Generasi Unggul dan Berkarakter",
     },

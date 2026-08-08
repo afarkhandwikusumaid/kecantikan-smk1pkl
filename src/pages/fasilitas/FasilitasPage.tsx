@@ -131,6 +131,7 @@ export default function FasilitasPage() {
       image_urls: ["https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800"]
     }
   ]);
+  const [mainDescription, setMainDescription] = useState("Fasilitas Kecantikan di SMK Negeri 1 Pekalongan dirancang khusus untuk mendukung Program Keahlian Tata Kecantikan Kulit dan Rambut serta Layanan Spa. Sebagai salah satu SMK Pusat Keunggulan (PK), sekolah ini menyediakan ruang praktik modern yang menyerupai standar industri kecantikan profesional. Berikut adalah rincian fasilitas utama yang tersedia pada jurusan kecantikan di SMK Negeri 1 Pekalongan:");
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -145,6 +146,16 @@ export default function FasilitasPage() {
         
         if (data && data.length > 0) {
           setFacilities(data);
+        }
+
+        const { data: descData } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'fasilitas_description')
+          .maybeSingle();
+
+        if (descData && descData.value && typeof descData.value === 'object' && descData.value.text) {
+          setMainDescription(descData.value.text);
         }
       } catch (err) {
         console.error('Error fetching facilities:', err);
@@ -176,8 +187,8 @@ export default function FasilitasPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div className="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm">
-          <p className="text-base sm:text-lg text-slate-600 leading-relaxed text-justify sm:text-center">
-            Fasilitas Kecantikan di SMK Negeri 1 Pekalongan dirancang khusus untuk mendukung Program Keahlian Tata Kecantikan Kulit dan Rambut serta Layanan Spa. Sebagai salah satu SMK Pusat Keunggulan (PK), sekolah ini menyediakan ruang praktik modern yang menyerupai standar industri kecantikan profesional. Berikut adalah rincian fasilitas utama yang tersedia pada jurusan kecantikan di SMK Negeri 1 Pekalongan:
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed text-justify sm:text-center whitespace-pre-wrap">
+            {mainDescription}
           </p>
         </div>
       </div>
