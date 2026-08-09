@@ -8,6 +8,8 @@ interface Partner {
   isPink: boolean;
 }
 
+const PER_PAGE = 5;
+
 export default function Kemitraan() {
   const [partners, setPartners] = useState<Partner[]>([
     { id: '1', name: 'Kementerian Pendidikan', subtitle: '', isPink: false },
@@ -16,6 +18,7 @@ export default function Kemitraan() {
     { id: '4', name: 'LSP Kecantikan', subtitle: '', isPink: true },
     { id: '5', name: 'Dinas Pariwisata', subtitle: '', isPink: false },
   ]);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     async function fetchPartners() {
@@ -27,6 +30,7 @@ export default function Kemitraan() {
           .single();
         if (data && data.value) {
           setPartners(data.value as Partner[]);
+          setPage(0);
         }
       } catch (err) {
         console.error('Error fetching partners:', err);
@@ -35,10 +39,13 @@ export default function Kemitraan() {
     fetchPartners();
   }, []);
 
+  const totalPages = Math.ceil(partners.length / PER_PAGE);
+  const paginated = partners.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
+
   return (
     <section className="py-20 bg-slate-50 border-t border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center space-x-2">
@@ -65,37 +72,41 @@ export default function Kemitraan() {
                 </tr>
               </thead>
               <tbody>
-                {partners.map((partner, index) => (
-                  <tr
-                    key={partner.id || index}
-                    className={`border-t border-slate-100 transition-colors duration-150 ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'
-                    } hover:bg-pink-50/50`}
-                  >
-                    <td className="py-3 px-5">
-                      <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
-                        partner.isPink
-                          ? 'bg-secondary/10 text-secondary'
-                          : 'bg-primary/10 text-primary'
-                      }`}>
-                        {index + 1}
-                      </span>
-                    </td>
-                    <td className="py-3 px-5">
-                      <span className="text-sm font-semibold text-slate-800">{partner.name}</span>
-                    </td>
-                    <td className="py-3 px-5">
-                      <span className="text-sm text-slate-500">{partner.subtitle || '—'}</span>
-                    </td>
-                  </tr>
-                ))}
+                {paginated.map((partner, i) => {
+                  const globalIndex = page * PER_PAGE + i;
+                  return (
+                    <tr
+                      key={partner.id || globalIndex}
+                      className={`border-t border-slate-100 transition-colors duration-150 ${
+                        i % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'
+                      } hover:bg-pink-50/50`}
+                    >
+                      <td className="py-3 px-5">
+                        <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
+                          partner.isPink
+                            ? 'bg-secondary/10 text-secondary'
+                            : 'bg-primary/10 text-primary'
+                        }`}>
+                          {globalIndex + 1}
+                        </span>
+                      </td>
+                      <td className="py-3 px-5">
+                        <span className="text-sm font-semibold text-slate-800">{partner.name}</span>
+                      </td>
+                      <td className="py-3 px-5">
+                        <span className="text-sm text-slate-500">{partner.subtitle || '—'}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
-          {/* Total Kemitraan */}
-          <div className="mt-4 flex items-center justify-end gap-3">
-            <span className="text-sm text-slate-500">Total Kemitraan:</span>
+          {/* Footer: Total + Pagination */}
+          <div className="mt-4 flex items-center justify-between gap-3">
+
+            {/* Total Kemitraan */}
             <span className="inline-flex items-center gap-1.5 bg-secondary text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-sm">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -103,8 +114,39 @@ export default function Kemitraan() {
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
-              {partners.length} Mitra
+              Total: {partners.length} Mitra
             </span>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                  Prev
+                </button>
+
+                <span className="text-xs text-slate-500 font-medium px-1">
+                  {page + 1} / {totalPages}
+                </span>
+
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={page === totalPages - 1}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
+                >
+                  Next
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -112,3 +154,4 @@ export default function Kemitraan() {
     </section>
   );
 }
+
