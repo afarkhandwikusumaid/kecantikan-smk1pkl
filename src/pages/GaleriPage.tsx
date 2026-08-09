@@ -56,7 +56,7 @@ export default function GaleriPage() {
         <div className="bg-white p-4 sm:p-8 md:p-12 rounded-2xl border border-slate-200 shadow-sm">
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
             {activities.map((item) => (
               <div key={item.id} className="relative group overflow-hidden cursor-pointer border border-slate-100 rounded-xl pb-5 shadow-sm hover:shadow-md transition-shadow" onClick={() => setSelectedImage({ url: item.imageUrl, title: item.title })}>
                 <div className="aspect-[4/3] overflow-hidden bg-slate-100 rounded-t-xl">
@@ -66,11 +66,11 @@ export default function GaleriPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
-                <div className="pt-4 px-4 sm:px-5">
-                  <p className="text-xs text-secondary font-bold mb-1.5">
+                <div className="pt-3 px-3 sm:px-5">
+                  <p className="text-[10px] sm:text-xs text-secondary font-bold mb-1">
                     {item.date}
                   </p>
-                  <h3 className="font-bold text-slate-900 text-sm sm:text-base md:text-lg leading-snug line-clamp-2">
+                  <h3 className="font-bold text-slate-900 text-xs sm:text-base md:text-lg leading-snug">
                     {item.title}
                   </h3>
                 </div>
