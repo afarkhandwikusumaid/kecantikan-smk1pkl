@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface KaprodiSettings { name: string; photoUrl: string; title: string; greetingText: string; }
@@ -10,6 +11,7 @@ export default function Sambutan() {
     title: '',
     greetingText: ''
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchSambutan() {
@@ -24,6 +26,8 @@ export default function Sambutan() {
         }
       } catch (err) {
         console.error('Error fetching Kaprodi setting on public page:', err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchSambutan();
@@ -51,16 +55,36 @@ export default function Sambutan() {
           {/* Decorative Offset Background */}
           <div className="absolute inset-0 bg-secondary translate-x-4 md:translate-x-6 translate-y-6 md:translate-y-8"></div>
           
-          <img
-            src={kaprodi.photoUrl || "/images/photo-1573496359142-b8d87734a5a2.jpg"}
-            alt={kaprodi.name || 'Kepala Jurusan'}
-            className="relative w-full h-[380px] sm:h-[420px] md:h-[470px] object-cover object-top shadow-md z-10"
-          />
+          {loading ? (
+            <div className="relative w-full h-[380px] sm:h-[420px] md:h-[470px] bg-slate-200 animate-pulse shadow-md z-10 flex items-center justify-center">
+              <User className="w-16 h-16 text-slate-300 animate-pulse" />
+            </div>
+          ) : kaprodi.photoUrl ? (
+            <img
+              src={kaprodi.photoUrl}
+              alt={kaprodi.name || 'Kepala Jurusan'}
+              className="relative w-full h-[380px] sm:h-[420px] md:h-[470px] object-cover object-top shadow-md z-10"
+            />
+          ) : (
+            <div className="relative w-full h-[380px] sm:h-[420px] md:h-[470px] bg-slate-100 shadow-md z-10 flex flex-col items-center justify-center text-slate-400 p-4 border border-dashed border-slate-300">
+              <User className="w-16 h-16 text-slate-300 mb-2" />
+              <span className="text-xs font-medium text-slate-400 text-center">Foto belum ditambahkan</span>
+            </div>
+          )}
           
           {/* Floating Name Card */}
           <div className="absolute -bottom-8 md:-bottom-6 left-1/2 -translate-x-1/2 w-11/12 bg-white text-center py-3 md:py-4 px-2 shadow-xl z-20 rounded-sm">
-            <h3 className="font-bold text-base md:text-lg text-slate-900 line-clamp-1">{kaprodi.name || 'Dra. Endang Sulastri, M.Pd.'}</h3>
-            <p className="text-xs md:text-sm font-bold text-secondary mt-1">{kaprodi.title || 'Kepala Jurusan'}</p>
+            {loading ? (
+              <div className="space-y-2 flex flex-col items-center py-1">
+                <div className="h-4 w-3/4 bg-slate-200 rounded animate-pulse"></div>
+                <div className="h-3 w-1/2 bg-slate-200 rounded animate-pulse"></div>
+              </div>
+            ) : (
+              <>
+                <h3 className="font-bold text-base md:text-lg text-slate-900 line-clamp-1">{kaprodi.name || 'Dra. Endang Sulastri, M.Pd.'}</h3>
+                <p className="text-xs md:text-sm font-bold text-secondary mt-1">{kaprodi.title || 'Kepala Jurusan'}</p>
+              </>
+            )}
           </div>
         </div>
 
@@ -74,7 +98,14 @@ export default function Sambutan() {
           </div>
           
           <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-left sm:text-justify text-sm sm:text-base">
-            {kaprodi.greetingText ? (
+            {loading ? (
+              <div className="space-y-3">
+                <div className="h-4 bg-slate-200 rounded w-full animate-pulse"></div>
+                <div className="h-4 bg-slate-200 rounded w-11/12 animate-pulse"></div>
+                <div className="h-4 bg-slate-200 rounded w-full animate-pulse"></div>
+                <div className="h-4 bg-slate-200 rounded w-4/5 animate-pulse"></div>
+              </div>
+            ) : kaprodi.greetingText ? (
               kaprodi.greetingText.split('\n').map((para, i) => (
                 <p key={i} className="mb-4">{para}</p>
               ))
