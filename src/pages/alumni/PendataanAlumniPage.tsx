@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Send, CheckCircle } from 'lucide-react';
+import { Send, CheckCircle, ChevronDown } from 'lucide-react';
 
 export default function PendataanAlumniPage() {
   const [formData, setFormData] = useState({
@@ -17,9 +17,34 @@ export default function PendataanAlumniPage() {
   const [kampus, setKampus] = useState('');
   const [prodi, setProdi] = useState('');
   const [jenjang, setJenjang] = useState('');
+  const [isYearOpen, setIsYearOpen] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const [isJenjangOpen, setIsJenjangOpen] = useState(false);
+  const yearDropdownRef = useRef<HTMLDivElement>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const jenjangDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target as Node)) {
+        setIsYearOpen(false);
+      }
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setIsStatusOpen(false);
+      }
+      if (jenjangDropdownRef.current && !jenjangDropdownRef.current.contains(event.target as Node)) {
+        setIsJenjangOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from(new Array(20), (val, index) => currentYear - index);
+  const startYear = 1996;
+  const years = Array.from({ length: currentYear - startYear + 1 }, (_, index) => currentYear - index);
 
   const toTitleCase = (str: string) => {
     if (!str) return '';
@@ -138,32 +163,66 @@ export default function PendataanAlumniPage() {
                 />
               </div>
 
-              <div>
+              <div className="relative" ref={yearDropdownRef}>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Tahun Lulus</label>
-                <select 
-                  value={formData.graduation_year}
-                  onChange={(e) => setFormData({...formData, graduation_year: parseInt(e.target.value)})}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
+                <div 
+                  onClick={() => setIsYearOpen(!isYearOpen)}
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white cursor-pointer flex justify-between items-center"
                 >
-                  {years.map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
+                  <span>{formData.graduation_year || '-- Pilih Tahun Lulus --'}</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isYearOpen ? 'rotate-180' : ''}`} />
+                </div>
+                
+                {isYearOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                    {years.map(year => (
+                      <div 
+                        key={year} 
+                        onClick={() => {
+                          setFormData({...formData, graduation_year: year});
+                          setIsYearOpen(false);
+                        }}
+                        className={`p-3 text-sm cursor-pointer hover:bg-slate-50 transition-colors ${formData.graduation_year === year ? 'bg-secondary/10 text-secondary font-medium' : 'text-slate-700'}`}
+                      >
+                        {year}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div>
+              <div className="relative" ref={statusDropdownRef}>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Status Saat Ini</label>
-                <select 
-                  required
-                  value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value, status_detail: ''})}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
+                <div 
+                  onClick={() => setIsStatusOpen(!isStatusOpen)}
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white cursor-pointer flex justify-between items-center"
                 >
-                  <option value="" disabled>-- Pilih Status --</option>
-                  <option value="Bekerja">Bekerja</option>
-                  <option value="Melanjutkan">Melanjutkan (Kuliah)</option>
-                  <option value="Wirausaha">Wirausaha</option>
-                </select>
+                  <span className={formData.status ? 'text-slate-900' : 'text-slate-500'}>
+                    {formData.status === 'Melanjutkan' ? 'Melanjutkan (Kuliah)' : (formData.status || '-- Pilih Status --')}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isStatusOpen ? 'rotate-180' : ''}`} />
+                </div>
+                
+                {isStatusOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                    {[
+                      { value: 'Bekerja', label: 'Bekerja' },
+                      { value: 'Melanjutkan', label: 'Melanjutkan (Kuliah)' },
+                      { value: 'Wirausaha', label: 'Wirausaha' }
+                    ].map(option => (
+                      <div 
+                        key={option.value} 
+                        onClick={() => {
+                          setFormData({...formData, status: option.value, status_detail: ''});
+                          setIsStatusOpen(false);
+                        }}
+                        className={`p-3 text-sm cursor-pointer hover:bg-slate-50 transition-colors ${formData.status === option.value ? 'bg-secondary/10 text-secondary font-medium' : 'text-slate-700'}`}
+                      >
+                        {option.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {formData.status === 'Melanjutkan' ? (
@@ -191,21 +250,34 @@ export default function PendataanAlumniPage() {
                         placeholder="Contoh: Pendidikan Tata Kecantikan"
                       />
                     </div>
-                    <div>
+                    <div className="relative" ref={jenjangDropdownRef}>
                       <label className="block text-sm font-medium text-slate-700 mb-1.5">Jenjang Pendidikan</label>
-                      <select 
-                        required
-                        value={jenjang}
-                        onChange={(e) => setJenjang(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white"
+                      <div 
+                        onClick={() => setIsJenjangOpen(!isJenjangOpen)}
+                        className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary bg-white cursor-pointer flex justify-between items-center"
                       >
-                        <option value="" disabled>-- Pilih Jenjang --</option>
-                        <option value="D1">D1</option>
-                        <option value="D2">D2</option>
-                        <option value="D3">D3</option>
-                        <option value="D4">D4</option>
-                        <option value="S1">S1</option>
-                      </select>
+                        <span className={jenjang ? 'text-slate-900' : 'text-slate-500'}>
+                          {jenjang || '-- Pilih Jenjang --'}
+                        </span>
+                        <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isJenjangOpen ? 'rotate-180' : ''}`} />
+                      </div>
+                      
+                      {isJenjangOpen && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                          {['D1', 'D2', 'D3', 'D4', 'S1', 'S2', 'S3'].map(opt => (
+                            <div 
+                              key={opt} 
+                              onClick={() => {
+                                setJenjang(opt);
+                                setIsJenjangOpen(false);
+                              }}
+                              className={`p-3 text-sm cursor-pointer hover:bg-slate-50 transition-colors ${jenjang === opt ? 'bg-secondary/10 text-secondary font-medium' : 'text-slate-700'}`}
+                            >
+                              {opt}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
