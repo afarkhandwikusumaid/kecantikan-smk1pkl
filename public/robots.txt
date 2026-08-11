@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.smk1pkl.sch.id/sitemap.xml
+Sitemap: https://www.kecantikan-smkn1pekalongan.web.id/sitemap.xml
