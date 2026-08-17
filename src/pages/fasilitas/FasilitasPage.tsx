@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import SEO from '../../components/seo/SEO';
 
 interface Facility {
   id: string;
@@ -36,6 +37,7 @@ const FacilityCard: React.FC<FacilityCardProps> = ({ fac, index }) => {
               alt={fac.name} 
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               referrerPolicy="no-referrer"
+              loading="lazy"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-slate-400">Belum ada foto</div>
@@ -46,12 +48,14 @@ const FacilityCard: React.FC<FacilityCardProps> = ({ fac, index }) => {
               <button 
                 onClick={() => setActiveImg(prev => (prev === 0 ? fac.image_urls.length - 1 : prev - 1))}
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-pink-500 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all z-10"
+                aria-label="Previous image"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => setActiveImg(prev => (prev === fac.image_urls.length - 1 ? 0 : prev + 1))}
                 className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-pink-500 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all z-10"
+                aria-label="Next image"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -66,11 +70,12 @@ const FacilityCard: React.FC<FacilityCardProps> = ({ fac, index }) => {
               <button
                 key={i}
                 onClick={() => setActiveImg(i)}
+                aria-label={`View image ${i+1}`}
                 className={`relative w-20 h-14 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
                   activeImg === i ? 'border-pink-500 shadow-md ring-2 ring-pink-200 ring-offset-1' : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
               >
-                <img src={img} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
+                <img src={img} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" loading="lazy" />
               </button>
             ))}
           </div>
@@ -79,9 +84,9 @@ const FacilityCard: React.FC<FacilityCardProps> = ({ fac, index }) => {
       
       {/* Text Column */}
       <div className="w-full md:w-1/2 p-4 sm:px-8 py-2">
-        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 mb-4 leading-tight">
+        <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 mb-4 leading-tight">
           {fac.name}
-        </h2>
+        </h3>
         <div className="w-12 h-1 bg-secondary mb-6 rounded-full"></div>
         <p className="text-slate-600 leading-relaxed text-lg whitespace-pre-wrap">
           {fac.description}
@@ -166,7 +171,7 @@ export default function FasilitasPage() {
 
   return (
     <div className="pt-10 pb-16 bg-slate-50 min-h-screen">
-      
+      <SEO title="Fasilitas" description="Fasilitas praktik modern berstandar industri di jurusan Kecantikan dan Spa SMK Negeri 1 Pekalongan." />
       {/* Banner / Intro Outside Box */}
       <div className="text-center mb-8 max-w-3xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">
