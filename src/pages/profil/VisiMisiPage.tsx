@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import SEO from '../../components/seo/SEO';
 
 export default function VisiMisiPage() {
   const [visi, setVisi] = useState<string>("Unggul dalam IPTEK, Mantap dalam IMTAQ, Berbudaya Lingkungan dan Berjiwa Wirausaha.");
@@ -34,7 +35,7 @@ export default function VisiMisiPage() {
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
-      
+      <SEO title="Visi & Misi" />
       {/* Page Header Outside Box */}
       <div className="text-center mb-8 max-w-2xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">

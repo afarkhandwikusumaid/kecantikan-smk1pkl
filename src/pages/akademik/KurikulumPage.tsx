@@ -58,7 +58,7 @@ export default function KurikulumPage() {
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
-      <SEO title="Kurikulum" description="Struktur kurikulum dan fokus pembelajaran jurusan kecantikan dan spa." />
+      <SEO title="Kurikulum Kami" description="Struktur kurikulum dan fokus pembelajaran jurusan kecantikan dan spa." />
       {/* Page Header Outside Box */}
       <div className="text-center mb-8 max-w-2xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">

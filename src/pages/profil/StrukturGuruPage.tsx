@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import SEO from '../../components/seo/SEO';
 
 interface Teacher {
   id: string;
@@ -34,6 +35,7 @@ export default function StrukturGuruPage() {
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
+      <SEO title="Struktur Guru" />
       {/* Page Header Outside Box */}
       <div className="text-center mb-8 max-w-2xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">

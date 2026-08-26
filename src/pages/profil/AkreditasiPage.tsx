@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Award, CheckCircle, Calendar, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import SEO from '../../components/seo/SEO';
 
 interface AkreditasiContent {
   akreditasiText: string;
@@ -65,6 +66,7 @@ export default function AkreditasiPage() {
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
+      <SEO title="Akreditasi & Sertifikasi" />
       {/* Page Header */}
       <div className="text-center mb-8 max-w-2xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">

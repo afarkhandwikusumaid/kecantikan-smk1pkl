@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { X } from 'lucide-react';
+import SEO from '../components/seo/SEO';
 
 export default function GaleriPage() {
   const [activities, setActivities] = useState<any[]>([]);
@@ -38,6 +39,7 @@ export default function GaleriPage() {
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
+      <SEO title="Dokumentasi" />
       {/* Page Header Outside Box */}
       <div className="text-center mb-8 max-w-2xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">

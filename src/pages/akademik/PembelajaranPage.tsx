@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import SEO from '../../components/seo/SEO';
 
 export default function PembelajaranPage() {
   const [syllabus, setSyllabus] = useState<{ X: any[]; XI: any[]; XII: any[] }>({ X: [], XI: [], XII: [] });
@@ -123,6 +124,7 @@ export default function PembelajaranPage() {
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
+      <SEO title="Mata Pelajaran" />
       {/* Page Header Outside Box */}
       <div className="text-center mb-8 max-w-2xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">

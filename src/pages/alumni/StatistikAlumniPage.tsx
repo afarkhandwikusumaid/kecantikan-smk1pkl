@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { PieChart, Briefcase, GraduationCap, Store } from 'lucide-react';
+import SEO from '../../components/seo/SEO';
 
 interface AlumniStats {
   Bekerja: number;
@@ -50,6 +51,7 @@ export default function StatistikAlumniPage() {
 
   return (
     <div className="pt-10 pb-16 bg-slate-50 min-h-[calc(100vh-80px)]">
+      <SEO title="Statistik Alumni" />
       <div className="text-center mb-8 max-w-3xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">
           <span className="w-8 h-px bg-secondary/50"></span>
