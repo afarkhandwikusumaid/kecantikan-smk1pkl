@@ -69,7 +69,7 @@ export default function AkreditasiPage() {
       <div className="text-center mb-8 max-w-2xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">
           <span className="w-8 h-px bg-secondary/50"></span>
-          <span className="text-xs font-bold text-secondary tracking-widest uppercase">Profil Jurusan</span>
+          <span className="text-xs font-bold text-secondary tracking-widest uppercase">Akreditasi & Sertifikasi</span>
           <span className="w-8 h-px bg-secondary/50"></span>
         </div>
         <h2 className="text-3xl md:text-4xl font-sans font-black text-slate-900 mt-3 tracking-tight">AKREDITASI & SERTIFIKASI</h2>

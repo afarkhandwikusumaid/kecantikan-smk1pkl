@@ -116,7 +116,7 @@ export default function PendataanAlumniPage() {
         <div className="inline-flex items-center justify-center space-x-2">
           <span className="w-8 h-px bg-secondary/50"></span>
           <span className="text-xs font-bold text-secondary tracking-widest uppercase">
-            Jejak Alumni
+            Pendataan Alumni
           </span>
           <span className="w-8 h-px bg-secondary/50"></span>
         </div>
