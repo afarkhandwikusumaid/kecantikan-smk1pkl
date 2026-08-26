@@ -44,9 +44,20 @@ export default function Statistik() {
       try {
         const today = new Date();
         // Use local timezone (Asia/Jakarta) so it resets exactly at 00:00 WIB
-        const currentDate = today.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // YYYY-MM-DD
-        const currentMonth = currentDate.substring(0, 7); // YYYY-MM
-        const currentYear = currentDate.substring(0, 4); // YYYY
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Asia/Jakarta',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        });
+        const parts = formatter.formatToParts(today);
+        const year = parts.find(p => p.type === 'year')?.value;
+        const month = parts.find(p => p.type === 'month')?.value;
+        const day = parts.find(p => p.type === 'day')?.value;
+
+        const currentDate = `${year}-${month}-${day}`; // YYYY-MM-DD
+        const currentMonth = `${year}-${month}`; // YYYY-MM
+        const currentYear = `${year}`; // YYYY
 
         let currentStats = {
           hariIni: 0,
@@ -69,15 +80,15 @@ export default function Statistik() {
         }
 
         // Reset logic
-        if (currentStats.lastDate !== currentDate) {
+        if (String(currentStats.lastDate) !== currentDate) {
           currentStats.hariIni = 0;
           currentStats.lastDate = currentDate;
         }
-        if (currentStats.lastMonth !== currentMonth) {
+        if (String(currentStats.lastMonth) !== currentMonth) {
           currentStats.bulanIni = 0;
           currentStats.lastMonth = currentMonth;
         }
-        if (currentStats.lastYear !== currentYear) {
+        if (String(currentStats.lastYear) !== currentYear) {
           currentStats.tahunIni = 0;
           currentStats.lastYear = currentYear;
         }
