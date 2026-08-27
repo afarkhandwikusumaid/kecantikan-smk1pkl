@@ -113,7 +113,7 @@ export default function PendataanAlumniPage() {
 
   return (
     <div className="pt-10 pb-16 bg-slate-50 min-h-[calc(100vh-80px)]">
-      <SEO title="Pendataan Alumni" />
+      <SEO title="Pendataan Alumni" description="Pendataan persebaran lulusan SMK Negeri 1 Pekalongan Program Keahlian Kecantikan & Spa." />
       <div className="text-center mb-8 max-w-3xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">
           <span className="w-8 h-px bg-secondary/50"></span>

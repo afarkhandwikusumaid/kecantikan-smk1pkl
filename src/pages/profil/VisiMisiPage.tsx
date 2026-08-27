@@ -35,7 +35,7 @@ export default function VisiMisiPage() {
 
   return (
     <div className="bg-slate-50 min-h-screen pt-10 pb-16">
-      <SEO title="Visi & Misi" />
+      <SEO title="Visi & Misi" description="Visi dan Misi SMK Negeri 1 Pekalongan Program Keahlian Kecantikan & Spa." />
       {/* Page Header Outside Box */}
       <div className="text-center mb-8 max-w-2xl mx-auto px-4">
         <div className="inline-flex items-center justify-center space-x-2">
