@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Phone, Mail, MapPin, Instagram, Facebook, Youtube, Globe } from 'lucide-react';
+import { Save, Phone, Mail, MapPin, Globe } from 'lucide-react';
+import { Facebook, Instagram, Youtube } from '../../../components/common/SocialIcons';
 import { supabase } from '../../../lib/supabase';
 import { useAdminFeedback } from '../../../components/admin/context/AdminFeedbackContext';
 

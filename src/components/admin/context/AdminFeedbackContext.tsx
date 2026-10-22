@@ -13,6 +13,8 @@ interface ConfirmState {
 
 interface AdminFeedbackContextProps {
   showAlert: (message: string, type: 'error' | 'success') => void;
+  showSuccess: (message: string) => void;
+  showError: (message: string) => void;
   showConfirm: (message: string, onConfirm: () => void) => void;
 }
 
@@ -33,6 +35,14 @@ export function AdminFeedbackProvider({ children }: { children: ReactNode }) {
     setAlertState({ message, type });
   };
 
+  const showSuccess = (message: string) => {
+    setAlertState({ message, type: 'success' });
+  };
+
+  const showError = (message: string) => {
+    setAlertState({ message, type: 'error' });
+  };
+
   const showConfirm = (message: string, onConfirm: () => void) => {
     setConfirmState({ message, onConfirm });
   };
@@ -50,7 +60,7 @@ export function AdminFeedbackProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AdminFeedbackContext.Provider value={{ showAlert, showConfirm }}>
+    <AdminFeedbackContext.Provider value={{ showAlert, showSuccess, showError, showConfirm }}>
       {children}
 
       {/* ALERT MODAL */}

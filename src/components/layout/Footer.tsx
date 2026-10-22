@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Youtube } from '../common/SocialIcons';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
 

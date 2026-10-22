@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
   title: string;
-  description: string;
+  description?: string;
   keywords?: string;
   image?: string;
   url?: string;
@@ -11,7 +11,7 @@ interface SEOProps {
 
 export default function SEO({ 
   title, 
-  description, 
+  description = "Website Resmi Program Keahlian Kecantikan dan Spa SMK Negeri 1 Pekalongan.", 
   keywords = "SMK Negeri 1 Pekalongan, Tata Kecantikan, Spa, Eduspa, Vokasi",
   image = "/logo-kecantikan.png",
   url = "https://www.kecantikan-smkn1pekalongan.web.id"
